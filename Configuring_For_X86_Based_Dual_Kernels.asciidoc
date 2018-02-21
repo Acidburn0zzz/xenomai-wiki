@@ -1,0 +1,224 @@
+Configuring for x86-based dual kernels
+======================================
+:author:	Gilles Chanteperdrix
+:categories:	Core
+:tags:		troubleshooting, x86, dual-kernel
+
+On a non-x86 embedded platform, configuring the Linux kernel is
+usually easy: there is a default configuration file for the SoC where
+you should just start from, set the Xenomai options as you see fit,
+possibly tweak a few bits here and there, and you are done.
+
+Configuring x86 kernels is a bit different, there is no default
+configuration file for each of the PC models around, and the only
+kernel configuration file you may want to start from is shipped
+with your distribution kernel.
+
+Unfortunately, the typical one-fits-it-all configuration shipped with
+any desktop/server distribution is always conflicting with real-time
+requirements these days, particularly with dual kernel configurations.
+
+So here are a few guidelines in order to set up a kernel for Xenomai
+in a dual kernel configuration.
+
+BEWARE of internet archives
+---------------------------
+
+Use care when referring to old mail posts, archives, and your favorite
+search engine results.
+
+If you find some mails in our archives saying "please disable option X
+or Y", please do not take these advices as a rule of thumb for the
+common case. These are most often attempts to nail down a problem in
+some user setup, and turning particular options on/off is part of the
+process.
+
+For this reason, always make sure to take similar advices found on
+third-party web sites with a grain of salt, as the author might have
+mis-interpreted such information the same way.  If in doubt, you
+should ask on the https://www.xenomai.org/mailman/listinfo[Xenomai
+discussion list] for confirmation.
+
+Typical configuration issues
+----------------------------
+
+x86 processor type
+~~~~~~~~~~~~~~~~~~
+
+Pick the *exact* processor your x86 platform is sporting, at the very
+least the most specific model which is close to the target CPU, not a
+generic placeholder. For instance _generic i586_ implies that no TSC
+feature is available from the CPU, which in turn would require Xenomai
+to emulate a time stamp counter, leading to suboptimal performances.
+
+[NOTE]
+Xenomai 3 requires the hardware TSC feature from x86 CPUs.
+
+[[pcspkr]]
+[CAUTION]
+If you have to run Xenomai 2 on some low-end x86 platform lacking a
+hardware TSC with a legacy kernel predating 3.2, then make sure to
+disable CONFIG_INPUT_PCSPKR. For any later version running the I-pipe
+core series, the I-pipe will enforce the appropriate settings.
+
+Power management
+~~~~~~~~~~~~~~~~
+
+You should *not* disable power management globally, the only
+configuration options which should be disabled in this area are:
+
+* CONFIG_APM
+* CONFIG_ACPI_PROCESSOR
+
+[WARNING]
+In particular, keeping the ACPI enabled bears no risks of high
+latencies, whereas disabling it may prevent your system from booting
+correctly.
+
+USB
+~~~
+
+In the same vein, do not disable USB, but enable support for your USB
+host controller(s), as the host controller code, when starting,
+disables support for "legacy USB emulation", which is a source of high
+latencies.
+
+CPU Frequency scaling
+~~~~~~~~~~~~~~~~~~~~~
+
+Disable *CONFIG_CPU_FREQ*, this option creates issues with Xenomai
+timing code, as well as unpredictable run-time for your real-time
+threads, and possibly high latencies when CPU frequency is changed
+dynamically.
+
+Timing should be correct with recent processors having the
+_constant_tsc_ flag though.
+
+However, the _ondemand_ governor cannot track Xenomai threads running
+in primary mode, i.e. under the control of the co-kernel. Such threads
+look suspended from its point of view, although they may be consuming
+CPU.  Therefore, the governor won't switch the CPU to a higher
+frequency although the real-time activity would justify it.
+
+Configuration Options
+---------------------
+
+CONFIG_CPU_FREQ - Disable::
+  This allows the CPU frequency to be modulated with workload, but many
+  CPUs change the TSC counting frequency also, which makes it useless
+  for accurate timing when the CPU clock can change. Also some CPUs can
+  take several milliseconds to ramp up to full speed.
+
+CONFIG_CPU_IDLE - Disable::
+  Allows the CPU to enter deep sleep states, increasing the time it
+  takes to get out of these sleep states, hence the latency of an idle
+  system. Also, on some CPU, entering these deep sleep states causes the
+  timers used by Xenomai to stop functioning.
+
+CONFIG_CC_STACKPROTECTOR::
+  This option may be enabled on x86_64 only with Xenomai 2, x86_64 and
+  x86_32 indifferently with Xenomai 3.
+
+CONFIG_APM - Disable::
+  The APM model assigns power management control to the BIOS, and BIOS
+  code is never written with best latency in mind. If configured, APM
+  routines are invoked with SMI priority, which bypasses the I-pipe
+  entirely. Resorting to the
+  link:Dealing_With_X86_Smi_Troubles[Xenomai
+  workaround for SMI] won't help here.
+
+CONFIG_ACPI_PROCESSOR - Disable::
+  For systems with ACPI support in the BIOS, this ACPI sub-option
+  installs an 'idle' handler that uses ACPI C2 and C3 processor states
+  to save power. The CPU must 'warm-up' from these sleep states,
+  increasing latency in ways dependent upon both the BIOS's ACPI tables
+  and code. You may be able to suppress the sleeping with 'idle=poll'
+  boot-arg, test to find out. With recents versions of Linux (probably
+  starting around Linux 2.6.21), the acpi processor module disables the
+  local APIC when loaded. This will cause Xenomai timer initialization
+  to fail. This makes a second reason for disabling this option.
+
+CONFIG_INTEL_IDLE - Disable::
+  Just like CONFIG_ACPI_PROCESSOR, this idle driver sends the CPU into
+  deep C states, also causing huge latencies because the APIC timer that
+  Xenomai uses may not fire anymore.
+
+CONFIG_INPUT_PCSPKR - Disable::
+  See <<pcspkr, this note>>.
+
+CONFIG_PCI_MSI::
+
+This option may be enabled, provided the following operations on
+interrupt lines are *always* done from a mere Linux context, aka
+_secondary mode_, and *never* from the real-time mode:
+
+- hooking/requesting
+- releasing
+- enabling/unmasking
+- disabling/masking
+
+[TIP]
+Practically, the requirement above translates into calling
+rtdm_irq_request(), rtdm_irq_free(), rtdm_irq_enable(),
+rtdm_irq_disable() exclusively from a non-rt handler in any RTDM
+driver. This includes the ->open(), ->close() and ->ioctl_nrt()
+handlers.
+
+Booting with or without an initramfs?
+-------------------------------------
+
+By default, distributions kernels boot using an initramfs. This means
+that the kernel needs no particular built-in support, anything can be
+built as a module. These modules are loaded in a first boot stage, from
+the initramfs, then the final root filesystem may be mounted and the
+kernel boot may continue normally.
+
+So, if you start from a distribution kernel, you will have to generate
+an initramfs containing the modules supporting the basic hardware needed
+to mount root filesystem. Eache distribution provides its way to
+generate an initramfs for a new kernel.
+
+If, on the other hand, you want to boot without an initramfs, you will
+have to build inside the kernel, and not as a module, all the components
+necessary for mounting your root filesystem. This means: the disk
+controller support, the support for SCSI disks if this controller is an
+SCSI controller or is supported by a new style ATA controller, the
+support for IDE disks if this controller is supported by an old-style
+Parallel ATA controller, the support for your NIC if booting through
+network, and the support for the filesystem used by your root filesystem
+(e.g. EXT3, NFS, etc...).
+
+*There is one thing for sure, however: you can not boot a kernel where
+everything is built as a module, without an initramfs.*
+
+Preposterous latency figures
+----------------------------
+
+If running the latency test shows definitely weird latency figures
+(i.e. hundreds of micro-seconds and more), the usual suspect on x86 is
+the link:Dealing_With_X86_Smi_Troubles[System
+Management Interrupt].
+
+[CAUTION]
+Make sure to read the recommendations about tweaking the SMI
+configuration *VERY CAREFULLY*, otherwise you may damage your
+hardware.
+
+Optimized CPU and platform settings
+-----------------------------------
+
+By tuning your kernel settings close to the real hardware, you can
+avoid useless overhead (e.g. CONFIG_SMP on non-SMP systems) or
+suboptimal code generation.
+
+For instance, picking CONFIG_M586 or earlier requires Xenomai to
+emulate the on-chip TSC for timing duties, even if your CPU actually
+provides this special hardware counter; unfortunately, emulating a TSC
+is slow, and this clearly has a negative impact on the worst-case
+latency figures, albeit your hardware may perform much better with
+proper kernel configuration. 
+
+Therefore, rule #1 on x86 used as a real-time platform, is not to
+trust blindly the configuration of the _should-work-everywhere_
+default kernel shipped by your favorite distro-maker, but rather adapt
+this configuration to your real hardware.

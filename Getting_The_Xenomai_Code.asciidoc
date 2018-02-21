@@ -1,0 +1,35 @@
+Getting the Xenomai code
+========================
+
+All the repositories the project maintains can be viewed
+http://git.xenomai.org/[at this address].
+
+The current Xenomai development takes place into the
+http://git.xenomai.org/xenomai-3.git/[xenomai-3 repository].
+
+Users running Xenomai in
+link:Home#How_does_Xenomai_deliver_real_Time[dual kernel] mode
+can find detailed information about the
+link:Getting_The_I_Pipe_Patch[I-pipe development trees].
+
+== Xenomai-3 development tree
+
+- the _master_ branch tracks the development HEAD toward the next
+  major release (currently heading to 3.1). This branch is never
+  rebased.
+
+- the _next_ branch tracks the latest commits pending merge into the
+  _master_ branch, it contains the most bleeding edge work. This
+  branch *may be rebased* until it gets merged into the _master_
+  branch eventually.
+
+- _stable-*_ branches track updates to stable releases, such as
+  stable-3.0.x which is the maintenance branch for the v3.0 major
+  release. Those branches are never rebased.
+
+== Download areas
+
+We issue self-contained source code distributions of the Xenomai code
+base, both for the link:/downloads/xenomai/stable/latest/[latest
+stable release], and the
+link:/downloads/xenomai/testing/latest/[current testing release].

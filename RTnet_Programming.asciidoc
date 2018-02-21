@@ -1,0 +1,149 @@
+RTnet Programming
+=================
+
+[[introduction]]
+Introduction
+------------
+
+Programming in RTnet is pretty straightforward once you understand the
+concepts of how RTnet operates in relation to an RTOS. RTnet itself is
+really only a kernel module that communicates to a real-time Ethernet
+device driver.
+
+The interface between RTnet and the RTOS is provided by RTDM
+(Real-Time Driver Model), which Xenomai implements.  This interface is
+fully documented in the
+http://www.xenomai.org/documentation/xenomai-2.6/html/api/group__rtdm.html[Xenomai
+documentation].
+
+The RTDM specification is located under the _Modules/Real-Time Driver
+Model/User API_ section of the Xenomai API tree.
+
+[[the-basics]]
+The basics
+----------
+
+To program in RTnet the standard Linux socket-programming method is
+followed. If you are unfamiliar with Linux socket-programming the links
+below will provide some extra information on the subject.
+
+_Differences of native rt_dev_xxx vs. POSIX service calls (with
+Xenomai):
+
+* Independent of RTnet, Xenomai application can call into normal
+networking services of Linux. They just loose timing guarantees at that
+point.
+* The programming model of the POSIX skin allows you to use socket
+functions as if you are writing a normal Linux application. In case your
+calls address a service which RTnet provides (UDP or AF_PACKET) and
+RTnet is loaded, it will handle it for you under realtime constraints.
+Services unknown to RTnet are passed through to Linux, without timing
+guarantees. BTW, the same pattern works for AF_CAN.
+
+(Both points copied from RTnet mailing-list)
+
+The example projects in RTnet provides the basic introduction to
+programming in this environment. The generic steps in the examples are
+as follows:
+
+* Declare two socket descriptor structures, one for the local socket and
+one for the remote socket.
+
+--------------------------------------
+static struct sockaddr_in local_addr;
+static struct sockaddr_in server_addr;
+--------------------------------------
+
+* Clear these structures before populating it with values.
+
+----------------------------------------------------
+memset(&local_addr, 0, sizeof(struct sockaddr_in));
+memset(&server_addr, 0, sizeof(struct sockaddr_in));
+----------------------------------------------------
+
+* Set the address format to Internet (IP)
+
+--------------------------------
+local_addr.sin_family = AF_INET;
+--------------------------------
+
+* Set the local address to the host address
+
+----------------------------------------
+local_addr.sin_addr.s_addr = INADDR_ANY;
+----------------------------------------
+
+* Convert the sting to a port number and store it in the structure
+
+-------------------------------------------
+local_addr.sin_port = htons(atoi(argv[1]));
+-------------------------------------------
+
+* For the remote port setup, again set the device format to IP.
+
+----------------------------------
+server_addr.sin_family = AF_INET;
+----------------------------------
+
+* Convert the IP address sting to network format
+
+----------------------------------------------------
+server_addr.sin_addr.s_addr = rt_inet_aton(argv[2]);
+----------------------------------------------------
+
+* Setup the remote port number
+
+--------------------------------------------
+server_addr.sin_port = htons(atoi(argv[3]));
+--------------------------------------------
+
+* Create a new socket to manage the connection.
+
+-----------------------------------------------
+sockfd = rt_dev_socket(AF_INET, SOCK_DGRAM, 0);
+-----------------------------------------------
+
+* Bind the new socket to the local port
+
+--------------------------------------------------------------------------------------
+ret = rt_dev_bind(sockfd, (struct sockaddr *)&local_addr, sizeof(struct sockaddr_in));
+--------------------------------------------------------------------------------------
+
+* Connect the socket to the remote port
+
+--------------------------------------------------------------------------------------
+rt_dev_connect(sockfd, (struct sockaddr *)&server_addr, sizeof(struct sockaddr_in));
+--------------------------------------------------------------------------------------
+
+* And send the message.
+
+-----------------------------------------
+rt_dev_send(sockfd, msg, sizeof(msg), 0);
+-----------------------------------------
+
+* On the receive side receive the message
+
+-----------------------------------------------
+ret = rt_dev_recv(sockfd, msg, sizeof(msg), 0);
+-----------------------------------------
+
+* Close the socket after transmission
+
+---------------------
+rt_dev_close(sockfd);
+---------------------
+
+[[further-information]]
+Further Information
+-------------------
+
+* http://beej.us/guide/bgnet/[Beej’s Guide to Network Programming], a
+comprehensive and well-written guide on network programming.
+
+* http://www.opengroup.org/onlinepubs/009695399/[The Open Group Base
+Specifications] is the IEEE standard used in Linux socket
+programming. All of the relevant Linux socket functions are listed
+here with detailed descriptions. Note that the RTDM interface has been
+adopted from this standard (and by adding a _rt_dev__ to the name) but
+might not include all of the functionalities listed.
+

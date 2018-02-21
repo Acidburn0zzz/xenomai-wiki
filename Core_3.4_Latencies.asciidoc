@@ -1,0 +1,111 @@
+Benchmarks: Xenomai dual-kernel over Linux 3.4.6
+================================================
+:revdate:	July 25, 2012
+:author:	Gilles Chanteperdrix
+:categories:	Benchmark
+:tags:		arm, x86, dual-kernel
+
+In this second benchmark, we try and find, for several boards, the
+configuration for optimal latencies.
+
+Measurement method
+------------------
+
+The measurements were done with the +xeno-test+ utility, see the
+link:Benchmarking_With_Xeno_Test[Benchmarking with xeno-test] page for
+details.
+
+
+Results
+-------
+
+on ARM
+~~~~~~
+
+For the Texas Instrument Panda board, running a TI OMAP4430 processor at 1 GHz:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+image:figures/benchmark-3.4/panda.png[Panda latencies]
+
+We made several tests here. The first test is to compile the kernel in
+thumb2 mode, and disable unlocked context switch (not really needed on
+this class of processor) this improves the maximum measured latency.
+
+The second test results from observations with the I-pipe tracer that
+the maximum latency occurs when the timer interrupts on one cpu tries
+to lock the L2 cache spinlock (through writel) while the other cpu is
+holding that spinlock during the execution of the +l2x0_inv_range()+ or
++l2x0_clean_range()+ functions. Since these functions already release
+the spinlock every 4096 bytes, the change is to make them release the
+spinlock every 512 bytes. The latencies go from around 40 µs to around
+30 µs.
+
+Other tests change the compiler and compilation options (including
+compiling user-space in thumb2 mode, and changing from a soft-float
+toolchain to a hardfp toolchain), latencies remain in the 30 µs range.
+
+For the ISEE IGEP v2 board, running a TI OMAP3530 processor at 720 MHz:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+image:figures/benchmark-3.4/igep.png[IGEPv2 latencies]
+
+On this board we only tried changing the toolchain, and compiling in
+thumb2 mode, but this does not seem to change much. Latencies remain
+in the 40 µs range.
+
+For the Calao Systems USBA9263 board, running an Atmel AT91SAM9263 processor at 180 MHz:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+image:figures/benchmark-3.4/calao.png[USBA9263 latencies]
+
+We had already determined in the last benchmark that enabling the FCSE
+option in guaranteed mode yields the best results, here we simply
+compare the results of the 3.2 and 3.4 kernels and observe that the
+new kernel did not cause any regressions in latencies.
+
+We obtain a slight improvement by disabling unlocked context switch:
+unlocked context switch reduces interrupts latencies at the expense of
+an increased overhead which in fact increases the user-space
+scheduling latency, and is in fact not really needed when FCSE is
+enabled in guaranteed mode, since there is no cache flush during
+context switches, so they do not take hundreds of micro-seconds.
+
+
+For the Cogent Computer CSB637 board, running an Atmel AT91RM9200 processor at 180 MHz:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+image:figures/benchmark-3.4/csb637.png[CSB637 latencies]
+
+Same as USBA9263 board.
+
+on x86
+~~~~~~
+
+For the Intel D945GCLF board, running an Intel atom 230 processor at 1.6 GHz:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+image:figures/benchmark-3.4/atom.png[atom 230 latencies]
+
+The first improvement on this board results from changes in
+configuration: we disabled PREEMPT in the configuration for Linux 3.4,
+as well as high res timers, NO_HZ, enabled the "optimize for size"
+option. This improves latencies both in the UP and SMP configuration.
+
+The second improvement results from disabling CONFIG_SMP. It should be
+noted here that the Atom 230 processor has hyperthreading, so in fact
+disabling CONFIG_SMP means stop using hyperthreading.
+
+Finally, using the I-pipe tracer shows that disabling the interrupt at
+IO-APIC level takes a few microseconds, so we experimented with
+another way to mask non real-time interrupts: we use the "priority
+register" of the APIC to mask all the non real-time interrupts, when a
+non real-time interrupt occurs, avoiding the slow access to IO-APIC
+registers. This improves latencies, unfortunately a complete
+implementatino would require to split the interrupt vectors space in
+two part, the real-time part and non real-time part, and it is hard to
+do without knowing in advance how many interrupts will be in each set.
+
+For an Advantech board, running an AMD Geode LX800 processor at 500 MHz:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+image:figures/benchmark-3.4/geode.png[Geode LX800 latencies]
+
+The improvement from this board comes from adding a parameter on the
+kernel command line asking the IDE driver to access the controller
+(named cs5536) registers through the processor memory specific
+registers, instead of using the PCI accesses, which seem to be
+emulated using SMI.

@@ -1,0 +1,2116 @@
+Release News
+============
+
+[[xenomai-3.0.5]]
+*2017-05-21* Xenomai 3.0.5
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/stable/xenomai-3.0.5.tar.bz2[Download]
+
+[[xenomai-3.0.4]]
+*2017-04-02* Xenomai 3.0.4
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/stable/xenomai-3.0.4.tar.bz2[Download]
+
+[[xenomai-3.0.3]]
+*2016-09-10* Xenomai 3.0.3
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/stable/xenomai-3.0.3.tar.bz2[Download]
+
+[[xenomai-2.6.5]]
+*2016-07-09* Xenomai 2.6.5
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/stable/xenomai-2.6.5.tar.bz2[Download]
+
+See link:/pipermail/xenomai/2016-July/036577.html[announce].
+
+[[xenomai-3.0.2]]
+*2016-04-03* Xenomai 3.0.2
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/stable/xenomai-3.0.2.tar.bz2[Download]
+
+[[xenomai-3.0.1]]
+*2015-11-01* Xenomai 3.0.1
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[[xenomai-3.0]]
+*2015-10-08* Xenomai 3.0
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+[[xenomai-3.0-rc7]]
+*2015-08-15* Xenomai 3.0-rc7
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/testing/latest/xenomai-3.0-rc7.tar.bz2[Download]
+
+[[xenomai-3.0-rc6]]
+*2015-07-27* Xenomai 3.0-rc6
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/testing/latest/xenomai-3.0-rc6.tar.bz2[Download]
+
+[[xenomai-3.0-rc5]]
+*2015-06-23* Xenomai 3.0-rc5
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/testing/xenomai-3.0-rc5.tar.bz2[Download]
+
+[[xenomai-3.0-rc4]]
+*2015-03-24* Xenomai 3.0-rc4
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/testing/xenomai-3.0-rc4.tar.bz2[Download]
+
+[[xenomai-3.0-rc3]]
+*2015-02-12* Xenomai 3.0-rc3
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/testing/xenomai-3.0-rc3.tar.bz2[Download]
+
+[[xenomai-3.0-rc2]]
+*2014-10-31* Xenomai 3.0-rc2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/testing/xenomai-3.0-rc2.tar.bz2[Download]
+
+[[xenomai-3.0-rc1]]
+*2014-10-05* Xenomai 3.0-rc1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/testing/xenomai-3.0-rc1.tar.bz2[Download]
+
+[[xenomai-2.6.4]]
+*2014-09-25* Xenomai 2.6.4
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/stable/xenomai-2.6.4.tar.bz2[Download]
+
+See
+http://www.xenomai.org/pipermail/xenomai/2014-September/031747.html[announce].
+
+[[xenomai-2.6.3]]
+*2013-10-05* Xenomai 2.6.3
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/stable/xenomai-2.6.3.tar.bz2[Download]
+
+See
+http://www.xenomai.org/pipermail/xenomai/2013-October/029289.html[announce].
+
+[[xenomai-2.6.2.1]]
+*2013-01-25* Xenomai 2.6.2.1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/stable/xenomai-2.6.2.1.tar.bz2[Download]
+
+Bug fixes:
+
+* debian packages not building;
+* warnings triggered by the /proc code;
+* failure of mutex "trylock" services to properly cause threads running
+with the SCHED_OTHER policy to stay in primary mode;
+* compilation error with stdio.h in C++
+* deadlocks with scheduler lock modifications introduced in 2.6.2
+* newly mapped regions with rtdm_iomap_to_user causing faults
+* rthal_supported_cpus resulting in more cpus selected than specified
+
+[[xenomai-2.6.2]]
+*2012-12-26* Xenomai 2.6.2
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/stable/xenomai-2.6.2.tar.bz2[Download]
+
+* Changes summary:
+** bug fixes:
+*** bug happening for threads exiting under PIP boost;
+*** an XDDP crash;
+*** an rt_printf buffer overrun;
+*** a pthread_set_name_np bug;
+*** an RTDM spinlocks short-coming;
+*** a select() bug;
+*** a native queues leak;
+** Adeos patches updates:
+*** I-pipe for Linux 2.6.38 for the x86 architecture;
+*** new I-pipe core patches for Linux 3.4 and Linux 3.5
+** Drivers updates:
+*** Updates of the RTCAN drivers, adding support for the Flxexcan
+controller, available on Freescale processors;
+** other improvements:
+*** modification of the configure sript to avoid having to pass the
+--enable-smp option;
+*** conversion of parts of the documentation to asciidoc;
+*** allow compiling ARM user-space for the thumb instruction set;
+*** x86_32 allow "universal" kernels working with or without a TSC and
+APIC.
+
+[[xenomai-2.6.1]]
+*2012-07-10* Xenomai 2.6.1
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/stable/xenomai-2.6.1.tar.bz2[Download]
+
+* Changes summary:
+** many bug fixes, see
+http://git.xenomai.org/?p=xenomai-2.6.git;a=shortlog;h=0e2a874068d248ea2f940be945c02d425ba03747[shortlog]
+** Adeos patches update, mainly update to the I-pipe core patch, a new
+patches series introducing a significant evolution of the pipeline
+mechanism, exposing a Xenomai-friendly interface.
+
+[[xenomai-2.6.0]]
+*2011-11-05* Xenomai 2.6.0
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/stable/xenomai-2.6.0.tar.bz2[Download]
+
+* Changes summary (compared to v2.5.6):
+** correct handling of signals when waiting for condition variables;
+** change in the way thread mode is accessed in user-space, to fix
+possible leaks depending on the libc;
+** automatic switch back to secondary mode after a primary mode system
+call, for threads running with SCHED_OTHER scheduling policy, except
+when they hold a mutex.
+** support for a new architecture: sh4;
+** CLOCK_HOST_REALTIME, a clock synchronized with Linux CLOCK_REALTIME
+clock, but safe to be read when in primary mode;
+** new analogy drivers for NI 660x and NI 670x boards;
+** simplified user-space configuration for the ARM architecture, where
+the default user-space libraries generated are no longer generated for
+only one SOC, without any loss of performance;
+** simplified xeno-test script, which should now work more reliably, and
+is based on a "xeno-test-run" interpreter, which will allow to write
+different test scenarios;
+** the beginnings of a regression test suite;
+** move of the rtdk library to the common "libxenomai" library, allowing
+to have printf being rt-safe when using the posix skin;
+** pkg-config support, each skin library is available as
+"libxenomai_skin" pkg-config package;
+** the usual amount of upgrades and adeos patches to keep up with the
+Linux kernel changes.
+
+[[xenomai-2.6.0-rc5]]
+*2011-10-22* Xenomai 2.6.0-rc5
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/testing/xenomai-2.6.0-rc5.tar.bz2[Download]
+
+* Changes summary:
+** fix analogy to only use memory below the 4GB limit
+** new patch for linux 2.6.38 on ARM with patches for the linux-2.6-imx
+repository
+
+[[xenomai-2.6.0-rc4]]
+*2011-09-28* Xenomai 2.6.0-rc4
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/testing/xenomai-2.6.0-rc4.tar.bz2[Download]
+
+* Changes summary:
+** fix the "long names" issue in psos+ skin
+** fix build issue of mscan on mpc52xx
+** new I-pipe patch for linux 3.0 on powerpc
+
+[[xenomai-2.6.0-rc3]]
+*2011-09-19* Xenomai 2.6.0-rc3
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/testing/xenomai-2.6.0-rc3.tar.bz2[Download]
+
+* Changes summary:
+** fix of vxworks services taskDelete and taskDeleteForce;
+** SCHED_FIFO threads switching to SCHED_OTHER while holding a mutex are
+sent a SIGDEBUG signal when releasing the mutex;
+** add the beginning of a regression tests suite.
+
+* Known remaining issues:
+** mscan driver not building on mpc5xxx with linux 3.0, see:
+
+http://sisyphus.hd.free.fr/~gilles/bx/lite5200/3.0.4-ppc_6xx-gcc-4.2.2/log.html#1
+
+* ** issue with 4 characters ids in the psos skin.
+
+[[xenomai-2.6.0-rc2]]
+*2011-09-11* Xenomai 2.6.0-rc2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/testing/xenomai-2.6.0-rc2.tar.bz2[Download]
+
+* Changes summary:
+** the latest upgrades of analogy, including support for NI 660x and NI
+670x
+** build and run-time fixes for powerpc
+
+* Known remaining issues:
+** mscan driver not building on mpc5xxx with linux 3.0, see:
+http://sisyphus.hd.free.fr/~gilles/bx/lite5200/3.0.4-ppc_6xx-gcc-4.2.2/log.html#1
+** SCHED_FIFO threads switching to SCHED_OTHER policy while holding a
+mutex
+
+[[xenomai-2.6.0-rc1]]
+*2011-09-04* Xenomai 2.6.0-rc1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/testing/xenomai-2.6.0-rc1.tar.bz2[Download]
+
+Changes summary:
+
+* add support for sh4 architecture;
+* user-space heap mapping;
+* user-space access to thread mode;
+* get threads running with SCHED_OTHER scheduling policy to
+automatically return to secondary mode after each primary mode only
+system call (except when holding a mutex);
+* fix both native and posix condition variables signal handling.
+* add support for CLOCK_HOST_REALTIME, a real-time clock synchronized
+with Linux clock;
+* factor proc filesystem handling;
+* the "xeno-test" scripts has been simplified and rebased on
+"xeno-test-run", which will allow writing custom test scripts;
+* simplify arm user-space configure script;
+* move rtdk to libxenomai library, printf is now rt-safe when using the
+posix skin;
+* add support for pkg-config, the xenomai skin libraries are available
+each as a "libxenomai_skin" pkg-config package.
+
+[[xenomai-2.5.6]]
+*2011-03-08* Xenomai 2.5.6
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/stable/xenomai-2.5.6.tar.bz2[Download]
+
+Changes summary:
+
+* Bug fixes:
+** SMP scheduling bugs introduced by the "optimization" in the last
+release
+** a cleanup of all architectures kernel threads initializations,
+triggered by an issue on powerpc
+** psos skin updates
+** analogy updates
+** compilation issues on ARM and x86 for latest toolchains, and with
+uclibc
+** issues with gdb on Blackfin.
+
+[[xenomai-2.5.5.2]]
+*2010-10-20* Xenomai 2.5.5.2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/stable/xenomai-2.5.5.2.tar.bz2[Download]
+
+Changes summary:
+
+* Bug fixes:
+** ARM: atomic exchange operation, broken on armv6+
+** ARM: timer programming latency calibration on SMP systems.
+
+[[xenomai-2.5.5.1]]
+*2010-10-06* Xenomai 2.5.5.1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/stable/xenomai-2.5.5.1.tar.bz2[Download]
+
+Changes summary:
+
+* Bug fixes:
+** the x86 I-pipe issue, which caused freeze-on-boot issue, very
+reproducible with grub 2
+** a powerpc I-pipe issue, which involved unaligned access to floating
+point values
+** the debian patch generation script, which caused invalid patches to
+be generated for recent kernel releases
+** a few compilation issues with recent compilers and or infrequently
+used compilation options
+** issues with using fork with process-private user-space mutexes
+
+* Improvements:
+** of the user-space latency on all platforms by optimizing the RPI code
+and the relax code
+** of the ARM support to code, in order to support SMP systems
+** of the analogy stack by Alexis
+** of the user-space latency on ARM in general and OMAP3 in particular,
+
+as a result of some work both on Xenomai timer code and on the I-pipe
+patch
+
+* ** of the scheduler "resched" bit handling by simplifying it,
+following the correction of an incorrect warning
+
+Note: Xenomai 2.5.5 is the last release to contain a patch for Linux 2.4
+on x86 and to export kernel-mode services to non GPL modules.
+
+[[xenomai-2.5.4]]
+*2010-08-02* Xenomai 2.5.4
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/stable/xenomai-2.5.4.tar.bz2[Download]
+
+Changes summary:
+
+* Various bug fixes.
+* Improvements:
+** so-called MAYDAY support, which should allow Xenomai watchdog to work
+less brutally (namely, avoid killing the tasks occupying too much CPU,
+and send them a signal), and be the base for a new version of user-space
+signals in the 2.6 branch.
+** a lot of them for the analogy framework.
+
+For detailed commit logs, see
+http://git.xenomai.org/?p=xenomai-2.5.git;a=shortlog;h=refs/tags/v2.5.4[git
+shortlog].
+
+[[xenomai-2.5.3]]
+*2010-05-05* Xenomai 2.5.3
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/stable/xenomai-2.5.3.tar.bz2[Download]
+
+Changes summary:
+
+* bug fixes:
+** fix compilation issues with uclibc
+** fix a stack overflow due to the stack faulting code on powerpc
+** fix of a regression in the RPI code introduced by a clueless RPI
+
+* other improvements:
+** ARM I-pipe patchs for more recent kernel versions, with support for
+new platforms, ARM imx51 based Babbage board and OMAP3 based IGEPv2
+board, and some fixes in ARM VFP code;
+** RTDM, reverted using the "conforming" mode bit for RTDM syscalls to
+the "current" mode bit, adding an rtdm_is_rt_capable service for driver
+such as analogy which need the "current" mode behaviour, as well as
+fixes in analogy to use that new service; deprecated the rt handlers for
+open and close, dropped them in the in-tree drivers, reworked the close
+code to be more friendly;
+** Debian packaging, upgrade to the level of Debian package version
+2.5.2-2.
+
+For detailed commit logs, see
+http://git.xenomai.org/?p=xenomai-2.5.git;a=shortlog;h=refs/tags/v2.5.3[git
+shortlog].
+
+[[xenomai-2.5.2]]
+*2010-03-28* Xenomai 2.5.2
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/stable/xenomai-2.5.2.tar.bz2[Download]
+
+Changes summary:
+
+* important fixes:
+** silent memory corruption induced by the "u_mode" feature;
+** bad return values of posix and native condition variables (also add
+some unit tests for condition variables, to allow tracking regressions);
+** fix error handling in xnintr_detach().
+
+* other improvements:
+** a new --with-testdir option allowing to install xenomai testsuite
+programs in a special directory, to avoid collision with other programs;
+** a bunch of improvements from the analogy branch;
+** made a libxenomai library factoring the code common between all
+skins, with a change in the xeno-config script, making it simpler to use
+(you now pass the script the skin for which you are compiling, and the
+output ldflags contain the name of all libraries);
+** get the select syscall more in-line with the behaviour dictated by
+the POSIX spec.
+
+For detailed commit logs, see
+http://git.xenomai.org/?p=xenomai-2.5.git;a=shortlog;h=refs/tags/v2.5.2[git
+shortlog].
+
+[[xenomai-2.5.1]]
+*2010-02-03* Xenomai 2.5.1
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/stable/xenomai-2.5.1.tar.bz2[Download]
+
+Changes summary:
+
+* a few fixes (you should find more details in the mailing list
+archives):
+** RPI under extreme conditions;
+** skins reference counting;
+** stack size issues and main thread stack faulting;
+** rtdk behaviour with fork and exit;
+** arm arith routines with old binutils version;
+** arm mm switching;
+** include order issues on uclibc/arm;
+** compilation with static libraries.
+
+* I-pipe patch fixes and new versions, asm wrappers upgrades to cope
+with new patches:
+** x86 stall flag/interrupt flags issue with faults in primary mode;
+** arm i-cache disabling in idle routine on arm926ejs;
+** prepare support for upcoming 2.6.33 kernel.
+
+* drivers update:
+** rtcan, including new support for powerpc platforms;
+** analogy, including a new s526 driver contributed by Simon Boulay.
+
+For detailed commit logs, see
+http://git.xenomai.org/?p=xenomai-2.5.git;a=shortlog;h=refs/tags/v2.5.1[git
+shortlog].
+
+[[xenomai-2.5.0]]
+*2010-01-01* Xenomai 2.5.0
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+link:/downloads/xenomai/stable/xenomai-2.5.0.tar.bz2[Download]
+
+The most notable change in the Xenomai core since the 2.4.x series, is
+the introduction of an extensible scheduler framework. This provides a
+common interface for adding new real-time scheduling classes. Aside of
+the original FIFO and RR ones, this framework supports two new classes:
+
+* a time partitioning policy (TP, typically usable for implementing the
+arinc653 spec).
+
+* the POSIX sporadic server policy (PSS).
+
+Performance-wise, 2.5.0 brings three major updates (and a number of
+smaller optimizations all over the map too):
+
+* fast real-time mutexes in user-space. Just like with mainline kernel
+futexes, mutual exclusion in primary mode can now be obtained without
+any system call most of the time. The POSIX and native Xenomai APIs use
+them.
+
+* tunable unlocked context switching, as a way to significantly reduce
+interrupt latency when required. By allowing real-time IRQs to preempt
+both the Linux kernel and the Xenomai core safely while any of them
+performs a context switch, the interrupt latency is significantly
+improved for some architectures, like armv4/armv5, as they must bear the
+VIVT cache affliction.
+
+* a new set of 64/96 bit arithmetics, optimized per-architecture, have
+been introduced. Because they are involved in various time-critical
+operations, the performance gain is noticeable on low end platforms.
+
+Most APIs have been extended in a way or another. POSIX, native,
+VxWorks, RTDM got new services or features, to better support
+developers.
+
+The existing RTDM driver set got its share of updates as well, such as
+the CAN layer. 2.5.0 also introduces a real-time IPC driver,
+implementing various socket-based protocols, for exchanging data between
+Xenomai threads and regular Linux tasks, or within the Xenomai domain.
+
+The largest piece of work merged in 2.5.0 is without any doubt the
+Analogy framework. This is a lively DAQ framework based on RTDM, with a
+short migration path offered for rebasing Comedi drivers over a modern
+infrastructure. Ultimately, Analogy over RTDM will allow us to run all
+of our DAQ drivers over a mainline kernel as well.
+
+And finally, 2.5.0 brings in a nios2 port. This makes Xenomai 2.5.0
+available for seven architectures:
+
+* ARM
+* Blackfin
+* Nios2
+* PowerPC 32/64
+* x86 32/64
+
+One more thing, Gilles is the release maintainer for the 2.5.x series,
+and will be in charge of keeping the maintenance cycle alive for this
+one. This will allow me to focus on 3.x.
+
+For detailed commit logs, see
+http://git.xenomai.org/?p=xenomai-2.5.git;a=shortlog;h=refs/tags/v2.5.0[git
+shortlog].
+
+[[xenomai-2.5-rc4]]
+*2009-10-28* Xenomai 2.5-rc4
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is 2.5-rc4. Most of the new stuff comes from the Analogy DAQ
+framework which eventually made its way to 2.5. RTCAN support for
+SJA1000 based PCI cards has been introduced as well. The rest is bug
+fixing all over the place.
+
+link:/downloads/xenomai/testing/xenomai-2.5-rc4.tar.bz2[Download]
+
+For detailed commit logs, see
+http://git.xenomai.org/?p=xenomai-2.5.git;a=shortlog;h=refs/tags/v2.5-rc4[git
+shortlog].
+
+[[xenomai-2.4.10]]
+*2009-10-28* Xenomai 2.4.10
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the tenth maintenance release for the v2.4.x branch.
+
+link:/downloads/xenomai/stable/xenomai-2.4.10.tar.bz2[Download]
+
+For detailed commit logs, see
+http://git.xenomai.org/?p=xenomai-2.4.git;a=shortlog;h=refs/tags/v2.4.10[git
+shortlog].
+
+[[xenomai-2.5-rc3]]
+*2009-09-01* Xenomai 2.5-rc3
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is -rc3, bug fixes are literally all over the map, with a special
+mention for closing several powerpc and ARM FPU-related issues. The new
+"buffer" IPC support from the native API (RT_BUFFER) should now be
+working properly as well.
+
+As usual, I-pipe patches have been upgraded for all supported
+architectures.
+
+link:/downloads/xenomai/testing/xenomai-2.5-rc3.tar.bz2[Download]
+
+For detailed commit logs, see
+http://git.xenomai.org/?p=xenomai-2.5.git;a=shortlog;h=refs/tags/v2.5-rc3[git
+shortlog].
+
+[[xenomai-2.4.9.1]]
+*2009-09-01* Xenomai 2.4.9.1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We had a couple of brown paper bag issues in v2.4.9, particularly in the
+interrupt pipeline for the ARM port, but also a time conversion bug
+which basically affects any architecture with high frequency CPUs
+(x86-ers, this one is for you).
+
+So, here is v2.4.9.1 to fix those bugs:
+
+link:/downloads/xenomai/stable/xenomai-2.4.9.1.tar.bz2[Download]
+
+For detailed commit logs, see
+http://git.xenomai.org/?p=xenomai-2.4.git;a=shortlog;h=refs/tags/v2.4.9.1[git
+shortlog].
+
+[[xenomai-2.4.9]]
+*2009-08-19* Xenomai 2.4.9
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the ninth maintenance release for the v2.4.x branch:
+
+link:/downloads/xenomai/stable/xenomai-2.4.9.tar.bz2[Download]
+
+Special note to PowerPC (32/64) users: the FPU management code has been
+sanitized an awful lot in this release compared to 2.4.8 and earlier for
+this architecture. Really. Several bugs which may badly break the
+floating-point registers state "in some circumstances" have been fixed.
+
+Therefore I would strongly recommend to upgrade your Xenomai baseline to
+2.4.9, and ideally, kernel 2.6/powerpc users should also move their
+I-pipe support to 2.6.30-2.7-00, or at the very least backport _both_ of
+the following patches, in that order, to their kernel tree:
+
+\1.
+http://git.denx.de/?p=ipipe-2.6.git;a=blobdiff;f=arch/powerpc/kernel/fpu.S;h=503de51bed94cc2fc4d17b4342885d0329ba5c1b;hp=2436df33c6f4433d7e7f54b88caad6ba570cf3f6;hb=4a9cffba3407f1238646847aad06712d8952a310;hpb=4d121ab41bda8a269c20b0a1077af8f3ef400105
+
+\2.
+http://git.denx.de/?p=ipipe-2.6.git;a=commitdiff;h=0024416dcce817854cbf80eff420b21ef615672c;hp=d0353a6d1b4b4af7f6990dfa27055c799b3756a9
+
+People running a 2.4.25 kernel (the only one officially supported by
+Xenomai from the legacy 2.4/ppc kernel series) should definitely upgrade
+to the following I-pipe patch, to close a few important issues,
+including the FPU ones:
+
+link:/downloads/ipipe/attic/v2.4/ppc/adeos-ipipe-2.4.25-ppc-DENX-2.2-01.patch[adeos-ipipe-2.4.25-ppc-DENX-2.2-01]
+
+Panic mode mitigation: This is a PowerPC-related issue only. Other
+architectures were not affected by those bugs.
+
+You have been warned.
+
+Not scared enough? Ok. See the
+http://git.xenomai.org/?p=xenomai-2.4.git;a=shortlog;h=refs/tags/v2.4.9[short
+log] for v2.4.9.
+
+[[xenomai-2.5-rc2]]
+*2009-06-18* Xenomai 2.5-rc2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+After two months since -rc1 — which is way too long, I know — there is
+no point in delaying 2.5-rc2 any longer, so here it is.
+
+Download here:
+link:/downloads/xenomai/testing/xenomai-2.5-rc2.tar.bz2[Xenomai
+2.5-rc2]
+
+Since -rc1, we mainly focused on solving multiple interrupt pipeline
+issues for x86, introducing optimizations in core arithmetic helpers,
+and eventually adding new supported platforms to the powerpc port. And
+as usual, fixes are all over the map.
+
+x86-wise(32/64), if you happen to run any I-pipe release in SMP mode,
+prior to Linux 2.6.28.9, and/or earlier than 2.2-07, you should
+definitely upgrade to a more recent version. Really.
+
+Regarding powerpc, we now officially support powerpc32/SMP, in addition
+to powerpc64/SMP we have been supporting for quite some time now. The
+first powerpc32/SMP platform Xenomai officially supports is Emerson's
+MVME7100, which is based on a dual core MPC8641D.
+
+There are things brewing in the ARM world, particularly an omap3 port,
+but this is not ready for prime time yet (ETA is -rc3). Stay tuned.
+
+Finally, Blackfin users may want to know that we will be tracking Mike
+Frysinger's tree from now on:
+git://git.kernel.org/pub/scm/linux/kernel/git/vapier/blackfin.git. On
+this architecture, the I-pipe bits should be on their way to 2.6.31
+mainline already, so Blackfin is actually ahead of everyone else with
+respect to kernel support. Official support available with -rc2 is still
+based on 2.6.28.10 though, from the Blackfin project SVN/GIT mirror (see
+ksrc/arch/blackfin/patches/README for more).
+
+Btw, more information regarding which hardware Xenomai supports is
+available from:
+
+* link:Embedded_Hardware[Embedded Device Support]
+* link:Other_Hardware[Other Hardware Support]
+
+Oh, last point: 2.5-rc2 has a decent stability record among Xenomai
+maintainers, but as usual, let me emphasize the obvious: at the end of
+the day, only _you_ can make sure the upcoming 2.5 will work for you,
+and unless you feel insanely lucky these days or simply don't care about
+upgrading, you should not wait for 2.5.0 to perform that check.
+
+Here is the
+http://git.xenomai.org/?p=xenomai-2.5.git;a=shortlog;h=refs/tags/v2.5-rc2[short
+log].
+
+[[xenomai-2.4.8]]
+*2009-05-29* Xenomai 2.4.8
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the eighth maintenance release for the v2.4.x branch. Short log
+follows:
+
+* *nucleus*
+** Suppress switch warning upon signal receipt when the process is being
+debugged.
+** Fix host tick propagation.
+** Prevent early timer shots due to rounding imprecision.
+** Fix computation of heap overhead.
+** Move xnarch_set_irq_affinity out of intr lock.
+** Introduce channel information in LTTng markers.
+
+* *posix*
+** Fix access checks in select().
+** Fix errnoneous -EINVAL error return with mmap() of non page-aligned
+length.
+
+* *native*
+** Fix message pipe streaming mode.
+** Make optimized tsc<->ns conversion routines available to user-space.
+
+* *vxworks*
+** Add missing rescheduling in semaphore deletion code.
+
+* *vrtx*
+** Fix sc_[e]tcreate().
+** Rework mutex support.
+
+* *powerpc*
+** Do not restore ALTIVEC/SPE regs for kernel threads.
+** Port to Emerson's MVME7100 dual core SBC.
+** Upgrade Adeos support to 2.6.29.4-powerpc-DENX-2.6-00.
+
+* *arm*
+** Upgrade Adeos support to 2.6.29-arm-1.13-00.
+
+* *x86*
+** Fix miscompilation of __do_strncpy_from_user().
+** Yet another round of FPU management fixes.
+** Upgrade Adeos support to 2.6.29.4-x86-2.4-01.
+
+* *blackfin*
+* Upgrade Adeos support to 2.6.28.10-blackfin.git-1.10-00.
+
+* *can*
+** ixxat-pci: fix problems with device probing.
+** ixxat-pci: disambiguate PCI device id.
+** mscan: fix build problems with recent kernel versions.
+
+link:/downloads/xenomai/stable/xenomai-2.4.8.tar.bz2[Download]
+
+[[xenomai-v2.5-rc1]]
+*2009-04-18* Xenomai v2.5-rc1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the first candidate release for the v2.5.x branch. The following
+short log only lists the most significant evolutions. Lots of
+optimizations, cleanups and bug fixes all over the map.
+
+* *nucleus*
+** Introduce extensible scheduler framework based on scheduling classes.
+** Introduce temporal partitioning scheduling class (TP).
+** Introduce POSIX sporadic server scheduling class (PSS).
+** Refactor round-robin scheduling class (RR).
+** Allow round-robin scheduling over aperiodic timing.
+** Introduce fast synchronization object to support fast real-time
+mutexes in user-space.
+** Introduce support for unlocked context switching.
+** Introduce key-less anonymous object registration.
+** Remove interrupt shield support (former CONFIG_XENO_OPT_ISHIELD).
+** Introduce debug option to detect mutexes held in relaxed sections
+(CONFIG_XENO_OPT_DEBUG_SYNCH_RELAX).
+** Optimize time/tsc conversion (replace divisions with reciprocal
+multiplications)
+
+* *native*
+** Introduce fast real-time mutexes in user-space.
+** Introduce FIFO monitoring (rt_pipe_monitor).
+** Extend rt_task_inquire() to return the task name.
+** Introduce a new set of services providing timeouts as absolute
+timespecs (i.e. rt_*_until()).
+
+* *posix*
+** Introduce fast real-time mutexes in user-space.
+
+* *comedi*
+** Introduce RTDM-based Comedi interface support. This is work in
+progress.
+
+* *vxworks*
+** Introduce taskInfoGet().
+** Various fixes.
+
+* *psos*
+** Various fixes.
+
+* *vrtx*
+** Various fixes.
+** Streamline mutex support.
+
+* *testsuite*
+** Introduce unit tests for internals.
+** Complete coverage of switchtest.
+
+* *generic*
+** Use new I-pipe's fast ops for IRQ propagation when present.
+
+* *powerpc*
+** Introduce optimized arithmetics for time manipulation.
+** Introduce support for the MPC5121-ADS platform.
+** Upgrade support to 2.6.29.
+
+* *blackfin*
+** Enable generic stack pool for kernel theads.
+** Introduce optimized arithmetics for time manipulation.
+** Upgrade support to 2.6.28.
+
+* *arm*
+** Introduce optimized arithmetics for time manipulation.
+** Introduce VFP support.
+** Introduce support for the MXC family.
+** Upgrade support to 2.6.28.
+
+* *x86*
+** Fix and optimize FPU handling.
+** Rework NMI support.
+** Upgrade support to 2.6.29.
+
+* *ia64*
+** Support discontinued.
+
+* *rtdk*
+** Various fixes and cleanups.
+** Introduce assert_context wrappers for early detection of Linux
+syscalls invoked from primary mode.
+
+* *debian*
+** allow dpkg-cross to cross-compile binary packages.
+
+link:/downloads/xenomai/testing/xenomai-2.5-rc1.tar.bz2[Download]
+
+[[xenomai-2.4.7]]
+*2009-02-26* Xenomai 2.4.7
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the seventh maintenance release for the v2.4.x branch. Short log
+follows:
+
+* *nucleus*
+** Fix multiple issues in the message pipe support (memory leak, latency
+peak, oops on disconnect).
+** Fix GDB support issue with shadow threads in ready state.
+** Fix missed rescheduling after sched unlock.
+** Fix auto-cleanup sequence of shared heaps.
+** Run start hook for shadow threads as well.
+
+* *native*
+** Fix memory leak (rt_queue_write).
+** Fix auto-cleanup sequence of queues and shared heaps.
+
+* *posix*
+** Check for mmap64/ftruncate64 availability (uClibc).
+
+* *powerpc*
+** Fix race in timer request code.
+** Fix busy count in timer release code.
+** Fix early timer shots on PA-Semi.
+** Upgrade Adeos support to 2.6.28.5-powerpc-DENX-2.4-04.
+** Add support for the mpc5121-ads platform (2.6.24.6 based).
+
+* *arm*
+** Fix race in timer request code.
+** Implement FCSE via Adeos 2.6.2\{6,7,8}-arm-1.12-00 series.
+
+* *x86*
+** Fix race in timer request code.
+** Fix FPU backup clobbering.
+** Upgrade Adeos support to 2.6.27.19-x86-2.2-06, 2.6.28.7-x86-2.2-06.
+
+* *blackfin*
+** Fix race in timer request code.
+** Do not force -mfdpic on user-space libraries.
+** Upgrade Adeos support to 2008R1.5-RC3-bf5xx-1.8-00,
+2.6.28-blackfin.git-1.9-00.
+
+* *testsuite*
+** Add stress mode to switchtest.
+** Fix restart issue in klatency (NOTE: local ABI breakage. The klatency
+binary will not work with klat modules from older
+
+releases, and conversely, klatency binaries from older releases won't
+work with the klat module available with 2.4.7 and on).
+
+See the ChangeLog for details.
+
+link:/downloads/xenomai/stable/xenomai-2.4.7.tar.bz2[Download]
+
+[[xenomai-2.4.6.1]]
+*2008-11-11* Xenomai 2.4.6.1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Emergency fix for x86_32/64 uniprocessor configurations based on the
+2.6.27 kernel.
+
+* *x86*
+** Update Adeos support to 2.6.27-x86-2.1-02.
+
+[[xenomai-2.4.6]]
+*2008-11-10* Xenomai 2.4.6
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the sixth maintenance release for the v2.4.x branch. Short log
+follows:
+
+* *nucleus*
+** Detect and use fixed ATOMICSWITCH support when available from the
+I-pipe layer.
+** Get highmem working with shared heaps.
+** Message pipes:
+*** fix handling of concurrent read/write sleep states on the same pipe.
+*** fix O_SYNC support.
+*** fix context unwinding upon signal receipt while reading.
+*** enable blocking write upon memory starvation.
+
+* *native*
+** Fix spurious -EBUSY error upon queue and heap deletion calls.
+
+* *posix*
+** Allow 64 bits offsets with mmap and ftruncate.
+
+* *vrtx*
+** Fix TCB pointer indexing.
+
+* *vxworks*
+** Add taskSetMode() extension.
+
+* *rtdk*
+** Fix cleanup code.
+
+* *can*
+** Iron socket deregistration code.
+** Fix mpc52xx/mscan build for kernels > 2.6.24
+
+* *powerpc*
+** Fix vma protection bits to access physical memory via
+rtdm_iomap_to_user() (e.g. PCI resources).
+** Update Adeos support to 2.6.26-powerpc-2.2-07.
+
+* *arm*
+** Provide VFP support.
+** Add support for MXC CPU family.
+** Provide TSC emulation for fast wrapping hardware timers.
+** Update Adeos support to 2.6.26-arm-1.11-02.
+
+* *x86*
+** Update Adeos support to 2.6.26.7-x86-2.0-16, 2.6.27-x86-2.1-01.
+
+* *blackfin*
+** Update Adeos support to 2008R1-bf5xx-1.7-04.
+
+See the ChangeLog for details.
+link:/downloads/xenomai/stable/xenomai-2.4.6.tar.bz2[Archive]
+available on gna repository.
+
+[[xenomai-2.4.5]]
+*2008-08-19* Xenomai 2.4.5
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the fifth maintenance release for the v2.4.x branch. Short log
+follows:
+
+* *nucleus*
+** xnpipe_poll: fix race (message pipe poll/select support).
+** Fix memory overwrite when reading /proc/xenomai/stat.
+** xnsleep_sleep_on: fix early timeouts (ownership preemption).
+** request_syscall_restart: send SIGXCPU for interrupted syscalls as
+well.
+** Fix type used for stat counters.
+
+* *native*
+** rt_heap_delete, rt_queue_delete: Fix -EBUSY case.
+
+* *psos*
+** tm_get: Fix ticks to date conversion.
+** t_mode: Fix update mask.
+** pt_create: Fix 64bit issue. Fix memory overwrite.
+
+* *vxworks*
+** errnoOfTaskGet/Set(): get/set the per-task errno value (as expected).
+
+* *powerpc*
+** Upgrade to kernel 2.6.26.
+** Add support for MPC836x.
+
+* *arm*
+** Upgrade to kernel 2.6.26.
+
+* *x86*
+** Upgrade to kernel 2.6.26.
+
+* *can*
+** Fix conflict with 2.6.26 kernels ("can_clock" module parameter).
+
+See the ChangeLog for details and see gna repository to
+link:/downloads/xenomai/stable/xenomai-2.4.5.tar.bz2[Download]
+
+[[xenomai-2.4.4]]
+*2008-06-08* Xenomai 2.4.4
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the fourth maintenance release for the v2.4.x branch. Short log
+follows:
+
+* *nucleus*
+** Prevent drifts between large calculated versus measured dates.
+** Fix potential deadlock on SMP when ptracing shadow threads.
+** Thaw timers when a ptraced shadow thread exits.
+** Fix race introduced by xnsynch ownership preemption.
+** Fix RPI update.
+** Fix priority propagation issue with mixed interfaces.
+** Fix compilation issues with uClibc.
+
+* *native*
+** Output outstanding number of heap mappings from the registry.
+** Fix tiny memory leak for rt_task_self().
+** Ensure rt_task_suspend() returns -EINTR upon signal receipt.
+** Allow rt_task_sleep_until() to sleep indefinitely (TM_INFINITE).
+** Fix rt_task_send() in the non-blocking case (TM_NONBLOCK).
+** Documentation updates.
+
+* *posix*
+** Fix pthread_cond_init(), pthread_mutex_init() for NULL attributes.
+** Restart silently upon EINTR error.
+** Fix signal handling when directed at shadow threads.
+** Fix recursion count of mutex after suspension on a condvar.
+
+* *psos*
+** Fix calendar date to ticks conversion.
+** Return ERR_NOBUF when required.
+** Fix system call number of tm_evevery service.
+
+* *vxworks*
+** Make sem_give() a conforming syscall.
+** Make semaphore support callable from non-VxWorks tasks.
+** Rework mutex support.
+** Provide taskInfoGet() service.
+** Fix byte count in msgQReceive() wrapper.
+
+* *powerpc*
+** Upgrade to kernel 2.6.25.
+** Add legacy ppc/ branch support to 2.6.20.
+
+* *arm*
+** Upgrade to kernel 2.6.25.
+
+* *blackfin*
+** Resync on 2008R1 (kernel 2.6.22). Add support for bf54x and bf52x.
+
+* *x86*
+** Upgrade to kernel 2.6.25.
+
+link:/downloads/xenomai/stable/xenomai-2.4.4.tar.bz2[Download]
+
+[[xenomai-2.4.3]]
+*2008-03-24* Xenomai 2.4.3
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the third maintenance release for the v2.4.x branch. Short log
+follows:
+
+* *nucleus*
+** Do not terminate the entire process upon shadow deletion.
+** Assume a CPU migration may happen before xnshadow_start() is issued
+for an emerging thread.
+** Backport synchronous I/O multiplexing support (e.g. select() for RTDM
+file descriptors).
+** Introduce private stack pool for kernel threads.
+
+* *native*
+** Mark rt_task_delete() as a low stage call as required by the
+implementation.
+** Make sure pthread resources are claimed upon task self-deletion.
+** Fix severe issues in rt_cond_wait().
+
+* *vxworks*
+** Add missing auto-cleanup support for message queues and semaphores.
+** Fix error path in taskSpawn().
+
+* *posix*
+** Fix error path for mq_notify().
+** Add select() service.
+
+* *rtdm*
+** Add support for monitoring multiple file descriptors synchronously.
+
+* *x86*
+** Update Adeos support to 2.6.24-2.0-04.
+
+* *arm*
+** Upgrade Adeos support to 2.6.24-1.9-01.
+
+* *powerpc*
+** Assume that CPU_FTR_SPE may not exist in outdated kernels.
+** Do not scatter main heap memory over 128Kb anymore (allows large
+system heap within a single contiguous address space).
+** Upgrade Adeos support to 2.6.20-1.7-13, 2.6.24-2.1-01.
+
+See the ChangeLog for details.
+
+link:/downloads/xenomai/stable/xenomai-2.4.3.tar.bz2[Download]
+
+[[xenomai-2.4.2]]
+*2008-02-11* Xenomai 2.4.2
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the second maintenance release for the v2.4.x branch. Short log
+follows:
+
+* *x86*
+** Fix tick interrupt setup and related accounting when
+`CONFIG_GENERIC_CLOCKEVENTS` is disabled.
+** Fix race when releasing the timer.
+** Update Adeos support for 2.6.20.21/i386, 2.6.23/i386 and
+2.6.23/x86_64.
+** Upgrade Adeos support to 2.6.24/x86 final.
+
+* *powerpc*
+** Update Adeos support for 2.6.20/powerpc and 2.6.23/powerpc.
+** Upgrade Adeos support to 2.6.24/powerpc over DENX-v2.6.24-stable
+(all-in-one patch also supporting the legacy ppc32 arch).
+
+* *16550*
+** Set correct bit in IER to enable modem status IRQs.
+
+* *clocktest*
+** Fix soft-lockups due to randomization of measurement thread delays.
+** Avoid races when storing time warps.
+
+See the ChangeLog for details.
+
+link:/downloads/xenomai/stable/xenomai-2.4.2.tar.bz2[Download]
+
+[[xenomai-2.4.1]]
+*2008-01-01* Xenomai 2.4.1
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the first maintenance release for the v2.4.x branch. Short log
+follows:
+
+* *nucleus*
+** Close SMP race window in message pipe's read-side.
+** Prevent the task startup completion code to hold the nucleus lock.
+
+* *psos*
+** Fix t_mode().
+
+* *native*
+** Fix auto-cleanup issue of I/O regions in non-pervasive mode.
+
+* *can*
+** Fix device deregistration when refcounting is disabled.
+** Fix build issue with shared interrupt support.
+
+* *powerpc*
+** Update Adeos support for 2.6.20/powerpc and 2.6.23/powerpc.
+
+* *x86*
+** Update Adeos support for 2.6.20/i386, 2.6.23/i386 and 2.6.23/x86_64.
+** Upgrade Adeos support to 2.6.24-rc6 (I-pipe 2.0/x86 series with
+combined i386+x86_64 support).
+
+link:/downloads/xenomai/stable/xenomai-2.4.1.tar.bz2[Download]
+
+[[xenomai-2.3.5]]
+*2007-12-09* Xenomai 2.3.5
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the latest release from the v2.3.x branch. Short log follows:
+
+* *nucleus*
+** Fix broken select() on a message pipe.
+** Fix computation of overhead due to heap meta-data.
+** Properly recycle empty bucketed pages to the free list.
+** Sanitize heap size rounding at call sites.
+
+* *posix*
+** Fix pthread_cond_wait().
+
+* *native*
+** Fix rt_queue_read() error path causing unexpected message deletion.
+
+* *can*
+** Support CONFIG_PPC_MERGE for resource management.
+
+* *powerpc*
+** Integrated 32/64bit I-pipe support against 2.6.23/powerpc (i.e.
+CONFIG_PPC_MERGE).
+** Backported 32bit I-pipe support against 2.6.23/ppc.
+** Add a set of EVB-specific calibration values.
+
+* *arm*
+** Upgrade to I-pipe 2.6.20/1.8 series.
+
+* *i386*
+** Upgrade to I-pipe 2.6.20.21/1.11 series.
+
+* *blackfin*
+** Combined bf5xx support (bf533, bf537, bf561) against 2.6.23.
+
+link:/downloads/xenomai/stable/xenomai-2.3.5.tar.bz2[Download]
+
+[[xenomai-2.4.0]]
+*2007-12-08* Xenomai 2.4.0
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is Xenomai v2.4.0. This stable milestone aims at more flexibility,
+increased portability, and lesser latency. This serves the ultimate goal
+of making Xenomai the platform of choice for migrating applications from
+traditional RTOS to Linux.
+
+* *Major nucleus updates*
+** massive refactoring of the timer sub-system.
+** introduce timebases at the core of the time-keeping code.
+** support for generic clock events (CONFIG_GENERIC_CLOCKEVENTS).
+** recognize RT-capable group for controlling access to the Xenomai
+core.
+** overhauled LTT support, rebased on the common trace marker
+infrastructure.
+** add synchronous I/O mode to message pipes (O_SYNC).
+
+* *Major architecture updates*
+** x86_64 port
+** powerpc: HAL sanitization; support for PA-SEMI's PA6T; integrated
+32/64bit I-pipe support against 2.6.23/powerpc (i.e. CONFIG_PPC_MERGE);
+backported 32bit I-pipe support against 2.6.23/ppc.
+** ARM: AT91 support (armv4 and armv5); IXM21 upgrade; support for EABI.
+** blackfin: combined bf5xx support (bf533, bf537, bf561) against
+2.6.23.
+** i386: massive HAL refactoring and sanitization; upgrade to 2.6.23.
+
+* *Major skin-related work*
+** posix: mq code reworked for efficiency; harden more clock-related
+services; add pthread_kill() syscall.
+** RTDM: add timer interface; provide automatic cleanup of open file
+descriptors on process termination.
+** native: allow cross-API calls to blocking services; auto-cleanup
+support (reclaim orphan resources upon process exit); introduce I/O
+region descriptors to support user-space mapping of I/O-port and MMIO
+regions.
+** pSOS: expose tm_* calls to user-space; add convenience extensions.
+** rtai: Provide support for shared memory services.
+
+* *Driver updates*
+** improved Linux Socket-CAN compatibility (CAN_RAW protocol); CAN
+filter inversion; add support for bus error interrupts.
+** 16550A: add support for MMIO accesses; provide control over break
+signal; add PnP awareness.
+
+* *Misc*
+** rtdk: introduce a collection of utilities aimed at forming a
+Real-Time Development Kit for userland usage. Starts with a set of
+non-intrusive (latency-wise) *printf() services.
+
+* *Bug fixes all over the map*
+
+link:/downloads/xenomai/stable/xenomai-2.4.0.tar.bz2[Download]
+
+[[xenomai-2.4-rc7]]
+*2007-11-26* Xenomai 2.4-rc7
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the seventh candidate release for the v2.4.x branch.
+
+* *nucleus*
+
+* ** Clear wchan when failing to suspend a thread due to preposterous
+timeout value.
+** Report configured timer and clock device.
+** Recycle empty bucketed pages to the global free page list.
+
+* *powerpc*
+
+* ** Update Adeos support for 2.6.20.
+
+* *arm*
+
+* ** Upgrade Adeos support to the 1.8 series.
+
+* *x86*
+
+* ** Rebase Adeos/2.6.20 support on the stable series (2.6.20.21).
+** Upgrade Adeos/i386 support for 2.6.20.x and 2.6.23.
+** Upgrade Adeos/x86_64 support for 2.6.23.
+
+* *posix*
+
+* ** Fix mq_timedsend() in case no receiver is present.
+** Fix error paths upon failure to init skin.
+
+* *debian*
+
+* ** Adapt to x86* merge.
+
+link:/downloads/xenomai/testing/xenomai-2.4-rc7.tar.bz2[Download]
+
+[[xenomai-2.4-rc6]]
+*2007-11-13* Xenomai 2.4-rc6
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the sixth candidate release for the v2.4.x branch.
+
+* *nucleus*
+
+* ** LTT support overhaul.
+** Fix select() breakage with message pipes.
+** Return EOF condition to the real-time side when the Linux peer closes
+the message pipe.
+
+* *i386, x86_64 => x86*
+
+* ** Merge i386 and x86_64 arch-dep support as x86.
+** Update Adeos/i386 support for 2.6.20, 2.6.22 and 2.6.23.
+
+* *posix*
+
+* ** Fix pthread_cond_*wait() handling of signal receipt.
+
+* *native*
+
+* ** Fix API for requesting I/O regions; add support for IOMEM space.
+See API.CHANGES for more.
+** Allow rt_task_inquire() to only probe for the existence of a task.
+
+* *psos*
+
+* ** Provide tm_getc() service to get the count of elapsed ticks for the
+pSOS timebase.
+
+* *rtai*
+
+* ** Set up default CPU affinity for tasks.
+** Fix shared memory allocation for small heap sizes.
+
+link:/downloads/xenomai/testing/xenomai-2.4-rc6.tar.bz2[Download]
+
+[[xenomai-2.4-rc5]]
+*2007-10-28* Xenomai 2.4-rc5
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the fifth candidate release for the v2.4.x branch.
+
+* *nucleus*
+** Enforce CPU affinity unconditionally.
+** Allow for daisy chains of periodic tick handlers.
+** Fix rounding and minimum value of mappable heap size.
+
+* *blackfin*
+** Upgrade Adeos support to 2.6.23.
+** Add support for the bf561.
+
+* *powerpc*
+** Update Adeos support for 2.6.20 and 2.6.23.
+
+* *i386*
+** Update Adeos support for 2.6.20, 2.6.22 and 2.6.23.
+
+* *x86_64*
+** Fix the interrupt filter when the shield is in effect.
+
+`** Update Adeos support for 2.6.22 and 2.6.23.`
+
+* *testsuite*
+** Freeze the current trace path upon receipt of a fault signal.
+
+link:/downloads/xenomai/testing/xenomai-2.4-rc5.tar.bz2[Download]
+
+[[xenomai-2.4-rc4]]
+*2007-10-16* Xenomai 2.4-rc4
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the fourth candidate release for the v2.4.x branch. With the
+v2.3.x maintenance cycle soon coming to an end after nearly a year since
+it has started, v2.4 is going to be our next stable branch for quite
+some time, so I would suggest that you make sure it can run your
+favourite board(s) _now_.
+
+* *nucleus*
+** Fix /proc support for timebases.
+
+* *posix*
+** Fix random hang in per-process cleanup code.
+
+* *native*
+** Fix double free issue upon failure to create a new task.
+
+* *vxworks*
+** Fix implementation of watchdog support in user-space.
+** Fix double free issue upon failure to create a new task.
+
+* *vrtx*
+** Fix double free issue upon failure to create a new task.
+
+* *rtdm*
+** Add private data pointer to the rtdm_device structure.
+
+* *can*
+** Support new resource management of arch/powerpc tree properly.
+** Fix handling of the "port" module parameter.
+
+* *testsuite*
+** Prevent overflow in timer handler test.
+** Close race window in timer setup code.
+
+* *powerpc*
+** Update Adeos support for 2.6.20.
+** Upgrade Adeos support to 2.6.23.
+
+* *i386*
+** SMI: Detect ICH-4 chipsets.
+** Sanitize calibration code.
+** Fix timer setup code (mostly for GENERIC_CLOCKEVENTS, but not only).
+** Upgrade Adeos support to 2.6.23.
+
+* *x86_64*
+** SMI: Detect ICH-4 chipsets.
+** Sanitize calibration code.
+** Upgrade Adeos support to 2.6.23.
+
+link:/downloads/xenomai/testing/xenomai-2.4-rc4.tar.bz2[Download]
+
+[[xenomai-2.4-rc3]]
+*2007-09-09* Xenomai 2.4-rc3
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the third candidate release for the v2.4.x branch. Most of the
+work since -rc2 was aimed at optimizing the interrupt pipeline, and
+first and foremost at reducing its cache footprints, initially for the
+powerpc and x86 ports. Other archs will be upgraded next. The powerpc
+arch also gains a combined 32/64bit support starting with 2.6.22. Short
+log follows:
+
+* *nucleus*
+** Make the watchdog timeout value configurable.
+** Remove preprocessor warnings from 2.4 builds.
+** Always get references to per-cpu sched struct within migration-free
+sections.
+
+* *rtdm*
+** Round up timeouts and delays when nanoseconds are to be converted to
+ticks (periodic timebase only).
+
+* *can*
+** Fix race upon socket list update.
+** RT-Socket-CAN SJA1000 driver for the EMS CPC PCI card
+(http://www.ems-wuensche.de).
+
+* *powerpc*
+** Merge 32/64bit arch support into a single Adeos patch for 2.6.22
+(I-pipe 2.0 series, DENX tree: DENX-2007-08-30-1748).
+** Upgrade combined Adeos support to 2.6.23-rc5 (DENX tree, git HEAD).
+** PA-Semi (powerpc64) updates.
+** Update Adeos/powerpc32 support for 2.6.20; forward port to 2.6.21.
+
+* *i386*
+** Release tick device in the non-LAPIC case (kernel >= 2.6.22).
+** Upgrade Adeos support for 2.6.22 (I-pipe 1.10 series).
+
+We still have a few reported bugs pending and some I-pipe updates for
+the Blackfin, ARM and x86_64 ports to come too, so we will need -rc4.
+
+link:/downloads/xenomai/testing/xenomai-2.4-rc3.tar.bz2[Download]
+
+[[xenomai-2.4-rc2]]
+*2007-08-18* Xenomai 2.4-rc2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the second candidate release for the v2.4.x branch. Short log
+follows:
+
+* *nucleus*
+** Fix shared interrupt support.
+** Fix RPI-disabled build.
+** IPI annotation in /proc/xenomai/irq.
+
+* *rtdm*
+** Fix up asymmetric close() invocations silently by switching to non-RT
+mode.
+** Run sparse: several pacifications.
+
+* *can*
+** Remove config options XENO_DRIVERS_CAN_SJA1000_*_MAX_DEV.
+
+* *16550A*
+** Fix potential race in rt_16550_close().
+
+* *native*
+** Add task exectime, context and mode switches as well as a count of
+page faults to RT_TASK_INFO.
+
+* *posix*
+** Forbid use of non process-shared objects outside of the process to
+which they belong.
+** Only enable process check for performance critical functions if
+debugging is enabled.
+
+* *powerpc32*
+** Update Adeos support for 2.6.20.
+** Upgrade Adeos support to 2.6.21, powerpc/ tree.
+
+* *powerpc64*
+** Add support for PASEMI's PA6T dual core platform.
+** Upgrade Adeos support to 2.6.22-rc5, powerpc/ tree.
+
+* *i386*
+** Update Adeos support for both 2.6.20 and 2.6.22.
+** Upgrade Adeos support to 2.6.23-rc2.
+
+* *x86_64*
+** Update Adeos support for 2.6.22.
+
+* *arm*
+** Rework user-space access to TSC emulation.
+** Update Adeos support for 2.6.20.
+
+In addition, library revision numbers for the posix, rtdm and native
+skins have been increased.
+
+link:/downloads/xenomai/testing/xenomai-2.4-rc2.tar.bz2[Download]
+
+[[xenomai-2.4-rc1]]
+*2007-07-29* Xenomai 2.4-rc1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the first candidate release for the v2.4.x branch, on the road
+to 2.4 final. The following short log only lists the most significant
+evolutions; a slew of optimizations, cleanups and bug fixes all over the
+place come with this release as well:
+
+* *nucleus*
+** Introduction of timebases, by which software timers that belong to
+different skins may be clocked separately according to distinct
+frequencies, or aperiodically.Practically, this means that it is now
+possible to run all skins concurrently, regardless of their internal
+timing mode. Adds /proc/xenomai/timebases, /proc/xenomai/timerstat.
+** Make all skins runnable over a central core pod.
+** Support RT capability group for controlling access to Xenomai
+services.
+** Support aperiodic Linux host tick (clock_event) and tickless kernels
+(the nucleus host timer is now a per-cpu object).
+** Refactor timer modes.
+** Sync absolute timers when updating the epoch (POSIX conformance).
+** Fix deadlock and task migration issues in RPI support.
+** Sanitize deletion path of shadow threads.
+** Sanitize SMP locking in interrupt management.
+** Flatten the interrupt handling path.
+** Support O_SYNC open mode with message pipes, for guaranteed
+synchronous writes from a secondary mode sender to a primary mode
+receiver.
+** Optimize arch-specific arithmetics.
+** Provide for a global CPU affinity mask applicable to all Xenomai
+threads. Adds /proc/xenomai/affinity.
+
+* *posix*
+** Various fixes and updates. Latency optimizations.
+
+* *native*
+** Add auto-cleanup support (automatic orphan resource/object reclaiming
+upon task/module exit).
+** Allow cross-API calls to blocking services.
+
+* *psos*
+** Emulate timer-related syscalls (tm_*).
+** Extend as_send() call to user-space receivers (emits SIGRTxx).
+** Extend t_mode() call to support Xenomai modes (i-shield, warn-switch,
+rpi-state).
+** Add auto-cleanup support.
+** Allow long names in object creation routines.
+
+* *vrtx*
+** Deep refactoring.
+
+* *uitron*
+** Even more deep refactoring. Add user-space support.
+
+* *rtai*
+** Emulate rt_heap calls.
+
+* *rtdm*
+** Automatic file descriptor cleanup on process termination
+** RTDM API revision 6:
+*** Timer abstraction
+*** Monotonic time base support
+*** IOCTL prototype fix for 64-bit platforms
+*** Enhancements/changes of rtdm_irq_request, rtdm_nrtsig handler, and
+more (see ksrc/skins/rtdm/API.CHANGES)
+
+* *rtdk*
+** Introduce a collection of utilities aimed at forming a Real-Time
+Development Kit for userland usage. Starts with a set of non-intrusive
+(latency-wise) *printf() services.
+
+* *16550*
+** Allow memory-mapped hardware access.
+
+* *can*
+** Better support for bus error processing at user level.
+** Allow for inverted CAN filter setup (CAN_INV_FILTER).
+** Various fixes and updates.
+
+* *arm*
+** Add support for AT91 platforms.
+** Add EABI support.
+** Provide for TSC reading from user-space.
+
+* *powerpc*
+** Upgrade support to 2.6.20, powerpc tree/.
+
+* *i386*
+** Upgrade support to 2.6.22.
+** Sanitize LAPIC handling.
+
+* *Blackfin*
+** Upgrade support to 2.6.19.
+
+* *x86_64*
+** New architecture support.
+
+* *testsuite*
+** New test measuring clock drift and inter-CPU time consistency.
+
+As a sidenote, please note that this branch will be the first one to
+support the latest Linux kernels (>= 2.6.22).
+
+See the ChangeLog for details.
+
+link:/downloads/xenomai/testing/xenomai-2.4-rc1.tar.bz2[Download]
+
+[[xenomai-2.3.4]]
+*2007-09-16* Xenomai 2.3.4
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the latest release from the stable tree. Several Adeos patches
+have been updated due to a nasty bug that may lock out hw interrupts
+unexpectedly when dumping the pipeline trace buffers
+(CONFIG_IPIPE_TRACE=y) using the /proc interface; update is strongly
+recommended if you rely on the tracer for debugging. Short log follows:
+
+* *nucleus*
+** Make the watchdog timeout value configurable
+** Fix build with CONFIG_XENO_OPT_RPIDISABLED=n
+** Fix shared interrupt handling.
+
+* *native, vxworks, vrtx*
+** Fix double TCB memory release upon task mapping error.
+
+* *can*
+** Fix race upon socket list update.
+
+* *powerpc*
+** Make sure rthal_thread_switch() is properly paired with
+
+Linux's switch_to() (return value fix for ppc64).
+
+* ** Adeos update (I-pipe 2.6.20-1.6-04, 2.6.21-1.6-04)
+
+* *arm*
+** Adeos update (I-pipe 2.6.20-1.7-06).
+
+* *i386*
+** Adeos update (I-pipe 2.6.20-1.8-08).
+
+See the ChangeLog for details.
+
+link:/downloads/xenomai/stable/xenomai-2.3.4.tar.bz2[Download]
+
+[[xenomai-2.3.3]]
+*2007-07-28* Xenomai 2.3.3
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the latest maintenance release for the v2.3.x branch. Short log
+follows:
+
+* *nucleus*
+** Fix deadlock and migration issues in RPI support.
+** Sanitize deletion path of shadow threads.
+
+* *powerpc*
+** Upgrade to kernel 2.6.20, powerpc/ tree.
+
+* *arm*
+** Add EABI support.
+** Adeos update (I-pipe 2.6.20-1.7-04).
+
+* *i386*
+** Adeos update (I-pipe 2.6.20-1.8-06)
+
+* *native, psos, vxworks, vrtx, uitron*
+** Generalize use of container_of() to fix 64bit warnings.
+
+See the ChangeLog for details.
+
+link:/downloads/xenomai/stable/xenomai-2.3.3.tar.bz2[Download]
+
+[[xenomai-2.3.2]]
+*2007-07-09* Xenomai 2.3.2
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the latest maintenance release for the v2.3.x branch. Short log
+follows:
+
+* *nucleus*
+** Always defer release of TCB memory.
+** Sanitize support for machine-dependent arithmetics.
+** Fix root priority boosting with XENO_OPT_SCALABLE_SCHED.
+** Fix /proc/xenomai/\{sched, stat} locking in output loop.
+** Fix lethal bug in SIGIO processing (SMP).
+** Yet another interrupt locking fix.
+** Handle RT capability group.
+** Fix CPU affinity tracking (SMP).
+** Fix 64bit portability issue.
+
+* *psos*
+** Fix potentially unsafe dereference of task args in t_create()
+(user-space).
+** Conformance fix for ERR_TATRNDEL and ERR_TATSDEL error conditions.
+
+* *native*
+** Reschedule upon alarm deletion.
+** Force T_PRIMARY into the mask returned by rt_task_set_mode().
+
+* *posix*
+** mq: copy the priority of received messages back to user-space.
+** clock: access TSC directly from user-space when support is available.
+
+* *rtai*
+** Add support for rt_heap_open() and rt_heap_close().
+
+* *vrtx*
+** Fix 64bit portability issue.
+
+* *can*
+** Assorted fixes (e.g. PEAK PCI).
+
+* *16550A*
+** Catch spurious baud rate.
+
+* *arm*
+** Upgrade to kernel 2.6.20.
+** Various updates for at91.
+
+* *blackfin*
+** Upgrade to bf53x-R0701RC3-1.6-01 (2.6.19).
+** Work around toolchain bug while reading TSC from user-space.
+
+* *powerpc*
+** Sync with DENX's CVS for 2.4.25-ppc.
+
+* *i386*
+** Upgrade I-pipe support (2.6.20-1.8 series).
+
+See the ChangeLog for details.
+
+link:/downloads/xenomai/stable/xenomai-2.3.2.tar.bz2[Download]
+
+[[support-for-2.6.22x86]]
+*2007-06-29* Support for 2.6.22/x86
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Our development trunk now contains the necessary support for running
+Xenomai over 2.6.22/x86. This work boils down to enabling Xenomai to use
+the generic clock event device abstraction that comes with newest
+kernels. Other archs / kernel versions still work the older way, until
+all archs eventually catch up with clockevents upstream.
+
+This support won't be backported to 2.3.x, because it has some
+significant impact on the nucleus. Tested as thoroughly as possible here
+on low-end and mid-range x86 boxen, including SMP.
+
+Please give this hell.
+
+link:/downloads/ipipe/attic/v2.6/legacy/i386/older/adeos-ipipe-2.6.22-rc6-i386-1.9-00.patch[Download]
+
+[[xenomai-v2.2.6.1]]
+*2007-04-03* Xenomai v2.2.6.1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+An update to the so-called final v2.2.6 release, aimed at fixing a
+glitch in the kernel prep script.
+
+See the ChangeLog for details.
+
+link:/downloads/xenomai/stable/xenomai-2.2.6.1.tar.bz2[Download]
+
+[[xenomai-v2.3.1]]
+*2007-03-20* Xenomai v2.3.1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the first maintenance release for the v2.3.x branch. Short log
+follows:
+
+* *nucleus*
+** Use ondemand-mapping disable feature if present (I-pipe).
+** Allow creation of anonymous interrupt objects from kernel space.
+** Allow sleeping scheduler lock.
+** Fully rework priority tracking between schedulers (RPI).
+** Provide for non-restartable syscalls upon signal receipt.
+** Fix timer indexing in binary heap mode (timeout lossage).
+** Fix synchronization issues regarding interrupt objects while reading
+/proc/xenomai/stat.
+** Synchronize message pipe reading and streaming operations.
+* *psos*
+** Add timer-related calls to the user-space interface.
+** Fix ev_receive().
+** Combine supervisor and user stack sizes in t_create().
+* *native*
+** Fix rt_queue_delete(), rt_queue_unbind(), rt_heap_delete().
+** Fix rt_cond_wait() upon signal receipt (grab mutex anew).
+* *posix*
+** Fix pthread_cond_wait() upon signal receipt (grab mutex anew).
+* *rtai*
+** Fix rt_task_make_periodic().
+* *rtdm*
+** Support in-place re-initialisation of IPC objects.
+* *can*
+** Fix delays in periodic mode.
+** Implement either-or filtering of standard vs. extended frames.
+** Stop device before unregistering it.
+* *arm*
+** Add support for Atmel AT91-based platforms.
+** Update support for IMX21 platforms.
+** Upgrade 2.6.14 and 2.6.15 support to I-pipe 1.5 series.
+** Upgrade to kernel 2.6.19 (I-pipe 1.6 series).
+** Add support for GCC 4.1.
+* *powerpc*
+** Upgrade to kernel 2.6.19.
+* *i386*
+** Use regular IPI support code to broadcast the timer IRQ.
+** Upgrade to kernel 2.6.20.
+
+See the ChangeLog for details.
+
+link:/downloads/xenomai/stable/xenomai-2.3.1.tar.bz2[Download]
+
+[[xenomai-v2.2.6]]
+*2007-03-20* Xenomai v2.2.6
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is the final maintenance release for the v2.2.x branch. Upgrade to
+2.3.x is recommended for new developments.
+
+See the ChangeLog for details.
+
+link:/downloads/xenomai/stable/xenomai-2.2.6.tar.bz2[Download]
+
+[[xenomai-ported-to-x86_64]]
+*2007-03-01* Xenomai ported to x86_64
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Xenomai has been fully ported to the x86_64 architecture. This
+development is currently available from our development trunk, and will
+be part of the upcoming 2.4 release.
+
+[[xenomai-v2.3]]
+*2006-12-26* Xenomai v2.3
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is Xenomai v2.3. Five months work, 660 commits since v2.2 which
+brought the following:
+
+* *RTDM-based CAN* implementation.
+* A lot of *PowerPC* work (major I-pipe upgrade to kernel 2.6.18).
+* A lot of *ARM* work (I-pipe tracer, board support for the Samsung
+S3C24xx series).
+* A lot of *Blackfin* work (I-pipe tracer, major I-pipe upgrade to
+kernel 2.6.18 for the BF53x boards).
+* A lot of *x86* work (major I-pipe upgrades to kernels 2.6.19 and
+2.4.34).
+* Direct syscall interface to the *pSOS skin* for running real-time
+applications in regular user-space context.
+* *Nucleus updates* in various areas (aperiodic timers management,
+runtime accounting, software watchdog, message pipes, shared interrupt
+support, debug infrastructure).
+* Assorted bug fixes all over the map.
+
+See the ChangeLog for details.
+
+link:/downloads/xenomai/stable/xenomai-2.3.0.tar.bz2[Download]
+
+[[xenomai-v2.3-rc3]]
+*2006-12-17* Xenomai v2.3-rc3
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the third candidate release for the v2.3.x branch. This is
+intended to be last release candidate before final, so make sure to have
+a look to the platform/architecture/feature you are interested in.
+
+Short log follows:
+
+* *nucleus*
+** Decouple lock debugging from runtime stats activation.
+** Enhance granularity of debug options. Generalize the use of debug
+assertions.
+** Add memory barriers to shared IRQ support code manipulating reference
+counts.
+** Reinstate i/o permissions when transitioning from secondary to
+primary mode (x86).
+** Prevent non-mapped threads for running xnshadow_unmap.
+* *vxworks, vrtx, rtai*
+** Add missing checks for the XNBREAK condition.
+* *vxworks*
+** Fix arg passing at (user-space) task creation.
+* *vrtx*
+** Free heap control block memory when released.
+* *psos*
+** Implement direct syscall interface.
+* *posix*
+** Fix random fault in user-space at thread creation.
+** Fix return value of sem_timed_wait.
+** Generalize the use of debug assertions.
+* *native*
+** Add rt_mutex_lock/rt_mutex_unlock wrappers.
+** Make rt_queue_inquire return the amount of pool memory used.
+* *drivers/can*
+** core: Various updates. Add TX loopback support to local sockets. Add
+empty filter support through setsockopt.
+** sja1000: Add support for IXXAT PCI cards.
+* *rtdm*
+** Minor updates.
+
+See the ChangeLog for details.
+
+link:/downloads/xenomai/testing/xenomai-2.3-rc3.tar.bz2[Download]
+
+[[xenomai-v2.3-rc2]]
+*2006-11-19* Xenomai v2.3-rc2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the second candidate release for the v2.3.x branch. Short log
+follows:
+
+* *hal*
+** ppc, arm: Make sure to return the last "current" value from Xenomai
+context switch routines.
+** x86: Handle issues raised by hidden uses of the FPU from regular
+Linux drivers.
+* *nucleus*
+** Account for all extents when reporting the total heap size.
+** Serialize export/unexport requests properly in case of varying source
+domains.
+** Fix interrupt shield support.
+** Fix random softlockup on SMP due to a missing rescheduling call after
+a task exit event has been processed.
+* *scripts*
+** Add help strings extraction tool to provide on-line documentation of
+2.4 kernel options.
+** Switch to FDPIC library format for Blackfin instead of FLAT.
+* *drivers*
+** rtcan: sja1000 fixes.
+* *vrtx*
+** Fix init code regarding workspace allocation.
+** Fix exec mode bits for sc_tsuspend() and sc_tresume().
+** Use delayed memory release service to free TCBs.
+* *vxworks*
+** Set auto-delete flag for user-space tasks.
+* *psos+*
+** Preliminary user-space support merged.
+
+This version may be download on
+link:/downloads/xenomai/testing/xenomai-2.3-rc2.tar.bz2[GNA
+workspace].
+
+[[xenomai-v2.3-rc1]]
+*2006-11-05* Xenomai v2.3-rc1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the first candidate release for the *v2.3.x branch*, which
+should lead us to 2.3 final, after some iterations. A *RTDM-compliant
+CAN driver* stack is likely the most significant addition to this
+release, along with tons of local improvements and bugfixes all over the
+map. Short(and non-exhaustive) log follows:
+
+* *nucleus*
+** Introduce the aperiodic timer wheel as an alternative to binary heaps
+for efficiently handling a significant number of outstanding timers.
+** Don't send migration or deletion signals to dormant threads.
+** Check for wait abort in `xnsynch_sleep_on()`. Fully refactor the
+resource stealing feature.
+** Make sure `xnsynch_flush()` does not alter ownership.
+** Allow sharing the timer IRQ (basically for ARM).
+** Iron mode transition using the `TASK_NOWAKEUP` support whenever
+available from the I-pipe.
+** Optimize syscall propagation using the new `PF_EVNOTIFY` per-task
+filter.
+** Streamline nucleus SMP lock implementation.
+** Introduce generic support for runtime statistics (`xnstat`).
+** Refactor locking code in interrupt support. Improve shared interrupt
+code. Use generic support for runtime accounting.
+** Rework the watchdog support.
+* *uvm*
+** Feature removed.
+* *testsuite*
+** Add IRQ benchmark program.
+** Improve tests output.
+* *scripts*
+** Fix modular build for 2.4.
+* *hal*
+** x86: Prevent the 2.4 speaker support from perturbating Xenomai's TSC
+emulation code.
+** ppc: Port over 2.6.18.
+** arm: Upgrade Adeos support.
+* *native*
+** Fix `rt_queue_read()` timeout.
+** Fix `rt_queue_send()` upon null broadcast (wrong reference count).
+* *rtdm*
+** Enhance non-RT locking during `/proc` access.
+** Add `rtdm_iomap_to_user()` service.
+* *posix*
+** Fix mutex attribute handling from user-space.
+** Properly handle cancellation requests in `pthread_cond_wait()`.
+** Add the `--enable-posix-auto-mlockall` option to the main configure
+script.
+** Allow `sched_yield()` to pick secondary mode threads when
+`SCHED_OTHER` is in effect.
+** Make the timer management better conform to the POSIX spec.
+** Make `pthread_join()` callable from module init/cleanup routines.
+* *drivers*
+** Refactor RTDM types for timeout and dates.
+** Add RT-Socket-CAN, a RTDM compliant driver for CAN devices.
+
+As a sidenote, please note that this branch will be the first one to
+support the latest Linux kernels (>= 2.6.18).
+
+This version may be download on
+link:/downloads/xenomai/testing/xenomai-2.3-rc1.tar.bz2[GNA
+workspace].
+
+[[fifth-maintenance-release-for-the-v2.2.x-branch]]
+*2006-11-05* Fifth maintenance release for the v2.2.x branch
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the fifth maintenance release for the v2.2.x branch. Short log
+follows:
+
+* *nucleus*
+** Fix period validity check when setting up the timer for periodic
+timing mode.
+* *hal*
+** ppc: Define special wrappers to `get/put_user` macros which bypass
+the `might_sleep()` checks. Upgrade Adeos support.
+** x86: Upgrade Adeos support.
+** arm: Upgrade Adeos support.
+* *native*
+** Fix `rt_queue_send()` upon null broadcast (wrong reference count).
+* *posix*
+** Make sure to read interrupt-related macros from the core headers when
+including posix/pthread.h from user-space.
+
+See the ChangeLog for more details. This version may be downloaded on
+the link:/downloads/xenomai/stable/xenomai-2.2.5.tar.bz2[GNA
+workspace area]
+
+[[fourth-maintenance-release-for-the-v2.2.x-branch]]
+*2006-10-15* Fourth maintenance release for the v2.2.x branch
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the fourth maintenance release for the *v2.2.x branch*. Short
+log follows:
+
+* [nucleus]
+** Raise XNBREAK as required when resuming a forcibly suspended shadow
+thread upon Linux signal receipt.
+** Rework the watchdog implementation, so that it does not depend on the
+Linux tick to be relayed through the nucleus (e.g.
+`CONFIG_X86_LOCAL_APIC`). Export the watchdog status to
+`/proc/xenomai/timer`.
+** Fix `__xn_copy_from/to_user()` so that none of their arguments could
+be shadowed by the internal variable used to hold the return value. This
+issue affects _all_ architectures.
+** x86: partially revert commit #1595 to fix FPU management regression
+issues that surfaced in 2.2.3. Fix CONFIG_PCI_MSI issue by upgrading to
+Adeos 2.6.17-1.5-00.
+* blackfin: Sync with Blackfin's CVS head as of 2006-10-08.
+* [hal]
+** powerpc: Fix computation of periodic tick value to prevent 32bit
+arithmetic overflow. Add Adeos support for Linux 2.6.18.
+** blackfin: Upgrade generic Adeos support to the latest release.
+** arm: Fix syscall propagation issue with previous Adeos 1.5-00
+release.
+* [uvm]
+** Iron context switch emulation to prevent spurious wakeups upon Linux
+signal receipts.
+* [posix]
+** Add missing wrapper to `__real_pthread_getschedparam()`.
+* [rtdm]
+** Fix return value from copy_to/from_user().
+* [psos]
+** Fix size information passed to internal `msgQLib` routines.
+** Reschedule after task mode change (t_mode).
+
+As a sidenote, you will notice that the latest Adeos patches for i386,
+powerpc and Blackfin are bigger than they used to; this is due to the
+integration of the I-pipe tracer feature into the standard Adeos
+support, that used to live in a separate patch up to now. This feature
+is currently forcibly disabled for the Blackfin architecture though,
+since it is not fully functional yet, but this should improve with the
+next releases.
+
+See the ChangeLog for details.
+
+link:/downloads/xenomai/stable/xenomai-2.2.4.tar.bz2
+
+[[third-maintenance-release-for-the-v2.2.x-branch]]
+*2006-09-24* Third maintenance release for the v2.2.x branch
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is the third maintenance release for the *v2.2.x branch*. Short log
+follows:
+
+* [nucleus]
+** Use per-task event filter implemented by recent Adeos patches, to
+reduce the overhead induced by event pipelining.
+** Support partial buffer reading from the message pipe device endpoint.
+** Fix spurious wakeup triggered by the periodic handler for threads
+blocked on a resource.
+** x86: Make sure to always restore the FPU context of the root thread
+consistently with the TS bit state.
+* [hal] Toggle `IRQ_DISABLED` appropriately when enabling/disabling an
+interrupt channel.
+* [posix] Make pthread_join() usable from module init/cleanup routines.
+* [native] Optimize data streaming mode.
+* [rtai]
+* Improve compliance of `rtf_get()`.
+* Fix memory leak in `rtf_destroy()`.
+
+See the ChangeLog for details and download this new version here .

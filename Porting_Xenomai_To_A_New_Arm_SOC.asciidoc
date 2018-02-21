@@ -1,0 +1,1715 @@
+Porting Xenomai dual kernel to a new ARM SoC
+============================================
+:author:	Gilles Chanteperdrix
+:categories:	Core
+:tags:		i-pipe, arm
+
+This document will try and guide you through the task of porting
+the I-pipe core to a new ARM SoC. This is all that is necessary to get
+Xenomai dual kernel to run on this SoC.
+
+If you have questions, suggestions or other comments, please use the
+mailto:xenomai@xenomai.org[xenomai mailing list]. It is a
+subscriber-only mailing list, so please subscribe
+link:/mailman/listinfo/xenomai/[here] before posting.
+
+[[terminology]]
+Terminology
+-----------
+
+If you are reading this document, chances are you want to get Xenomai
+dual kernel to run on an ARM based *board*. Examples of **board**s are
+"beagleboard", "beaglebone", "raspberry pi".
+
+This board uses an ARM based *SoC*. Examples of **SoC**s are Atmel
+AT91RM9200, Atmel AT91SAM9263, TI OMAP3530, TI OMAP4430, Freescale
+IMX53. We use *SoC family* to loosely designate groups of SoCs which
+have so many peripherals in common that peripheral support code is
+shared between them. For instance, there is an "AT91" family,
+including the AT91RM9200 and AT91SAM9263 SoCs, and several others.
+
+This SoC is based on a processor *core* implementing the ARM instruction
+set, examples of such **core**s are ARM 926EJ-S, Intel/Marvell Xscale,
+Marvell Feroceon, ARM Cortex A8, ARM Cortex A9.
+
+Finally, this processor core implements an ARM *architecture*, sort of
+revision of the ARM instruction set. Examples of ARM **architecture**s are
+armv4, armv5, armv6 and armv7.
+
+So, for instance, the IGEPv2 *board* uses the TI OMAP3530 *SoC*,
+member of the OMAP *SoC family*, based on the ARM Cortex A8 *core*,
+implementing the armv7 *architecture*.
+
+[[where-is-the-code]]
+Where is the code?
+------------------
+
+First, you should identify what are the SoC, processor core and
+architecture of the SoC used by your board, then where is the code for
+this SoC and board. In order to find that you can use the Linux kernel
+Kconfig and Makefiles in various sub-directories in the Linux kernel
+sources. Linux code specific to an ARM based SoC or SoC family X is
+located in arch/arm/mach-X or arch/arm/plat-Y, some code may also reside
+in the drivers directory, for instance in drivers/clocksource,
+drivers/gpio or drivers/irqchip.
+
+The hardware needed by the I-pipe core (hardware timer, high resolution
+counter, interrupt controller, GPIO controller) is specific to each SoC,
+which is why the SoC specific code needs to be adapted to run with the
+I-pipe core. If the processor core the SoC you use is an ARM Cortex A9,
+however, things are going to be a bit easier, as the Cortex A9 core
+contains an interrupt controller, a hardware timer and a high resolution
+counter. If it is based on an ARM core implementing the armv4 or armv5
+architecture, you may be interested in the
+link:#Fast_context_switch_extension[fast context switch extension], for
+which some additional work may be needed.
+
+For instance, if we try and discover all this for the "mini2440" board
+in the Linux 3.2 kernel, we find, using grep, in
+arch/arm/mach-s3c2440/Kconfig:
+
+-------------------------------------------------------------------------------
+ config MACH_MINI2440
+	bool "MINI2440 development board"
+	select CPU_S3C2440
+	select EEPROM_AT24
+	select NEW_LEDS
+	select LEDS_CLASS
+	select LEDS_TRIGGER
+	select LEDS_TRIGGER_BACKLIGHT
+	select S3C_DEV_NAND
+	select S3C_DEV_USB_HOST
+	help
+	  Say Y here to select support for the MINI2440. Is a 10cm x 10cm board
+	  available via various sources. It can come with a 3.5" or 7"
+	touch LCD.
+-------------------------------------------------------------------------------
+
+Then looking for CPU_S3C2440, in the same file:
+
+-------------------------------------------------------------------------------
+ config CPU_S3C2440
+	bool
+	select CPU_ARM920T
+	select S3C2410_CLOCK
+	select S3C2410_PM if PM
+	select S3C2440_DMA if S3C2410_DMA
+	select CPU_S3C244X
+	select CPU_LLSERIAL_S3C2440
+	help
+	  Support for S3C2440 Samsung Mobile CPU based systems.
+-------------------------------------------------------------------------------
+
+In arch/arm/Kconfig, we find that arch/arm/mach-s3c2440/Kconfig is only
+used if ARCH_S3C2410 is enabled. The Kconfig snippet for ARCH_S3C2410
+is:
+
+-------------------------------------------------------------------------------
+ config ARCH_S3C2410
+	bool "Samsung S3C2410, S3C2412, S3C2413, S3C2416, S3C2440, S3C2442, S3C2443, S3C2450"
+	select GENERIC_GPIO
+	select ARCH_HAS_CPUFREQ
+	select HAVE_CLK
+	select CLKDEV_LOOKUP
+	select ARCH_USES_GETTIMEOFFSET
+	select HAVE_S3C2410_I2C if I2C
+	help
+	  Samsung S3C2410X CPU based systems, such as the Simtec Electronics
+	  BAST (<http://www.simtec.co.uk/products/EB110ITX/>), the IPAQ 1940 or
+	  the Samsung SMDK2410 development board (and derivatives).
+
+	  Note, the S3C2416 and the S3C2450 are so close that they even share
+	  the same SoC ID code. This means that there is no separate machine
+	  directory (no arch/arm/mach-s3c2450) as the S3C2416 was first.
+-------------------------------------------------------------------------------
+
+Then looking for CPU_ARM920T, we arrive at arch/arm/mm/Kconfig:
+
+-------------------------------------------------------------------------------
+ config CPU_ARM920T
+	bool "Support ARM920T processor" if ARCH_INTEGRATOR
+	select CPU_32v4T
+	select CPU_ABRT_EV4T
+	select CPU_PABRT_LEGACY
+	select CPU_CACHE_V4WT
+	select CPU_CACHE_VIVT
+	select CPU_CP15_MMU
+	select CPU_COPY_V4WB if MMU
+	select CPU_TLB_V4WBI if MMU
+	help
+	  The ARM920T is licensed to be produced by numerous vendors,
+	  and is used in the Cirrus EP93xx and the Samsung S3C2410.
+
+	  Say Y if you want support for the ARM920T processor.
+	  Otherwise, say N.
+-------------------------------------------------------------------------------
+
+So, finally, the "mini2440" board uses the Samsung S3C2440 *SoC*, member
+of the Samsung S3C2410 *SoC family*, based on an ARM 920T *core*,
+implementing the armv4 *architecture*.
+
+In order to find where is the code for this SoC, we have to look for the
+following symbols in Makefiles under the arch/arm directory:
+-------------------------------------------------------------------------------
+ CONFIG_MACH_MINI2440
+ CONFIG_CPU_S3C2440
+ CONFIG_ARCH_S3C2410
+-------------------------------------------------------------------------------
+
+The CONFIG_ARCH_S3C2410 symbols also gets the following symbol defined:
+-------------------------------------------------------------------------------
+ CONFIG_PLAT_S3C24XX
+-------------------------------------------------------------------------------
+
+Finding this out may be a bit hard, but a simple way is to grep
+CONFIG_PLAT in the kernel configuration file (.config).
+
+So, finally, exploring the arch/arm/Makefile, we find:
+
+-------------------------------------------------------------------------------
+ machine-$(CONFIG_ARCH_S3C2410) := s3c2410 s3c2412 s3c2416 s3c2440 s3c2443
+
+ plat-$(CONFIG_PLAT_S3C24XX) := s3c24xx samsung
+-------------------------------------------------------------------------------
+
+Which tells us that files in the following directories are used for the
+"mini2440" board:
+-------------------------------------------------------------------------------
+ arch/arm/mach-s3c2410
+ arch/arm/mach-s3c2412
+ arch/arm/mach-s3c2416
+ arch/arm/mach-s3c2440
+ arch/arm/mach-s3c2443
+ arch/arm/plat-s3c24xx
+ arch/arm/plat-samsung
+-------------------------------------------------------------------------------
+
+The file really specific to the "mini2440" board being:
+arch/arm/mach-s3c2440/mach-mini2440.c In particular, it contains the
+MACHINE_START/MACHINE_END declaration which will be useful in the rest
+of this document.
+
+[[hardware-timer]]
+Hardware timer
+--------------
+
+In order to implement its timer services, Xenomai needs a hardware timer
+which can be programmed to tick, as precisely as possible, at a certain
+date. In other words, a timer programmable in one-shot mode. Support for
+this hardware timer is provided by the I-pipe core patch in the form of
+a structure of type "struct ipipe_timer".
+
+On ARM, for most SoCs, the hardware timer details are specific to each
+SoC or SoC family, so, this "struct ipipe_timer" must be added on a SoC
+per SoC basis. There are several ways, however, to provide this
+structure to the I-pipe core.
+
+[[the-cortex-a9-case]]
+The Cortex-A9 case
+~~~~~~~~~~~~~~~~~~
+
+If the SoC you use is not based on the ARM Cortex A9 core, skip to the
+link:#The_general_case[next section]. In case of SoCs based on the ARM
+Cortex A9 core, the hardware timer is provided by the processor core,
+and not specific to the SoC, so, the timer code has already been
+modified to provide the "struct ipipe_timer" structure to the I-pipe
+core, in the file arch/arm/kernel/smp_twd.c. However, you should make
+sure that the Linux kernel compiles and uses the ARM Cortex A9 hardware
+timer code when compiled for the SoC you use.
+
+For that, you should make sure that the smp_twd timer is
+registered. If your board uses device tree, you should see if it
+declares a clock source with a "compatible" string containing
+"twd-timer". If your board uses a static board file, starting with
+link:#before_3.3[Linux 3.3] it should call the
+twd_local_timer_register() function.
+
+If the SoC you use does not use the smp_twd timer and there is no
+kernel configuration option allowing to select it, you will have to
+register per-cpu timers using link:#The_general_case[next section].
+
+Another issue with the Cortex A9 hardware timer is that Linux support
+code for this timer, when patched with the I-pipe core patch, gives
+imprecise timer frequency calibration results, resulting in timer
+issues (namely, early shots). In order to avoid this imprecise
+calibration, the Linux kernel allows passing the known frequency of
+the smp_twd timer.
+
+Starting with Linux 3.8, this clock frequency may be passed through
+the device tree if the smp_twd timer is registered through the device
+tree. If the timer is registered statically, starting with
+link:#before_3.3[Linux 3.3] the smp_twd timer could get the frequency
+from a clock named "smp_twd".
+
+So, early I-pipe core patches contained declarations of the "smp_twd"
+clock for the various supported SoCs. This declaration was SoC
+specific, since the clocks implementation was specific to each SoC,
+but usually, adding this new clock meant declaring a new structure for
+it, and registering this structure in an array. For instance, in the
+case of OMAP4430, arch/arm/mach-omap2/clock44xx_data.c was modified to
+add the code:
+
+-------------------------------------------------------------------------------
+ static struct clk smp_twd = {
+       .name           = "smp_twd",
+       .parent         = &dpll_mpu_ck,
+       .ops            = &clkops_null,
+       .fixed_div      = 2,
+       .recalc         = &omap_fixed_divisor_recalc,
+ };
+
+ /* ... */
+
+	CLK(NULL,               "smp_twd",      &smp_twd,               CK_443X),
+-------------------------------------------------------------------------------
+
+In the case of the mx6q, we added to arch/arm/mach-imx/clock-imx6q.c the
+following code:
+
+-------------------------------------------------------------------------------
+ static unsigned long twd_clk_get_rate(struct clk *clk)
+ {
+	return clk_get_rate(clk->parent) / 2;
+ }
+
+ static struct clk twd_clk = {
+	.parent = &arm_clk,
+	.get_rate = twd_clk_get_rate,
+ };
+
+ /* ... */
+
+	_REGISTER_CLOCK(NULL, "smp_twd", twd_clk),
+-------------------------------------------------------------------------------
+
+[[the-general-case]]
+The general case
+~~~~~~~~~~~~~~~~
+
+You should look for the hardware timer support code for your SoC.
+Usually, this may be found in drivers/clocksource or
+arch/arm/mach-X/time.c or arch/arm/plat-Y/time.c. Starting with Linux
+3.9, the timer devices may be registered via device tree. If your
+board uses a device tree file, look for a device with a compatible
+string containing "-timer" and try and find the corresponding file in
+one of the places mentioned above.
+
+For a long time, now, Linux has been using the "clock_event"
+infrastructure as the preferred way to provide support for a SoC
+hardware timer.
+
+So, if your board does not use a device tree file, you can first try
+to look for the definition of a variable of type "struct
+clock_event_device".
+
+If that does not work, the way to systematically find the timer used
+by your board if it does not use a device tree file is to start from
+the board file (usually arch/arm/mach-X/board-Y.c) for your board, and
+in between the MACHINE_START/MACHINE_END declarations, look at the
+variable used for the "timer" member. This variable is of type "struct
+sys_timer" and contains at least one call-back named "init". The place
+where this function is implemented is usually where you will find the
+timer support code.
+
+For instance, in the case of the mini2440 board, the board file is
+arch/arm/mach-s3c2440/mach-mini2440.c and contains the code:
+
+-------------------------------------------------------------------------------
+ MACHINE_START(MINI2440, "MINI2440")
+	/* Maintainer: Michel Pollet <buserror@gmail.com> */
+	.atag_offset    = 0x100,
+	.map_io         = mini2440_map_io,
+	.init_machine   = mini2440_init,
+	.init_irq       = s3c24xx_init_irq,
+	.timer          = &s3c24xx_timer,
+ MACHINE_END
+-------------------------------------------------------------------------------
+
+So, we should look for the definition of the "s3c24xx_timer" variable.
+This variable is defined in arch/arm/plat-samsung/time.c and the "init"
+member is "s3c2410_timer_init", defined in the same file.
+
+Now, if the hardware timer support code uses the "clock_event"
+infrastructure, and, additionally, implements support for the one-shot
+mode (the "features" member of the clock_event_device structure contains
+CLOCK_EVT_FEAT_ONESHOT), your job will be easy. Otherwise, you should
+find the SoC data-sheet or reference guide containing the documentation
+for the hardware timer registers, and try to find out what type it is
+(decrementer or free-running counter with match register), and how to
+use it in one-shot mode.
+
+You have to decide finally if you choose to share the hardware timer
+used by Linux with Xenomai, or if you are going to use a different
+hardware timer (some SoC have several hardware timers available). As a
+rule of thumb, if you are going to implement
+link:#Interrupt_Controller_muting[interrupt controller muting], it is
+better to use a different hardware timer for Linux and Xenomai,
+otherwise it is better to use the same timer.
+
+The "struct ipipe_timer" structure, defined in
+include/linux/ipipe_tickdev.h contains the following members:
+
+* `int irq`
+
+This is the number of the irq used for the timer interrupt. Providing it
+is mandatory.
+
+* `void (*request)(struct ipipe_timer *timer, int steal)`
+
+This call-back is called by the I-pipe core when Xenomai starts using
+the hardware timer. It should set the hardware timer to one-shot mode.
+The "steal" parameter is true if Xenomai is starting to use a timer
+which was already in use by Linux.
+
+If the hardware timer support code for Linux uses the clock_event
+infrastructure, supports one-shot mode, and the I-pipe core is going to
+use the same timer as Linux, this call-back may be omitted, the I-pipe
+core is going to use a default call-back which calls the "set_mode"
+member of the clock_event_device structure.
+
+* `int (*set)(unsigned long ticks, void *timer)`
+
+This call-back is called by the I-pipe core every time Xenomai needs to
+reprogram the hardware timer. It should program the hardware timer to
+elapse in "ticks" ticks. For instance, if the hardware timer is based on
+a decrementer, this call-back should set the decrementer register with
+the "ticks" value. If the hardware timer is based on a free-running
+counter and a match register, this call-back should set the match
+register to the sum of the current value of the free-running counter and
+the "ticks" parameter. This function should return 0 in case of success
+or a negative value in case of too short delay (in case of a
+free-running counter and a match register, this can be detected by
+re-reading the free-running counter after having programmed the match
+register, if the free-running counter has now passed the match register
+value, the delay was too short, and the programming may have failed).
+
+If the hardware timer support code for Linux uses the clock_event
+infrastructure, supports one-shot mode, and the I-pipe core is going to
+use the same timer as Linux, this call-back may be omitted, the I-pipe
+core is going to use the "set_next_event" member of the
+clock_event_device structure. Care must be taken however that this
+call-back is called from Xenomai context, so the set_next_event should
+not call any Linux services, such as spinlock services, otherwise a
+separate call-back must be implemented (or in case of a spinlock, the
+spinlock turned into an link:#I_Pipe_spinlocks[I-pipe spinlock]).
+
+* `void (*ack)(void)`
+
+This call-back is called by the I-pipe core upon timer interrupt, and it
+should acknowledge the timer interrupt at hardware timer level. It is
+almost always necessary to provide this call-back.
+
+If the hardware timer is shared with Linux, the code to do this is
+generally contained in the Linux timer interrupt, so the Linux timer
+interrupt should be modified to only acknowledge the timer interrupt if
+the timer is not controlled by Xenomai. See the link:#Example[example]
+for a way to do this avoiding to duplicate the timer acknowledgement
+code.
+
+* `void (*release)(struct ipipe_timer *timer)`
+
+This call-back is called by the I-pipe core when Xenomai stops
+controlling the hardware timer. It should restore the timer to its state
+at the time when the "request" call-back was called. For instance, if
+the timer was running in periodic mode, and the "request" call-back put
+it in one-shot mode, this call-back should set it again to periodic
+mode.
+
+If the hardware timer support code for Linux uses the clock_event
+infrastructure, supports one-shot mode, and the I-pipe core is going to
+use the same timer as Linux, this call-back may be omitted, the I-pipe
+core is going to use a default call-back which calls the "set_mode"
+member of the clock_event_device structure.
+
+* `const char *name`
+
+Name of the timer, for information printed in the /proc/xenomai/timer
+file.
+
+If the hardware timer support code for Linux uses the clock_event
+infrastructure and the I-pipe core is going to use the same timer as
+Linux, this variable may be omitted, the same name as the Linux
+clock_event device will be used.
+
+* `unsigned rating`
+
+"rating" of the timer. If support for several hardware timers is
+provided with different ratings, the one with the highest rating will be
+used by Xenomai.
+
+If the hardware timer support code for Linux uses the clock_event
+infrastructure and the I-pipe core is going to use the same timer as
+Linux, this variable may be omitted, the same value as the Linux
+clock_event device will be used.
+
+* `unsigned long freq`
+
+frequency of the hardware timer. Generally this value should be obtained
+from the clock framework (using the function clk_get_rate and the
+"struct clk" pointer to the clock used by the timer).
+
+If the hardware timer support code for Linux uses the clock_event
+infrastructure and the I-pipe core is going to use the same timer as
+Linux, this variable may be omitted, the same value as the Linux
+clock_event device will be used.
+
+* `unsigned min_delay_ticks`
+
+The hardware timer minimum delay as a count of ticks. Almost all timers
+based on free-running counters and match register have a threshold below
+which they can not be programmed. When you program such a timer with a
+too short value, the free-running counter will need to wrap before it
+matches the match register again, so the timer will appear to be stopped
+for a long time, then suddenly restart.
+
+In case when this minimum delay is known as a real-time duration and not
+a count of ticks, the "ipipe_timer_ns2ticks" can be used, the "freq"
+member of the "struct ipipe_timer" structure must have been set prior to
+that.
+
+If the hardware timer support code for Linux uses the clock_event
+infrastructure and the I-pipe core is going to use the same timer as
+Linux, this variable may be omitted, the same value as the Linux
+clock_event device will be used.
+
+* `const struct cpumask *cpumask`
+
+A cpumask containing the set of cpus where this timer will be run. On
+SMP systems, there should be several "struct ipipe_timer" structures
+defined, each with only one cpu in the cpumask member.
+
+If the hardware timer support code for Linux uses the clock_event
+infrastructure and the I-pipe core is going to use the same timer as
+Linux, this variable may be omitted, the same value as the Linux
+clock_event device will be used.
+
+Once this structure is defined, there are two ways to register it to the
+I-pipe core:
+
+* if the hardware timer support code for Linux uses the clock_event
+infrastructure and the I-pipe core is going to use the same hardware
+timer as Linux, the member "ipipe_timer" of the "clock_event_device"
+structure should be set to this structure, and the structure will be
+registered by "clockevents_register_device".
+* otherwise, the ipipe_timer_register service should be called, passing
+a pointer to the structure.
+
+[[example]]
+Example
+~~~~~~~
+
+As an example, let us look at the OMAP3 code in the I-pipe core for
+Linux 3.2. The unmodified Linux code is as this:
+
+-------------------------------------------------------------------------------
+ static irqreturn_t omap2_gp_timer_interrupt(int irq, void *dev_id)
+ {
+	struct clock_event_device *evt = &clockevent_gpt;
+
+	__omap_dm_timer_write_status(&clkev, OMAP_TIMER_INT_OVERFLOW);
+
+	evt->event_handler(evt);
+	return IRQ_HANDLED;
+ }
+-------------------------------------------------------------------------------
+
+The call to "__omap_dm_timer_write_status" acknowledges the interrupt
+hardware timer level.
+
+-------------------------------------------------------------------------------
+ static struct clock_event_device clockevent_gpt = {
+	.name           = "gp timer",
+	.features       = CLOCK_EVT_FEAT_PERIODIC | CLOCK_EVT_FEAT_ONESHOT,
+	.shift          = 32,
+	.set_next_event = omap2_gp_timer_set_next_event,
+	.set_mode       = omap2_gp_timer_set_mode,
+ };
+-------------------------------------------------------------------------------
+
+This shows that the Linux hardware timer support code supports one-shot
+mode, and closer inspection reveals that omap2_gp_timer_set_next_event
+does not call any Linux service which can not be called from real-time
+domain, so, this timer can be shared with Xenomai. The I-pipe core
+modifies this code in the following way:
+
+-------------------------------------------------------------------------------
+ static void omap2_gp_timer_ack(void)
+ {
+	__omap_dm_timer_write_status(&clkev, OMAP_TIMER_INT_OVERFLOW);
+ }
+
+ static irqreturn_t omap2_gp_timer_interrupt(int irq, void *dev_id)
+ {
+	struct clock_event_device *evt = &clockevent_gpt;
+
+	if (!clockevent_ipipe_stolen(evt))
+		omap2_gp_timer_ack();
+
+	evt->event_handler(evt);
+	return IRQ_HANDLED;
+ }
+
+ #ifdef CONFIG_IPIPE
+ static struct ipipe_timer omap_itimer = {
+	.ack = omap2_gp_timer_ack,
+ };
+ #endif /* CONFIG_IPIPE */
+
+ static struct clock_event_device clockevent_gpt = {
+	.name           = "gp timer",
+	.features       = CLOCK_EVT_FEAT_PERIODIC | CLOCK_EVT_FEAT_ONESHOT,
+	.shift          = 32,
+	.set_next_event = omap2_gp_timer_set_next_event,
+	.set_mode       = omap2_gp_timer_set_mode,
+ };
+
+ static void __init omap2_gp_clockevent_init(int gptimer_id,
+						const char *fck_source)
+ {
+	/* ... */
+ #ifdef CONFIG_IPIPE
+	/* ... */
+		omap_itimer.irq = clkev.irq;
+		omap_itimer.min_delay_ticks = 3;
+		clockevent_gpt.ipipe_timer = &omap_itimer;
+	/* ... */
+ #endif /* CONFIG_IPIPE */
+
+	clockevents_register_device(&clockevent_gpt);
+
+	/* ... */
+ }
+-------------------------------------------------------------------------------
+
+For other examples not relying on the clock_event infrastructure, see
+
+* arch/arm/mach-at91/at91_ipipe.c, an example of 16 bits hardware timer
+based on a free-running counter and a match register, different from the
+one used by Linux
+* arch/arm/plat-samsung/time.c, an example of 16 bits decrementer,
+shared between Linux and Xenomai, but not using the clock_event
+infrastructure.
+
+[[high-resolution-counter]]
+High resolution counter
+-----------------------
+
+Since Xenomai timer management is based on a timer running in one-shot
+mode, and in order for applications to be able to measure short time
+intervals, a high resolution counter is needed. Again, the hardware
+which can be used for such purposes depends on the SoC. Since Xenomai
+originated on the x86 processor architecture, this high resolution
+counter is called tsc (short for timestamp counter). As in the case of
+timer management, a structure exists named "struct __ipipe_tscinfo"
+which must be filled and registered to the I-pipe core. You should also
+ensure that the symbol "CONFIG_IPIPE_ARM_KUSER_TSC" gets selected. For
+instance, in arch/arm/Kconfig, you find:
+
+-------------------------------------------------------------------------------
+ config PLAT_SPEAR
+	bool "ST SPEAr"
+	select ARM_AMBA
+	select ARCH_REQUIRE_GPIOLIB
+	select IPIPE_ARM_KUSER_TSC if IPIPE
+	select CLKDEV_LOOKUP
+	select CLKSRC_MMIO
+	select GENERIC_CLOCKEVENTS
+	select HAVE_CLK
+	help
+	  Support for ST's SPEAr platform (SPEAr3xx, SPEAr6xx and  SPEAr13xx).
+-------------------------------------------------------------------------------
+
+It is possible to implement support for a high resolution counter
+without CONFIG_IPIPE_ARM_KUSER_TSC, as was the case for old I-pipe
+patches, and as documented in old versions of this document. However
+it is deprecated, and is not be supported by Xenomai 3.
+
+[[the-cortex-a9-case-1]]
+The Cortex A9 case
+~~~~~~~~~~~~~~~~~~
+
+If the SoC you use is not based on the ARM Cortex A9 core, skip to the
+link:#The_general_case_2[next section]. In case of SoCs based on the ARM
+Cortex A9 core, the hardware used as high resolution counter is provided
+by the ARM core (we use the Cortex A9 "global timer"), and not specific
+to the SoC, so, the code has already been modified to provide the
+"struct __ipipe_tscinfo" structure to the I-pipe core, in the file
+arch/arm/kernel/smp_twd.c.
+
+Before link:#before_3.4[the I-pipe core for Linux 3.4], some
+additional work was needed to register this high resolution counter.
+
+[[the-general-case-1]]
+The general case
+~~~~~~~~~~~~~~~~
+
+The "struct __ipipe_tscinfo" structure, defined in
+arch/arm/include/asm/ipipe.h contains the following members:
+
+* `unsigned type`
+
+The type, possible values are:
+
+** IPIPE_TSC_TYPE_FREERUNNING
+
+the tsc is based on a free-running counter
+
+** IPIPE_TSC_TYPE_DECREMENTER
+
+the tsc is based on a decrementer
+
+** IPIPE_TSC_TYPE_FREERUNNING_COUNTDOWN
+
+the tsc is based on a free-running counter, counting down
+
+** IPIPE_TSC_TYPE_FREERUNNING_TWICE
+
+the tsc is based on a free-running counter which needs to be read
+twice (it sometimes returns wrong values, but never twice in a row)
+
+If the hardware you have at hand is not one of these, you need to
+
+** add a define for the type of hardware you have
+(IPIPE_TSC_TYPE_SOMETHING)
+
+** add an implementation (in assembly) for reading this counter and
+extending it to a 64 bits value. See arch/arm/kernel/ipipe_tsc_asm.S and
+arch/arm/kernel/ipipe_tsc.c for more details. Note that the assembly
+implementation is limited in size to 96 bytes, or 24 32 bits
+instructions.
+
+
+* `unsigned freq`
+
+The counter frequency
+
+* `unsigned long counter_vaddr`
+
+The virtual address (in kernel-space) of the counter
+
+* `unsigned long u.counter_paddr`
+
+The physical address of the counter
+
+* `unsigned long u.mask`
+
+The mask of valid bits in the counter value.
+
+For instance 0xffffffff for a 32 bits counter, or 0xffff for a 16 bits
+counter. Only a limited set of values are supported for each counter
+type. If you need an unsupported value, arch/arm/kernel/ipipe_tsc.c
+and arch/arm/kernel/ipipe_tsc_asm.S must be modified.
+
+Once a variable of type `__ipipe_tscinfo` is defined, it has to be
+registered to the I-pipe core with `__ipipe_tsc_register`.
+
+For instance, in arch/arm/mach-pxa/time.c, we have:
+
+-------------------------------------------------------------------------------
+ #ifdef CONFIG_IPIPE
+ static struct __ipipe_tscinfo tsc_info = {
+	.type = IPIPE_TSC_TYPE_FREERUNNING,
+	.counter_vaddr = (unsigned long)io_p2v(0x40A00010UL),
+	.u = {
+		{
+			.counter_paddr = 0x40A00010UL,
+			.mask = 0xffffffff,
+		},
+	},
+ };
+ #endif /* CONFIG_IPIPE */
+
+ static void __init pxa_timer_init(void)
+ {
+	/* ... */
+ #ifdef CONFIG_IPIPE
+	tsc_info.freq = clock_tick_rate;
+	__ipipe_tsc_register(&tsc_info);
+ #endif /* CONFIG_IPIPE */
+	/* ... */
+ }
+-------------------------------------------------------------------------------
+
+Since the tsc implementation extends the precision of the underlying
+hardware counter to 64 bits, it also needs to be refreshed at a lower
+period than the hardware counter wrap time. This refreshing is done by
+the __ipipe_tsc_update() function, which starting from
+link:#before_3.14[the I-pipe core for Linux 3.14] is called periodically.
+
+If your hardware timer is based on a 16 bits counter, it is probably
+not enough, and __ipipe_tsc_update() should be called in the I-pipe
+timer "set" call-back, every time the hardware timer is programmed.
+which should be called often enough.
+
+[[interrupt-controller]]
+Interrupt controller
+--------------------
+
+The I-pipe core needs to interact with the SoC interrupt controller, it
+uses a deferred interrupt model, which means that when an interrupt
+happens, it is first acknowledged and masked at the interrupt controller
+level, it will be handled then unmasked at a later time, which is
+slightly different from the way Linux handles interrupt, so require deep
+modifications.
+
+Fortunately, as for timer management, interrupt controllers
+specificities are embedded in the "struct irq_chip" structure, and
+interactions with them are implemented in a generic way, so almost no
+modifications need to be done in the SoC specific code. Though, there
+are a few things to which you should pay attention.
+
+As in the case of the timer and high resolution counter, the Cortex A9
+processor core contains an interrupt controller. So, if your SoC is
+based on the Cortex A9 core, you can skip to
+link:#config_Multi_Irq_Handler[the CONFIG_MULTI_IRQ_HANDLER section].
+
+Otherwise, first try and find where is the code for the interrupt
+controller management. Usually, it is in drivers/irqchip,
+arch/arm/mach-X/irq.c or arch/arm/plat-Y/irq.c. As for hardware timer,
+the irqchip may be registered through device tree, so you should look
+in the SoC device tree file for a node with one of the "compatible"
+strings passed to the IRQCHIP_DECLARE macro in the kernel sources. For
+a static board file, look for definitions of variables of the "struct
+irq_chip" type in the board files.
+
+[[call-backs-implementation]]
+call-backs implementation
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+First look at the implementation "struct irq_chip" structure members
+"irq_eoi", "irq_ack", "irq_mask", "irq_unmask". These functions will be
+called from real-time domain, so should not call any Linux services. In
+particular, if these functions use a spinlock (as may be useful on
+multi-processor systems), this spinlock should be turned into an
+link:#I_Pipe_spinlocks[I-pipe spinlock].
+
+For an example, see arch/arm/common/gic.c
+
+[[flow-handler]]
+flow handler
+~~~~~~~~~~~~
+
+Second, look at what "flow handler" is used for handling irqs. Possible
+flow handlers are "handle_level_irq", "handle_edge_irq",
+"handle_fasteoi_irq", "handle_percpu_devid_irq", etc...
+
+If the flow handler is "handle_fasteoi_irq" the implementation of the
+"struct irq_chip" members should be modified:
+
+* the irq_mask handler should call ipipe_lock_irq before accessing the
+interrupt controller registers
+* the irq_unmpask handler should call ipipe_unlock_irq after having
+accessed the interrupt controller registers
+* an irq_hold handler should be added (when CONFIG_IPIPE is enabled)
+having the same effect as the irq_mask handler (but without the call to
+ipipe_lock_irq), and the irq_eoi handler.
+* an irq_release handler should be added (when CONFIG_IPIPE is enabled)
+having the same effect as the irq_unmask handler, without the call to
+ipipe_unlock_irq.
+
+For an example of such modifications, see arch/arm/common/gic.c
+
+If the flow handler is "handle_edge_irq", and the systems locks up when
+the first interrupt happens, try replacing "handle_edge_irq" with
+"handle_level_irq".
+
+[[config-multi-irq-handler]]
+CONFIG_MULTI_IRQ_HANDLER
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+If the SoC you use enables this option, look in the board file between
+the MACHINE_START and MACHINE_END declarations for the "handle_irq"
+member. The implementation of this function should be in the interrupt
+controller file, and should be a loop decoding interrupts numbers by
+reading hardware registers, and calling "handle_IRQ".
+
+You should make sure that the code does not call any Linux functions
+forbidden to real-time domain, then replace the call to "handle_IRQ",
+with a call to "ipipe_handle_multi_irq".
+
+On SMP systems, the call to "handle_IPI" should be replaced with a call
+to "ipipe_handle_multi_ipi".
+
+For instance, in Linux 3.2 file arch/arm/plat-mxc/gic.c, we have:
+-------------------------------------------------------------------------------
+ asmlinkage void __exception_irq_entry gic_handle_irq(struct pt_regs *regs)
+ {
+	u32 irqstat, irqnr;
+
+	do {
+		irqstat = readl_relaxed(gic_cpu_base_addr + GIC_CPU_INTACK);
+		irqnr = irqstat & 0x3ff;
+		if (irqnr == 1023)
+			break;
+
+		if (irqnr > 15 && irqnr < 1021)
+			ipipe_handle_multi_irq(irqnr, regs);
+ #ifdef CONFIG_SMP
+		else {
+			writel_relaxed(irqstat, gic_cpu_base_addr +
+						GIC_CPU_EOI);
+			ipipe_handle_multi_ipi(irqnr, regs);
+		}
+ #endif
+	} while (1);
+ }
+-------------------------------------------------------------------------------
+
+[[multi-processor-systems]]
+multi-processor systems
+~~~~~~~~~~~~~~~~~~~~~~~
+
+On multi-processor systems, starting with link:#before_3.4[the I-pipe
+core for Linux 3.4], IPIs are mapped to VIRQs, and nothing needs to be
+added to the SoC support.
+
+[[gpios]]
+GPIOs
+~~~~~
+
+Most SoCs have GPIOs. In the context of Xenomai, they are interesting
+for two reasons:
+
+* they may be used by real-time drivers as input our output for
+communicating with peripherals externals to the SoC;
+* they may be used as interrupt sources.
+
+[[gpios-in-real-time-drivers]]
+GPIOs in real-time drivers
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As for hardware timers and interrupt controllers, the specificities of a
+GPIO controller are embedded in a structure, this one name "struct
+gpio_chip". You usually find the definition for the SoC you use in one
+of the files: drivers/gpio-X.c, arch/arm/mach-Y/gpio.c,
+arch/arm/plat-Z/gpio.c.
+
+This handlers are then accessible using the "gpiolib" infrastructure.
+
+For instance, the "struct gpio_chip" contains a "get" members which get
+called when using the function "gpio_get_value".
+
+You should first check that the implementation of the function members
+of the "struct gpio_chip" structure do not use Linux services which can
+not be used from real-time domain. If this is the case:
+
+* if the implementation of these handlers need to communicate with an
+I2C or SPI chip, the code as it is needs significant changes to be made
+available to real-time drivers, starting with rewriting the driver for
+the I2C or SPI controller as a driver running in real-time domain;
+
+* if the implementation of these handlers simply uses a spinlock, the
+spinlock may be turned into an link:#I_Pipe_spinlocks[I-pipe spinlock]
+(pay attention, however, that there is not other Linux service called,
+or actions which may take an unbounded time when holding the spinlock).
+
+[[gpios-as-interrupt-sources]]
+GPIOs as interrupt sources
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Most SoCs have so many GPIOs, that each one can not have a separate
+line at the interrupt controller level, so they are multiplexed. What
+happens then is that there is a single line for a whole GPIO bank, the
+interrupt handler for this irq line should read a GPIO controller
+register to find out which of the GPIOs interrupts are pending, then
+invoke the handler for each of them. The mechanism used by the Linux
+kernel to handle this situation is called "chained interrupts", you
+can find whether the SoC you use in this case if it calls the function
+"irq_set_chained_handler".  It is usually found in
+drivers/gpio/gpio-X.c, arch/arm/mach-Y/gpio.c, arch/arm/plat-Z/gpio.c,
+arch/arm/mach-X/irq.c, or arch/arm/plat-Y/irq.c.
+
+What will happen with the I-pipe core, is that the handler registered
+with "irq_set_chained_handler" will be called in real-time context, so
+should not use any Linux service which can not be used from real-time
+context, in particular, calls to "generic_handle_irq", should be
+replaced with calls to "ipipe_handle_demuxed_irq".
+
+When GPIOs are used as interrupt sources, a "struct irq_chip" is
+defined, allowing the kernel to see the GPIOs controller as an interrupt
+controller, so, most of what is said in the
+link:#Interrupt_controller["Interrupt controller" section] also applies
+to the GPIO controller. Most of the time, though, the "flow handler" for
+these interrupts is "handle_simple_irq", and nothing needs to be done.
+
+[[i-pipe-spinlocks]]
+I-pipe spinlocks
+----------------
+
+Occasionally, some spinlocks need to be shared between the real-time and
+Linux domains. We have talked about this in the
+link:#Hardware_timer["Hardware timer"],
+link:#Interrupt_controller["Interrupt controller"] and
+link:#GPIOs["GPIOs"] sections.
+
+However, beware, this is not a panacea, care must be taken to not call
+any Linux service while holding this spinlock, or anything that may take
+an unbounded time, you risk breaking determinism.
+
+Xenomai provides several macros to turn a spinlock into an I-pipe
+spinlock.
+
+[cols=",",]
+|==============================================================
+|Linux code |Should be replaced with
+|`extern raw_spinlock_t foo` |`IPIPE_DECLARE_RAW_SPINLOCK(foo)`
+|`DEFINE_RAW_SPINLOCK(foo)` |`IPIPE_DEFINE_RAW_SPINLOCK(foo)`
+|`extern spinlock_t foo` |`IPIPE_DECLARE_SPINLOCK(foo)`
+|`DEFINE_SPINLOCK(foo)` |`IPIPE_DEFINE_SPINLOCK(foo)`
+|==============================================================
+
+For instance, in arch/arm/common/gic.c
+
+-------------------------------------------------------------------------------
+ static DEFINE_SPINLOCK(irq_controller_lock);
+-------------------------------------------------------------------------------
+
+is replaced with:
+
+-------------------------------------------------------------------------------
+ static IPIPE_DEFINE_SPINLOCK(irq_controller_lock);
+-------------------------------------------------------------------------------
+
+Also, in addition to the usual spin_lock, spin_unlock,
+spin_lock_irqsave, spin_unlock_irqrestore, the I-pipe core provides the
+spin_lock_irqsave_cond, spin_unlock_irqrestore_cond. These services are
+replaced with spin_lock_irqsave/spin_unlock_irqrestore when compiling
+the Linux kernel with the I-pipe core enabled, and replaced with
+spin_lock/spin_unlock, when the Linux kernel is compiled with the I-pipe
+core disabled.
+
+It is useful, when spin_lock/spin_unlock are used in a section of the
+Linux code which may access resources shared with interrupt handlers,
+but is protected from the interrupt handlers because the Linux
+interrupts are disabled. When running the I-pipe core, and the interrupt
+handler may run in real-time domain, when this section will run
+protected from Linux interrupts, it will not be protected from real-time
+domain interrupts, hence the spin_lock/spin_unlock need to be turned
+into spin_lock_irqsave_cond/spin_unlock_irqrestore_cond.
+
+One such instance happens in arch/arm/common/gic.c where the "struct
+irq_chip", "irq_hold", "irq_release" handlers will be called from
+real-time context and will take the "irq_controller_lock" spinlock, so
+every other use of this spinlock should be turned into a call to
+spin_lock_irqsave_cond/spin_unlock_irqrestore_cond.
+
+[[interrupt-controller-muting]]
+Interrupt Controller muting
+---------------------------
+
+This is an optional feature which should be ignored when first porting
+the I-pipe core to a new SoC. Everything else should be implemented,
+tested, and only then interrupt controller muting should be added and
+tested, this will avoid mixing issues from different sources.
+
+The idea behind Interrupt Controller muting is that when a Xenomai
+thread runs in the real-time domain, the I-pipe core deferred interrupt
+model is such that, if a non real-time interrupt happens (any Linux
+interrupt for instance), it will be acknowledged and masked at the
+interrupt controller level, marked pending for the Linux domain, and
+only handled when the Xenomai thread will suspend. While doing all this
+does not threaten the determinism of Xenomai, on low-end machines these
+actions may add-up to a significant amount of time, which may influence
+the average interrupt latency.
+
+So, the idea of interrupt controller muting is to preemptively disable
+non real-time interrupts at the interrupt controller level when a
+Xenomai thread is activated in the real-time domain. Of course, this
+only makes sense if the interrupt controller allows disabling many
+interrupts by one write to a hardware register, but this is the case for
+most ARM SoCs.
+
+In order to implement interrupt controller muting, as usual, the members
+of a structure must be implemented, and this structure registered to the
+I-pipe core. The structure in question is "struct ipipe_mach_pic_muter".
+There are two types of implementations.
+
+[[priority-based-interrupt-controller-muting]]
+Priority based interrupt controller muting
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some interrupts controller handle per-interrupt priority level. When an
+interrupt is being handled (so, before the EOI has been sent to the
+interrupt controller), lower priority interrupts are delayed. And what
+is more interesting, some interrupts controller have a register allowing
+to mask interrupts below a certain priority level. The advantage is that
+a write to a single register will mask all non real-time interrupts,
+whatever their number, compared to a write to a mask register where each
+bit masks an interrupt which will mask only 32 or 64 interrupts at a
+time.
+
+In this case, two priority levels should be defined:
+
+* a high level for real-time domain interrupts
+* a low level for Linux domain interrupts.
+
+When "muting" the interrupt controller, the interrupt controller masked
+level should be set to a level blocking the low priority interrupts, but
+not the high priority interrupts.
+
+the call-backs should be implemented this way:
+
+* `void (*enable_irqdesc)(struct ipipe_domain *ipd, unsigned irq)`
+
+is called by the I-pipe core when a handler is registered for an
+interrupt. The "ipd" parameter is the pointer to the domain for which
+the interrupt handler is registered. So, `ipd == &pipe_root` is true for
+interrupts in the Linux domain, and false for interrupts in the
+real-time domain. As interrupts handlers for the Linux domain are all
+registered systematically very early during the boot process, it is
+sufficient to set the priority level of the irq "irq" to a high level if
+ipd is the real-time domain pointer, or to a low level if
+`ipd == &ipipe_root`.
+
+* `void (*disable_irqdesc)(struct ipipe_domain *ipd, unsigned irq)`
+
+will only be called when an interrupt handler is unregistered for the
+real-time domain interrupt. It should reset the irq priority to the low
+level.
+
+* `void (*mute)(void)`
+
+Should set the mask level to a level blocking the low priority
+interrupts, but not the high level interrupts.
+
+* `void (*unmute)(void)`
+
+Should restore the default mask level not blocking any interrupt.
+
+[[bit-mask-based-interrupt-controller-muting]]
+Bit-mask based interrupt controller muting
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Most if not all ARM SoCs interrupt controller allow masking many
+interrupts at once by writing a bit-mask to a register, where each bit
+represents an interrupt. Of course, this means that only 32 or 64 irqs
+are masked at once, so, a few register writes are needed to mask all non
+real-time interrupts, but it is still relatively fast for interrupt
+controllers with not to many interrupts.
+
+To implement interrupt controller muting in this case, the strategy is
+to take note when "muting" the interrupt controller of which Linux
+domains interrupts are not currently masked, and masks them, and when
+"unmuting", to only unmask the Linux domains interrupt which were not
+masked at the muting time.
+
+The "polarity" of the interrupt controller mask varies from SoC to SoC,
+so, make sure to use the mask correctly. If you get this wrong, you can
+get Linux domain masked interrupts unmasked when "unmuting" the
+interrupt controller, and it may not necessarily trigger bugs
+immediately.
+
+Hence the call-backs implementation:
+
+* `void (*enable_irqdesc)(struct ipipe_domain *ipd, unsigned irq)`
+
+Starting with link:#before_3.4[Linux 3.4] the use of "irq domains"
+makes it a bit difficult for the I-pipe core to automatically track
+the type of interrupts, so, this callback should take note in a bit
+field we will call `ic_root`, of which hardware interrupts do not have
+a real-time handler. Since this callback is called early for all
+possible Linux interrupts, it is enough to set bits for these
+interrupts, and clear them for interrupts with real-time interrupts,
+i.e. when `ipd != &ipipe_root`.
+
+* `void (*disable_irqdesc)(struct ipipe_domain *ipd, unsigned irq)`
+
+This function will only be called with `ipd != &ipipe_root`, so,
+starting with link:#before_3.4[Linux 3.4], simply set the
+corresponding bit in the `ic_root` bit field.
+
+* `void (*mute)(void)`
+
+Should compute the set of currently unmasked Linux domain
+interrupts. In the `ic_root` bit field, the bit corresponding to an
+irq is set to 1 only for Linux domain interrupts. You should apply a
+bitwise and of this bit field and the negated "interrupt mask"
+register, where a bit is 1 if the interrupt is masked (note that the
+"polarity" of the interrupt controller registers may vary from SoC to
+SoC, so be careful). The result of this operation should be stored in
+a variable (which we will call `ic_muted` here). Then these interrupts
+should be masked.  Depending on the chip, this may be done either by
+writing directly to the interrupt mask register, or directly by
+writing to an interrupt disable register. Which one is used does not
+really matter.
+
+* `void (*unmute)(void)`
+
+Should unmask the interrupts in `ic_muted`.
+
+[[gpios-chained-interrupts]]
+GPIOs chained interrupts
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+As we already said, GPIOs controllers can be considered as interrupt
+controllers, but we have yet to see a GPIO controller implementing
+interrupts priorities, so, interrupt controller muting for GPIO
+controllers will almost always be of the "bit-mask" type. And since some
+SoCs may have a large number of GPIOs, you may decide to simply skip
+interrupt controller muting for chained interrupts, remember that the
+I-pipe core still works if not all Linux domain interrupt sources are
+masked when a thread runs in the real-time domain.
+
+One easy thing to do, however, is to decide to mask the GPIO parent irq
+at the parent interrupt controller level if a GPIO bank only has Linux
+domain interrupts. This makes sense because on most setups, among the
+many GPIOs, more will be used for Linux domain interrupts than for
+real-time domain interrupts.
+
+One other issue, is, in the "enable_irqdesc" call-back, to be able to
+make the difference between GPIO interrupts and parent interrupt
+controller interrupts. A way around is to retrieve the pointer to the
+"struct irq_chip" structure associated with the "irq" parameter, and
+compare it with the "struct irq_chip" structure associated with the GPIO
+controller.
+
+[[piecing-all-this-together]]
+Piecing all this together
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When the "struct ipipe_mach_pic_muter" is defined, it should be
+registered using "ipipe_pic_muter_register". It is important to note
+that this function should be called very early during the boot process,
+otherwise the "enable_irqdesc" call-back does not get called for Linux
+domain interrupts. The current implementation does this in the same
+place as the hardware timer initializations.
+
+For instance, we look at how the OMAP4 interrupt controller muting is
+implemented in the I-pipe core for Linux 3.14. The interrupt controller
+supports interrupt priorities. So, two priorities level are defined
+(low numbers mean high priorities):
+
+* 0x10 is used for high priority interrupts
+* 0xa0 is used for low priority interrupts
+
+Masking low priority interrupts is done by setting the interrupt
+controller priority mask register to 0x90, an intermediate value.
+
+The file arch/arm/common/gic.c, the code for the SoC interrupt
+controller, contains:
+
+-------------------------------------------------------------------------------
+#if defined(CONFIG_IPIPE)
+void gic_mute(void)
+{
+	writel_relaxed(0x90, gic_data_cpu_base(&gic_data[0]) + GIC_CPU_PRIMASK);
+}
+
+void gic_unmute(void)
+{
+	writel_relaxed(0xf0, gic_data_cpu_base(&gic_data[0]) + GIC_CPU_PRIMASK);
+}
+
+void gic_set_irq_prio(int irq, int hi)
+{
+	void __iomem *dist_base;
+	unsigned gic_irqs;
+
+	if (irq < 32) /* The IPIs always are high priority */
+		return;
+
+	dist_base = gic_data_dist_base(&gic_data[0]);;
+	gic_irqs = readl_relaxed(dist_base + GIC_DIST_CTR) & 0x1f;
+	gic_irqs = (gic_irqs + 1) * 32;
+	if (gic_irqs > 1020)
+		gic_irqs = 1020;
+	if (irq >= gic_irqs)
+		return;
+
+	writeb_relaxed(hi ? 0x10 : 0xa0, dist_base + GIC_DIST_PRI + irq);
+}
+#endif /* CONFIG_IPIPE */
+-------------------------------------------------------------------------------
+
+The GPIO interrupts are also masked in the OMAP4 interrupt controller
+muting implementation, using functions already defined in the GPIO
+controller implementation. The file drivers/gpio/gpio-omap.c contains
+code equivalent to:
+
+-------------------------------------------------------------------------------
+struct gpio_bank {
+       /* ... */
+#ifdef CONFIG_IPIPE
+	unsigned nonroot;
+	unsigned muted;
+#endif
+};
+
+/* ... */
+
+#if defined(CONFIG_IPIPE)
+extern void gic_mute(void);
+extern void gic_unmute(void);
+extern void gic_set_irq_prio(int irq, int hi);
+
+static inline void omap2plus_pic_set_irq_prio(int irq, int hi)
+{
+	struct irq_desc *desc = irq_to_desc(irq);
+	struct irq_data *idata = irq_desc_get_irq_data(desc);
+
+	/* ... */
+
+#ifdef CONFIG_ARM_GIC
+	if (ipipe_mach_omap == 4)
+		gic_set_irq_prio(idata->hwirq, hi);
+#endif /* gic */
+}
+
+static void omap2plus_enable_irqdesc(struct ipipe_domain *ipd, unsigned irq)
+{
+	struct irq_desc *desc = irq_to_desc(irq);
+	struct irq_data *idata = irq_desc_get_irq_data(desc);
+	struct irq_chip *chip = irq_data_get_irq_chip(idata);
+
+	if (chip == &gpio_irq_chip) {
+		/* It is a gpio. */
+		struct gpio_bank *bank = irq_data_get_irq_chip_data(idata);
+
+		if (ipd == &ipipe_root) {
+			bank->nonroot &= ~(1 << idata->hwirq);
+			if (bank->nonroot == 0)
+				omap2plus_pic_set_irq_prio(bank->irq, 0);
+		} else {
+			bank->nonroot |= (1 << idata->hwirq);
+			if (bank->nonroot == (1 << idata->hwirq))
+				omap2plus_pic_set_irq_prio(bank->irq, 1);
+		}
+	} else
+		omap2plus_pic_set_irq_prio(irq, ipd != &ipipe_root);
+}
+
+static void omap2plus_disable_irqdesc(struct ipipe_domain *ipd, unsigned irq)
+{
+	struct irq_desc *desc = irq_to_desc(irq);
+	struct irq_data *idata = irq_desc_get_irq_data(desc);
+	struct irq_chip *chip = irq_data_get_irq_chip(idata);
+
+	if (chip == &gpio_irq_chip) {
+		/* It is a gpio. */
+		struct gpio_bank *bank = irq_data_get_irq_chip_data(idata);
+
+		if (ipd != &ipipe_root) {
+			bank->nonroot &= ~(1 << idata->hwirq);
+			if (bank->nonroot == 0)
+				omap2plus_pic_set_irq_prio(bank->irq, 0);
+		}
+	} else if (ipd != &ipipe_root)
+		omap2plus_pic_set_irq_prio(irq, 0);
+}
+
+static inline void omap2plus_mute_gpio(void)
+{
+	struct gpio_bank *bank;
+	unsigned muted;
+
+	list_for_each_entry(bank, &omap_gpio_list, node) {
+		if (bank->nonroot == 0)
+			continue;
+
+		muted = ~bank->nonroot;
+		if (muted)
+			muted &= _get_gpio_irqbank_mask(bank);
+		bank->muted = muted;
+		if (muted)
+			_disable_gpio_irqbank(bank, muted);
+	}
+}
+static inline void omap2plus_unmute_gpio(void)
+{
+	struct gpio_bank *bank;
+	unsigned muted;
+
+	list_for_each_entry(bank, &omap_gpio_list, node) {
+		if (bank->nonroot == 0)
+			continue;
+
+		muted = bank->muted;
+		if (muted)
+			_enable_gpio_irqbank(bank, muted);
+	}
+}
+
+/* ... */
+
+#ifdef CONFIG_ARM_GIC
+static void omap4_mute_pic(void)
+{
+	gic_mute();
+
+	omap2plus_mute_gpio();
+}
+
+static void omap4_unmute_pic(void)
+{
+	omap2plus_unmute_gpio();
+
+	gic_unmute();
+}
+
+void __init omap4_pic_muter_register(void)
+{
+	struct ipipe_mach_pic_muter muter = {
+		.enable_irqdesc = omap2plus_enable_irqdesc,
+		.disable_irqdesc = omap2plus_disable_irqdesc,
+		.mute = omap4_mute_pic,
+		.unmute = omap4_unmute_pic,
+	};
+
+	ipipe_pic_muter_register(&muter);
+	ipipe_mach_omap = 4;
+}
+#endif /* GIC */
+
+#endif /* CONFIG_IPIPE */
+-------------------------------------------------------------------------------
+
+"omap4_pic_muter_register" is then called in
+arch/arm/mach-omap2/timer.c
+
+[[fast-context-switch-extension]]
+Fast context switch extension
+-----------------------------
+
+If the processor core you use implements the armv6 or armv7
+architectures, you can skip to the link:#Troubleshooting[next section].
+
+ARM SoCs using a processor core implementing the ARM architectures
+previous to armv6 (so, armv4 or armv5) have instruction and data caches
+of the VIVT type. The Linux kernel code for these processor cores
+chooses to flush the caches at every context switch changing process.
+But these cores contain an extension called FCSE (short for fast context
+switch extension) allowing to avoid flushing the cache for some context
+switches. The I-pipe core contains support for this extension, but some
+additional work may be needed.
+
+First you should check on what processor core the SoC you use is based,
+then find the MMU support functions for this processor in
+arch/arm/mm/proc-X.S, and look for the "switch_mm" function. If this
+function implementation contains #ifdef CONFIG_ARM_FCSE*, then it is
+already modified for FCSE support, and you can skip to the
+link:#Troubleshooting[next section], otherwise, you may want to modify
+it.
+
+Two different possibilities are implemented:
+
+* if CONFIG_ARM_FCSE_GUARANTEED is defined, the "switch_mm" function
+should skip the caches flush (but not the TLB invalidation)
+unconditionally;
+* if CONFIG_ARM_FCSE_BEST_EFFORT is defined, the third "switch_mm"
+function argument (available in the "r2" register), contains 1 if the
+cache should be flushed or 0 if the flush should be skipped, so, the
+assembly should be modified to test r2 value and skip the flush if
+needed.
+
+For instance, the MMU support functions for the ARM 920T processor core
+is found in arch/arm/mm/proc-arm920.S, where we locate the function
+"cpu_arm920_switch_mm":
+
+-------------------------------------------------------------------------------
+ ENTRY(cpu_arm920_switch_mm)
+ #ifdef CONFIG_MMU
+	 mov     ip, #0
+ #ifdef CONFIG_ARM_FCSE_BEST_EFFORT
+	 cmp     r2, #0
+	 beq     3f
+ #endif /* CONFIG_ARM_FCSE_BEST_EFFORT */
+ #ifndef CONFIG_ARM_FCSE_GUARANTEED
+ #ifdef CONFIG_CPU_DCACHE_WRITETHROUGH
+	 mcr     p15, 0, ip, c7, c6, 0           @ invalidate D cache
+ #else
+ @ && 'Clean & Invalidate whole DCache'
+ @ && Re-written to use Index Ops.
+ @ && Uses registers r1, r3 and ip
+
+	 mov     r1, #(CACHE_DSEGMENTS - 1) << 5 @ 8 segments
+ 1:      orr     r3, r1, #(CACHE_DENTRIES - 1) << 26 @ 64 entries
+ 2:      mcr     p15, 0, r3, c7, c14, 2          @ clean & invalidate D index
+	 subs    r3, r3, #1 << 26
+	 bcs     2b                              @ entries 63 to 0
+	 subs    r1, r1, #1 << 5
+	 bcs     1b                              @ segments 7 to 0
+ #endif
+	 mcr     p15, 0, ip, c7, c5, 0           @ invalidate I cache
+	 mcr     p15, 0, ip, c7, c10, 4          @ drain WB
+ #endif /* !CONFIG_ARM_FCSE_GUARANTEED */
+ #ifdef CONFIG_ARM_FCSE_BEST_EFFORT
+ 3:
+ #endif /* CONFIG_ARM_FCSE_BEST_EFFORT */
+	 mcr     p15, 0, r0, c2, c0, 0           @ load page table pointer
+	 mcr     p15, 0, ip, c8, c7, 0           @ invalidate I & D TLBs
+ #endif
+	 mov     pc, lr
+-------------------------------------------------------------------------------
+
+You should then compile a kernel with the CONFIG_ARM_FCSE_BEST_EFFORT
+enabled, run the LTP test-suite and check that the test-suite results
+are the same as when LTP is running on a kernel without the
+CONFIG_ARM_FCSE option enabled.
+
+[[troubleshooting]]
+Troubleshooting
+---------------
+
+When you have modified the I-pipe core for supporting your board, try:
+
+* to boot the kernel for your board compiled without CONFIG_IPIPE
+enabled
+* boot the kernel for your board compiled with CONFIG_IPIPE enabled but
+without CONFIG_XENOMAI
+* boot the kernel for your board compiles with CONFIG_IPIPE and
+CONFIG_XENOMAI
+* launch the latency test
+
+If any of this step does not work correctly, do not go further, try and
+debug the said step first.
+
+Common issues include:
+
+[[the-kernel-stops-after-the-message-uncompressing-linux]]
+The kernel stops after the message "Uncompressing Linux... done, booting the kernel."
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The screen remains blank, nothing happens. It means that the kernel has
+a oops, or lock-up early during the boot process. In order to understand
+what happens:
+
+* enable CONFIG_DEBUG_LL and CONFIG_EARLY_PRINTK in the kernel
+configuration, recompile the kernel
+
+* add "earlyprintk" to the kernel parameters
+
+The kernel messages should then be displayed immediately, and allow to
+understand at what point in the boot process the kernel crashes or
+locks up.
+
+[[the-kernel-stops-after-the-message-calibrating-delay-loop]]
+The kernel stops after the message "Calibrating delay loop..."
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It means that the timer interrupt is not ticking and that the delay
+calibration routine is running an infinite loop at
+`while (ticks == jiffies)` in the function calibrate_delay, file
+init/calibrate.c
+
+This probably means that changes you made to the hardware timer support
+or interrupt controller code broke something. To help debugging this
+situation, you can print any hardware timer or interrupt controller
+register in the `while (ticks == jiffies)` loop.
+
+[[timer-issues]]
+Timer issues
+~~~~~~~~~~~~
+
+Most issues when porting the I-pipe core to a new ARM SoC are timer
+issues, the timer is the hardest part to get right.
+
+When you boot the kernel without CONFIG_IPIPE, the timer code should be
+almost not modified, except maybe for timer acknowledgement, so, if at
+this point the kernel does not work, it probably means that you got the
+timer acknowledgement wrong.
+
+When you boot the kernel with CONFIG_IPIPE, but without CONFIG_XENOMAI,
+the timer stays under the control of the Linux kernel, so, if at this
+point the kernel does not work, it probably means that something else
+than the timer is wrong, most probably the interrupt controller.
+
+When you boot the kernel with CONFIG_XENOMAI, Xenomai takes the control
+of the hardware timer, using the "struct ipipe_timer" structure
+call-backs, but only in order to maybe handle the Linux timer tick. So,
+if at this point the kernel does not work, it probably means that the
+implementation of these call-backs is wrong.
+
+Finally, when running the "latency" test, the timer is really used to
+activate Xenomai threads in the real-time domain. You should check that
+the latency test prints a message every second, if it does not, it
+probably means that the timer frequency is wrong, but in accordance with
+the tsc frequency. A "drift" in the minimum and maximum latency values
+indicates a mismatch between the timer and the tsc frequency. To large
+maximum latency values indicates a probable unwanted masking section, or
+some issue caused by the idle loop.
+
+[[publishing-your-modifications]]
+Publishing your modifications
+-----------------------------
+
+If you followed this HOWTO and have a working I-pipe core patch for the
+ARM SoC you use, you may want to publish it. The advantage is that your
+modifications will be integrated in the I-pipe core patch, ported to
+later versions, and compile-tested. You then simply have to test the
+newer version if you are interested in using it.
+
+If you decide to do that, you should send your work to the
+http://www.xenomai.org/mailman/listinfo/xenomai[Xenomai mailing list],
+as a patch against the current I-pipe core branch, in-lined in the
+mail body, making sure that your mail user agent does not wrap the
+patch long lines (see Documentation/email-clients.txt for help on how
+to avoid these issues).
+
+A simple way to obtain this patch, is to use git to clone the I-pipe
+core repository (git://git.xenomai.org/ipipe.git), work on a branch
+derived from the ipipe-3.X branch, then generate the difference between
+your work and the ipipe-3.X branch, for instance by committing your
+work and using "git format-patch" to generate the patch. We only
+accept patches following the Linux kernel coding style (documented in
+Documentation/CodingStyle) and it may be a good idea to use
+scripts/checkpatch.pl to check your patch for obvious mistakes before
+submitting it.
+
+[[vendor-forks]]
+Working with vendor forks
+-------------------------
+
+It is common for ARM boards to be only fully supported by Linux kernel
+forks. In order to handle this case, we accept support for these forks
+as a set of two patches, a "pre" and a "post" patch. The "pre" patch
+is applied to the kernel fork before the the I-pipe core path, the
+"post" patch is applied after that. These "pre" and "post" patches
+make it easy to upgrade the I-pipe core patch without any need to
+change them.
+
+In order to work with a vendor fork, you do not need to care right
+away of these two patches. Simply start by merging the vendor fork
+with the corresponding I-pipe branch. You will likely encounter merge
+conflicts, fix them, and get the corresponding kernel working with
+Xenomai. Commit this in a branch of yours, and keep this branch
+preciously.
+
+When that is done, here is how to generate the "pre" and "post" patches.
+Let us suppose that the vendor kernel with which you are working is
+tagged as "vendor", the corresponding vanilla kernel is tagged
+"vanilla" and your precious working branch is called "precious".
+
+The following sequence should help you generate the "pre" and "post"
+patches:
+
+-----------------------------------------------------------------------------
+$ git checkout -b work vendor
+$ patch -p1 --dry-run < /path/to/corresponding/ipipe.patch
+-----------------------------------------------------------------------------
+
+The result of the patch command should contain a list of files with
+conflicts which will assume you put in a CONFLICTS_LIST variable. Then
+do:
+
+-----------------------------------------------------------------------------
+$ git checkout vanilla $CONFLICT_LIST
+$ git diff vendor > pre.patch
+$ patch -p1 < /path/to/ipipe.patch
+$ git commit -a -m patched
+$ git diff work..precious > post.patch
+-----------------------------------------------------------------------------
+
+At this point, to verify your work, you can try the following
+sequence:
+-----------------------------------------------------------------------------
+$ git checkout -b work2 vendor
+$ patch -p1 < pre.patch
+$ patch -p1 < /path/to/ipipe.patch
+$ patch -p1 < post.patch
+$ git diff precious
+-----------------------------------------------------------------------------
+
+No patch should result in conflicts, and the last command should not
+show any difference. You can now send the `pre.patch` and `post.patch`
+to the http://www.xenomai.org/mailman/listinfo/xenomai[Xenomai mailing list].
+
+[[changes-history]]
+Changes history
+---------------
+
+[[before-3.14]]
+Before Linux 3.14
+~~~~~~~~~~~~~~~~~
+
+The I-pipe core did not call __ipipe_tsc_update() automatically, it
+had to be called by the timer code. The usual choice was Linux timer
+interrupt, and if that was not enough (for 16 bits timers for
+instance), the I-pipe timer structure "set" callback.
+
+[[before-3.4]]
+Before Linux 3.4
+~~~~~~~~~~~~~~~~
+
+* The I-pipe core did not register the global timer high resolution
+counter automatically, the following function had to be called:
+
+-------------------------------------------------------------------------------
+ void __cpuinit gt_setup(unsigned long base_paddr, unsigned bits)
+-------------------------------------------------------------------------------
+
+The first parameter is the physical address of the global timer, also
+equal to the physical address to the smp_twd timer (the one used in
+arch/arm/kernel/smp_twd.c for timer management) minus 0x400.
+
+The second parameter "bits" indicates whether we want to use this
+counter as a 32 bits or 64 bits counter. The tests on the hardware we
+have indicate that using it as a 32 bits counter results in a lower tsc
+latency, but you should run the test on your hardware for the two
+possible values. The Xenomai test named "tsc" measures the tsc latency.
+
+* Some SoC specific code needed to be added to handle IPIs. If your
+system is based on a Cortex A9 core, simply include asm/smp_twd.h in
+mach/irqs.h, and link:#GPIOs[skip the rest of this section]:
+asm/smp_twd.h already contains what is needed.
+
+A number of macros definitions are needed to take different actions
+whether an irq is an IPI or an IRQ. These macros, which should be
+defined in mach/irqs.h are:
+
+** __ipipe_mach_relay_ipi:
+
+should call __ipipe_dispatch_irq with the irq number corresponding to
+the ipi parameter.
+
+** __ipipe_mach_doirq:
+
+should return __ipipe_root_ipi for IPIs and __ipipe_do_IRQ for IRQs.
+
+** __ipipe_mach_ackirq:
+
+should return the acknowledge function for the passed IRQ or IPI
+
+For instance, the implementation of these macros for the Cortex A9 core,
+which may be found in asm/smp_twd.h (and in fact the one for the GIC
+interrupt controller) is:
+
+-------------------------------------------------------------------------------
+ #define __ipipe_mach_ipi_p(irq) ((irq) < 16)
+
+ #define __ipipe_mach_relay_ipi(ipi, thiscpu)                    \
+	({                                                      \
+		(void)(thiscpu);                                \
+		__ipipe_dispatch_irq(ipi, IPIPE_IRQF_NOACK);    \
+	})
+
+ #define __ipipe_mach_doirq(irq)                 \
+       ({                                       \
+	       __ipipe_mach_ipi_p(irq)          \
+		       ? __ipipe_root_ipi       \
+		       : __ipipe_do_IRQ;        \
+       })
+
+ #define __ipipe_mach_ackirq(irq)                \
+       ({                                       \
+	       __ipipe_mach_ipi_p(irq)          \
+		       ? NULL                   \
+		       : __ipipe_ack_irq;       \
+       })
+-------------------------------------------------------------------------------
+
+* the I-pipe core took note of which interrupts had an handler in the
+Xenomai domain in a variable called "__ipipe_irqbits", making it
+unnecessary to do anything in the "enable_irqdesc" and
+"disable_irqdesc" PIC muting callbacks.
+
+[[before-3.3]]
+Before Linux 3.3
+~~~~~~~~~~~~~~~~
+
+* The function called in static board files to register the smp_twd
+timer was called twd_timer_setup() instead of twd_local_timer_register().
+
+* The Linux kernel code did not include a facility for the smp_twd
+timer to get its frequency from a system clock. Since this
+functionality is preferred for the I-pipe core patch, the I-pipe patch
+for Linux 3.2 contained a patch adding it.

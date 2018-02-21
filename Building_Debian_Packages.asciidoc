@@ -1,0 +1,289 @@
+Building Debian Packages
+========================
+:author:	Gilles Chanteperdrix
+:categories:	Other
+:tags:		distribution, packaging
+
+[[xenomai-packages-in-debian]]
+Xenomai packages in Debian
+--------------------------
+
+First, please note that Xenomai is officially included in Debian. This
+means that the latest version of Xenomai will be directly incorporated
+into Debian "unstable" which from time to time migrates to the latest
+"stable" version of Debian. The latter will be stabilized and maintained
+for a whole Debian stable version lifetime without following the latest
+versions of "upstream" Xenomai. Please check the official
+http://packages.debian.org/search?keywords=xenomai&searchon=sourcenames&suite=all&section=all[Debian
+package page for Xenomai] and the
+http://packages.qa.debian.org/x/xenomai.html[Debian development page for
+Xenomai].
+
+Debian's "unstable" version of Xenomai is also tracked with the files in
+the debian/ directory in the Xenomai source code repository which means
+that you can also build a Xenomai package from the trunk. If you want to
+track the latest Xenomai repository developments that aren't yet in
+Debian, you should follow the instructions on this page to build Xenomai
+Debian packages.
+
+[[building-xenomai-packages]]
+Building Xenomai packages
+-------------------------
+
+This howto was written for Xenomai 2.6.3, please use the latest stable
+Xenomai release and adapt the version numbers accordingly.
+
+[[prerequisites]]
+prerequisites
+~~~~~~~~~~~~~
+
+Install the following packages:
+
+-------------------------------------------------------------------------------
+# apt-get install devscripts debhelper dh-kpatches findutils
+-------------------------------------------------------------------------------
+[[from-a-git-repository]]
+from a Git repository
+~~~~~~~~~~~~~~~~~~~~~
+
+To build from a git Repository install these additional packages and
+clone the Git repository:
+
+-------------------------------------------------------------------------------
+# apt-get install git-core git-buildpackage
+$ git clone git://xenomai.org/xenomai-2.6.git
+-------------------------------------------------------------------------------
+
+Change to the Xenomai Git working tree and update the repository:
+
+-------------------------------------------------------------------------------
+$ cd xenomai-2.6 && git fetch origin
+-------------------------------------------------------------------------------
+
+Create and checkout a new branch based on a git treeish object. In this
+example, we create a branch v2.6.3-deb based on git tag v2.6.3:
+
+-------------------------------------------------------------------------------
+xenomai-2.6$ git checkout -b v2.6.3-deb v2.6.3
+-------------------------------------------------------------------------------
+
+Create a new debian changelog entry:
+
+-------------------------------------------------------------------------------
+xenomai-2.6$ DEBEMAIL="your@email" DEBFULLNAME="Your Name" \
+	     debchange -v 2.6.3 Release 2.6.3
+-------------------------------------------------------------------------------
+
+Commit the changelog to the v2.6.3-deb branch:
+
+-------------------------------------------------------------------------------
+xenomai-2.6$ git commit -a --author="Your Name" -m 2.6.3
+-------------------------------------------------------------------------------
+
+Build the packages in the parent directory:
+
+-------------------------------------------------------------------------------
+xenomai-2.6$ git-buildpackage \
+ --git-debian-branch=v2.6.3-deb \
+ --git-export-dir=.. \
+ -uc -us
+-------------------------------------------------------------------------------
+
+Thats all folks. Switch back to the master branch and delete the branch
+v2.6.3-deb:
+
+-------------------------------------------------------------------------------
+xenomai-2.6$ git checkout master && git branch -D v2.6.3-deb
+-------------------------------------------------------------------------------
+
+[[from-a-tar.bz2-archive]]
+from a tar.bz2 archive
+~~~~~~~~~~~~~~~~~~~~~~
+
+Download and extract a Xenomai tar.bz2 release archive:
+
+-------------------------------------------------------------------------------
+$ wget -O - http://xenomai.org/downloads/xenomai/stable/xenomai-2.6.3.tar.bz2 | tar -jxf -
+-------------------------------------------------------------------------------
+
+Change to the extracted Xenomai tree:
+
+-------------------------------------------------------------------------------
+$ cd xenomai-2.6.3
+-------------------------------------------------------------------------------
+
+Create a new debian changelog entry:
+
+-------------------------------------------------------------------------------
+xenomai-2.6.3$ DEBEMAIL="your@email" DEBFULLNAME="Your Name" \
+	       debchange -v 2.6.3 Release 2.6.3
+-------------------------------------------------------------------------------
+
+Build the packages in the parent directory:
+
+-------------------------------------------------------------------------------
+xenomai-2.6.3$ debuild -uc -us
+-------------------------------------------------------------------------------
+
+[[result]]
+result
+~~~~~~
+
+The build results in the following packages:
+
+* xenomai-runtime - _Xenomai runtime utilities_
+* libxenomai1 - _Shared libraries for Xenomai_
+* libxenomai-dev - _Headers and static libraries for Xenomai_
+* xenomai-kernel-source - _Sources of the Xenomai 2.x kernel_
+* xenomai-doc - _Xenomai documentation_
+
+For development, xenomai-kernel-source and libxenomai-dev are needed, for
+"production" systems, you should just need xenomai-runtime und
+libxenomai1 (together with the self built kernel as described in the
+next section). The package xenomai-doc is optional, of course, but
+contains important documentation for developers using or developing
+Xenomai.
+
+[[installation]]
+installation
+~~~~~~~~~~~~
+
+Change to the build directory and use dpkg to install the packages:
+
+-------------------------------------------------------------------------------
+# dpkg -i *.deb
+-------------------------------------------------------------------------------
+
+[[building-a-xenomai-patched-linux-kernel-package]]
+Building a Xenomai patched Linux kernel package
+-----------------------------------------------
+
+Starting with Xenomai 2.6.3, the method for building a Xenomai patched
+kernel has changed. The previous method (generating patches containing
+both the I-pipe patches and the Xenomai kernel-space support), imposed
+to maintain a _prepare-patch.sh_ script, which was almost but not
+really a copy of the _prepare-kernel.sh_ script, and so lead to
+duplicated maintenance efforts. It was not really worth the trouble,
+the patches needed to be applied by hand anyway since _kernel-package_
+had dropped support for automatically applying patches.
+
+The new method is to generate a _xenomai-kernel-source_ package,
+containing everything necessary to add Xenomai kernel-space support to
+a Linux kernel. The method for installing this support is essentially
+the same as the one for installing Xenomai from sources, the only
+added value of the _xenomai-kernel-source_ packages is that the sources
+can be removed from your disk with _apt-get remove_.
+
+We use Xenomai 2.6.3 and Linux 3.10.32 on x86 in the following example,
+please adapt it to the versions and architectures you want to install.
+
+[[prerequisites-1]]
+prerequisites
+~~~~~~~~~~~~~
+
+If you have not followed the `dpkg -i *.deb` step in the
+"installation" section. Install the xenomai-kernel-source package now:
+
+-------------------------------------------------------------------------------
+# dpkg -i xenomai-kernel-source*.deb
+-------------------------------------------------------------------------------
+
+Install the following packages:
+
+-------------------------------------------------------------------------------
+# apt-get install kernel-package libncurses-dev fakeroot zlib1g-dev
+-------------------------------------------------------------------------------
+
+The I-pipe patches contained in Xenomai sources can be found in the
+_/usr/src/xenomai-kernel-source/ksrc/arch/<your architecture>/patches_
+directory. Note that if you do not find a suitable patch, you may look
+for patches in the link:/downloads/ipipe/[I-pipe repository]. As a
+rule of thumb, the latest patches delivered with a version of Xenomai
+sources corresponds to the latest version of Linux supported by this
+version of Xenomai, but sometimes a more recent patch will work (as is
+the case for the I-pipe patch for Linux 3.10.32 with Xenomai 2.6.3).
+
+Look for an I-pipe patch that suits you, then download if from the
+Adeos download area, for example:
+
+-------------------------------------------------------------------------------
+$ wget http://xenomai.org/downloads/ipipe/v3.x/x86/older/ipipe-core-3.10.32-x86-2.patch
+-------------------------------------------------------------------------------
+
+Download the corresponding kernel source archive, extract it and
+change to the source tree:
+
+-------------------------------------------------------------------------------
+$ wget https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.10.32.tar.xz
+$ tar -xf linux-3.10.32.tar.xz && cd linux-3.10.32
+-------------------------------------------------------------------------------
+
+[[patch-and-configure-the-kernel]]
+patch and configure the kernel
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Add Xenomai support to the Linux kernel (see the
+link:Installing_Xenomai_2#Preparing_the_target_kernel[installation
+instructions] for more details on this step).
+
+-------------------------------------------------------------------------------
+linux-3.10.32$ /usr/src/xenomai-kernel-source/scripts/prepare-kernel.sh \
+ --arch=x86 --linux=. --adeos=../ipipe-core-3.10.32-x86-2.patch
+-------------------------------------------------------------------------------
+
+Optional: To recycle a old config, copy it to the current directory and
+call _make oldconfig_:
+
+-------------------------------------------------------------------------------
+linux-3.10.32$ cp /your/old/linux/config .config
+linux-3.10.32$ make oldconfig
+-------------------------------------------------------------------------------
+
+Configure the kernel: Despite using Debian packages, you still have to
+configure the kernel. This may not be so easy especially on x86, please
+see the link:Configuring_For_X86_Based_Dual_Kernels[x86 kernel configuration checklist]
+for more details.
+
+-------------------------------------------------------------------------------
+linux-3.10.32$ make menuconfig
+-------------------------------------------------------------------------------
+
+[[build-the-kernel]]
+build the kernel
+~~~~~~~~~~~~~~~~
+
+Build the kernel using _make-kpkg_: ( CONCURRENCY_LEVEL=x is optional,
+but saves time on multicore machines )
+
+-------------------------------------------------------------------------------
+linux-3.10.32$ CONCURRENCY_LEVEL=8 CLEAN_SOURCE=no fakeroot make-kpkg --initrd \
+	 --append-to-version -xenomai-2.6.3 --revision 1.0 kernel_image kernel_headers
+-------------------------------------------------------------------------------
+
+[[result-1]]
+result
+~~~~~~
+
+The build results in the following packages:
+
+* linux-image-3.10.32-xenomai-2.6.3
+* linux-headers-3.10.32-xenomai-2.6.3
+
+[[installation-1]]
+installation
+~~~~~~~~~~~~
+
+Install the kernel with dpkg, the bootmanager is updated automatically:
+
+-------------------------------------------------------------------------------
+# dpkg -i linux-image*.deb
+-------------------------------------------------------------------------------
+
+*Ubuntu 10.04*: After installing the kernel with dpkg you have to build
+the initrd and update the bootmanager manually:
+
+-------------------------------------------------------------------------------
+# update-initramfs -c -k 3.10.32-xenomai-2.6.3 && update-grub
+-------------------------------------------------------------------------------
+
+Reboot the machine and select the kernel in your bootmanager.

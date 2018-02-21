@@ -1,0 +1,156 @@
+Asking for help
+===============
+
+When sending a request for help to the
+link:Mailing_Lists[mailing list], please make
+sure to follow this checklist:
+
+Provide details about your system configuration
+-----------------------------------------------
+
+Please provide *precise* and *accurate* information about your base
+system configuration. Regardless of whether you are running a single
+or dual kernel configuration, such information *must* include:
+
+- the *main processor architecture* involved (ARM, PowerPC, x86,
+  Blackfin etc). Mentioning the 32/64 bit variant when applicable is
+  important too.
+
+- if your target system is an
+  link:Embedded_Hardware[embedded platform],
+  then please do mention the *SoC name or family*. If this is custom
+  hardware, then mentioning the vendor-originated SoC it might derive
+  from, or be the closest to would help.
+
+- the Linux *kernel release number* running on your hardware,
+  mentioning the sublevel if the kernel is from the stable series
+  (e.g. v3.10.18).
+
+- the dynamic boot parameters passed to the kernel command line when
+  booting your target.  You can retrieve them from a running system by
+  reading `/proc/cmdline`.
+
+- obviously, the *Xenomai release number* you experience an issue
+  with. If you pull the Xenomai code directly from our
+  http://git.xenomai.org/[GIT repositories], then please mention
+  the branch and the SHA1 commit number which points at the Xenomai
+  code tip you have been using.
+
+[TIP]
+If running Xenomai 3, the +sbin/version+ command will output the
+SHA1 commit number when built from a GIT tree:
+
+---------------------------------------------------------------
+$ /usr/xenomai/sbin/version
+Xenomai/mercury v3.0-rc1 -- #358901b (2014-08-05 18:19:10 +0200)
+---------------------------------------------------------------
+
+- the configuration knobs passed to the `configure` script, used in
+  building the Xenomai libraries. To find them back, just go to your
+  build directory, then type:
+------------------------------
+$ grep configure config.status
+------------------------------
+
+If you don't have access to the build tree of your Xenomai
+installation but still lucky enough to run Xenomai 3, you can
+retrieve this information via the following command:
+-------------------------------------------------------
+$ /usr/xenomai/bin/xeno-config --info|grep -i build
+-------------------------------------------------------
+
+- mentioning the Linux distribution may also help in figuring out if
+  your report matches a typical issue already identified with such
+  environment in the past.
+
+In case a dual kernel configuration is involved, please make sure to
+mention the following information as well:
+
+- the *I-pipe core release number*, which can be fetched by reading
+  `/proc/ipipe/version`. If you pull the I-pipe code directly from our
+  http://git.xenomai.org/[GIT repositories], then please also mention
+  the branch and the SHA1 commit number which points at the I-pipe
+  code tip you have been using.
+
+.Help us to help you
+*********************************************************************
+Providing *all* the required system configuration information in your
+very first e-mail reporting an issue will maximize your chances of
+receiving quick and accurate responses to your request for help.
+
+Provided your target system boots properly with Xenomai fully
+installed, running +xeno-config --info+ on it should produce all the
+required information mentioned earlier.
+*********************************************************************
+
+Describe the issue concisely and accurately
+-------------------------------------------
+
+Try being *concise*, without being vague when describing the
+issue. Because time is likely a scarce resource for all of us, the
+more you can tell us about the problem with fewer words, the less time
+we will need to understand the background, the more incentive there
+will be to address the issue quickly.
+
+Typically, you definitely want to mention:
+
+- any kernel warning you received during the session (from boot up to
+  the bug manifestation),
+
+- any warning, error message or unusual notification received on the
+  terminal while the application experiencing the issue was running.
+
+.Did you check the boot and kernel logs?
+*********************************************************************
+Sometimes kernel warnings or notifications may go unnoticed,
+particularly when the system console is not visible to the
+user. However, significant information may be obtained via this
+channel. Therefore, please make sure to provide the full kernel logs,
+including the early bootloader messages upon request.
+
+On embedded systems, a typical way to get such information is to
+receive it from the serial console. If the serial console is not
+available, you can use the *netconsole* to send the console output
+over an ethernet wire. How to set up the *netconsole* for your kernel
+is described in various places on the Internet:
+
+. this is the information available from the
+https://www.kernel.org/doc/Documentation/networking/netconsole.txt[Linux
+kernel documentation],
+. this one is specific to
+https://fedoraproject.org/wiki/Netconsole[Fedora] installations,
+. another one for https://wiki.ubuntu.com/Kernel/Netconsole[Ubuntu]
+installations,
+. and this one for
+https://www.suse.com/communities/conversations/netconsole-howto-send-kernel-boot-messages-over-ethernet/[openSUSE]
+systems.
+*********************************************************************
+
+Pay attention to error codes
+----------------------------
+
+Most Xenomai services available to applications return operation
+status codes, which in many cases may warn you upfront about the
+ongoing issue. Did you check them in your code?
+
+For instance, did you check the return value of *every*:
+
+- invocation of thread creation service?
+- call to potentially blocking/sleeping service?
+- resource allocation requests (e.g. memory)?
+
+Provide a self-contained test case
+----------------------------------
+
+If your test involves running a piece of code you wrote yourself,
+please reduce the bug to the simplest possible self-contained test
+case, which would allow us to reproduce the issue.
+
+.Help us to help you (again)
+************************************************************************
+A sound and simple self-contained test case attached to a bug report
+almost invariably causes the latter to *gain high priority* in the
+maintainers' bottomless TODO list. It is worth investing an hour for
+crafting a descriptive test case, compared to being stuck for an
+undefined amount of time, waiting for a feedback that might not come.
+************************************************************************

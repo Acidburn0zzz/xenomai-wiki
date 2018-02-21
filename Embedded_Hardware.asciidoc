@@ -1,0 +1,305 @@
+Embedded Hardware
+=================
+
+Dual kernel configuration
+-------------------------
+
+This section provides information regarding which SoC/SBC from the
+embedded space is known to work with Xenomai 2, and Xenomai 3 over the
+*Cobalt* core.
+
+By default, all Xenomai ports in dual-kernel configuration are based
+on the mainline Linux kernel which can be found at
+git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git.
+A few ports may target a vendor kernel tree instead, see
+footnoteref:[vendor-branch].
+
+[NOTE]
+In this configuration, a proper I-pipe patch has to be applied to the
+target kernel, for interfacing Linux with the Xenomai
+co-kernel. Xenomai 3 in a *dual kernel configuration only* requires a
+Linux 3.10 kernel or later - this restriction does not apply to the
+<<hardware-single-kernel, single-kernel configuration>>. Xenomai 2 can
+run in dual kernel configuration only, with older kernels.
+
+[CAUTION]
+The information below may be incomplete and/or outdated; the Xenomai
+project is not committed to support each and every SBC/platform from
+each and every architecture in all Xenomai releases, and new hardware
+support is regularly added to this list. If unsure about whether your
+hardware is supported by a given Xenomai release, ask on the
+mailto:xenomai@xenomai.org[Xenomai mailing list].
+
+[[arm]]
+ARM
+~~~
+
+Supported SoC
+^^^^^^^^^^^^^
+
+* *ARM*
+** Integrator/CP
+
+* *Atmel*
+** at91 family
+
+* *Broadcom*
+** BCM2835
+
+* *Freescale*
+** i.MX family
+*** i.MX1
+*** i.MX21
+*** i.MX27
+*** i.MX28
+*** i.MX31
+*** i.MX51
+*** i.MX53
+*** i.MX6 series
+*** i.MX7 series
+** QorIQ LS1 family
+
+* *Intel*
+** ixp4xx
+
+*  *Intel/Marvell*
+** PXA family
+** SA11x0-based
+
+* *Samsung*
+** S3C24xx family
+
+* *STMicroelectronics*
+** SPEAr600
+** STIH4x
+
+* *Texas Instruments*
+** OMAP3 family
+** OMAP4 family
+** AM33xx family footnoteref:[vendor-branch]
+** AM5726
+
+* *Xilinx*
+** Zynq family footnoteref:[vendor-branch]
+
+Supported Evaluation Boards
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* *Balloonz Ltd*
+** SA1110: Balloon2
+
+* *Calao Systems*
+** AT91SAM9263: USB-A9263
+
+* *Cogent Computer*
+** i.MX21: CSB535fs
+** AT91RM9200: CSB637
+
+* *DAVE s.r.l. / DENX Computer Systems GmbH*
+** i.MX31: Qong EVB-Lite
+
+* *Freescale*
+** i.MX1: MX1ADS
+** i.MX31: MX31ADS
+** i.MX51: MX51 Babbage
+** i.MX6: Solo
+** i.MX6Q: SabreSD, SabreLite
+** i.MX6Q: PhyFLEX
+** i.MX7D: SDB
+** QorIQ LS1: LS1021
+
+* *Intel*
+** IXP465: IXDP465
+
+* *ISEE*
+** OMAP3530: IGEP v2
+
+* *Linksys/Cisco*
+** IXP425: NSLU2
+
+* *Raspberry Pi foundation*
+** Pi Zero
+** Pi 2 Model B (multi_v7_defconfig, bcm2836-rpi-2-b.dtb)
+** Pi 3 Model B (32 bit mode, multi_v7_defconfig, bcm2837-rpi-3-b.dts)
+
+* *STMicroelectronics*
+** EVALSPEAr600
+
+* *Texas Instrument*
+** OMAP3530: Beagle
+** OMAP4430: Panda
+** AM33xx: BeagleBone footnoteref:[vendor-branch]
+
+* *VIA*
+** IMX6Q: VAB-820 Pico-ITX
+
+footnoteref:[vendor-branch] Support for this SoC is available from a
+vendor-specific branch from the I-pipe tree.  See _vendors_ branches
+from link:Https://git.xenomai.org/ipipe.git[the I-pipe repository].
+
+SMP support
+^^^^^^^^^^^
+
+Xenomai is SMP-capable on multi-core/multi-processor ARM platforms
+(e.g.  OMAP4430 dual core, i.MX6q, i.MX7d).
+
+[[aarch64]]
+AARCH64
+~~~~~~~
+
+Supported SoC
+^^^^^^^^^^^^^
+
+* *Hisilicon*
+** Kirin 620
+
+Supported Evaluation Boards
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* *Hisilicon*
+** HiKey (96Boards Consumer Edition)
+
+Blackfin
+~~~~~~~~
+
+Supported Processors
+^^^^^^^^^^^^^^^^^^^^
+
+* *Analog Devices*
+** BF526
+** BF527
+** BF533
+** BF537
+** BF548
+** BF561
+** BF609
+
+Supported Evaluation Boards
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* *Analog Devices*
+** BF526 EZ-KIT
+** BF527 EZ-KIT Lite
+** BF533 STAMP
+** BF537 STAMP
+** BF548 EZ-KIT Lite
+** BF561 EZ-KIT
+** BF609 EZ-KIT
+
+[[nios-ii]]
+Nios II
+~~~~~~~
+
+Supported Boards
+^^^^^^^^^^^^^^^^
+
+* *Altera*
+** DE2
+** DE2-70
+** Cyclone III 3C120
+** Cyclone III 3C25
+** Cyclone V
+
+[[powerpc]]
+PowerPC
+~~~~~~~
+
+Supported Architectures
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Xenomai was reported to work on platforms based on the following
+embedded PowerPC (32/64bit) architectures: 40x, 44x, 512x, 52xx, 82xx,
+83xx, 85xx, 86xx, pa6t. Xenomai supports BOOK3S and BOOK3E cores in
+64bit mode starting with Linux 4.1.
+
+Supported Evaluation Boards
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Xenomai is known to work on those PowerPC-based Evaluation Boards:
+
+* *AMCC*
+** PPC405EX: Kilauea, Makalu
+** PPC405GP: Walnut
+** PPC405GPr: Sycamore
+** PPC405EP: Bubinga, Taihu
+** PPC440EP: Bamboo, Yosemite
+** PPC440EPx: Sequoia
+** PPC440GX: Ocotea, Taishan
+** PPC440GR: Yellowstone
+** PPC440GRx: Rainier
+** PPC440SPe: Yucca, Katmai
+
+* *Avnet*
+** V5FX30T [ Virtex-5 XC5VFX30T FPGA with ppc440 (400 MHz) ]
+
+* *DAVE s.r.l. / DENX Computer Systems GmbH*
+** MPC5121: Aria
+
+* *Emerson*
+** MPC8641D: MVME7100
+
+* *Freescale*
+** MPC5121-ADS
+** MPC8272-ADS
+** MPC8313E-RDB
+** MPC8349-ITX
+** MPC8349E-MITX-GP
+** MPC8360-MDS
+** MPC8540-ADS
+** MPC8545-CDS
+** MPC8548E-CDS
+** MPC5200, MPC5200b: Lite5200, Lite5200b
+** QorIQ P2020
+** QorIQ T1042
+
+* *PA-Semi*
+** PA6T: 1682M Electra
+
+* *TQ Components*
+** MPC8548E: TQM8548
+** MPC8560: TQM8560
+
+* *Xilinx*
+** ML403 [ Virtex-4 XC4VFX12 FPGA with ppc405 (300 MHz) ]
+** ML507 [ Virtex-5 XC5VFX70T FPGA with ppc440 (400 MHz) ]
+
+SMP support
+^^^^^^^^^^^
+
+Xenomai is SMP-capable on multi-core/multi-processor PowerPC
+platforms.
+
+[[x86]]
+x86
+~~~
+
+All x86-compatible 32/64bit processor types starting from i486 CPUs
+and better are supported. Lower latencies are achieved when a TSC and
+local APIC are available from the CPU. Make sure the processor type
+you pick in your kernel configuration actually matches your CPU. In
+case you get weird latencies when running Xenomai on your x86 board,
+make sure to check out this
+link:Configuring_For_X86_Based_Dual_Kernels[information].
+
+Supported Sub-Architectures
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Xenomai is known to work on all PC-compatible and AMD Elan systems.
+
+SMP support
+^^^^^^^^^^^
+
+Xenomai is SMP-capable on all supported multi-processor/multi-core x86
+platforms.
+
+[[hardware-single-kernel]]
+Single kernel configuration
+---------------------------
+
+If you plan to run Xenomai 3 over the *Mercury* core, any Linux-based
+platform with _glibc_ or _uClibc_ support will do. In this
+configuration, Xenomai 3 can run on mainline kernels starting from the
+kernel 2.6.x series onward. The availability of the
+https://www.osadl.org/Realtime-Linux.projects-realtime-linux.0.html[PREEMPT-RT]
+feature is optional, although recommended if getting short and bounded
+response time is a requirement.

@@ -1,0 +1,110 @@
+FAQ
+===
+
+On what hardware does Xenomai run?
+----------------------------------
+
+Embedded hardware, desktop, server. This said, Xenomai has a strong
+focus on embedded systems, and most Xenomai ports nowadays target
+those platforms.
+
+See the link:Embedded_Hardware[embedded hardware list], and the
+link:Other_Hardware[other-hardware list].
+
+Is my embedded setup supported by Xenomai?
+------------------------------------------
+
+See the link:Embedded_Hardware[embedded hardware list].
+
+If your board is not listed above, you may want to get more information
+from the mailto:xenomai@xenomai.org[Xenomai mailing list].
+
+If you are willing to port Xenomai to an ARM-based system, you may
+want to have a look at
+link:Porting_Xenomai_To_A_New_Arm_Soc[this document].
+
+What is this I-pipe thing? And what about Adeos? Are they related?
+------------------------------------------------------------------
+
+In Xenomai parlance, the I-pipe and Adeos both refer to the very same
+code, that makes a Linux kernel able to host a secondary kernel
+exhibiting real-time properties (e.g. Xenomai), on the same hardware.
+
+This code is a kernel patch applied to a regular Linux kernel, which
+among other services, guarantees delivery of external interrupts to
+Xenomai with very low latency.
+
+[NOTE]
+You need the I-Pipe only for running Xenomai in a dual kernel
+configuration, i.e. over the Cobalt core.
+
+Which I-pipe patch should I use with Xenomai version X on platform Y?
+---------------------------------------------------------------------
+
+Check link:/downloads/ipipe/[there] for an I-pipe patch which best
+fits your kernel.
+
+What is a Xenomai _skin_?
+-------------------------
+
+To understand that, you should first know that Xenomai is some sort of
+http://www.xenomai.org/documentation/slides/Xenomai-OSMB-2007-01.pdf[Chameleon
+RTOS] at its core, which can export multiple real-time APIs to
+applications, all built over the Xenomai _nucleus_.
+
+A Xenomai API can impersonate an existing traditional RTOS interface
+such as VxWorks (tm), or provide an original programming interface for
+some particular purpose, such as
+http://www.xenomai.org/documentation/branches/v2.4.x/html/api/group__rtdm.html[RTDM].
+
+Basically, each API makes Xenomai look a different RTOS albeit all of
+them are based on the same common core. This is the reason why we call
+an implementation of such API, a Xenomai _skin_.
+
+Can I still use GDB in a dual kernel configuration?
+---------------------------------------------------
+
+Yes, definitely. Debugging a Xenomai application in a dual kernel
+system is no different from debugging any regular application.
+
+[NOTE]
+The only side-effect of using GDB for debugging a Xenomai application
+is that breakpointing and single-stepping implies a switch to
+secondary mode (i.e. threads are automatically handed over the Linux
+kernel as soon as GDB regains control).
+
+How to compile a RTDM-based driver?
+-----------------------------------
+
+See link:Building_Applications_For_Xenomai_3_X#compiling_a_rtdm_Based_module[there].
+
+Running scripts/bootstrap complains about LT_SYS_SYMBOL_USCORE
+--------------------------------------------------------------
+
+e.g.:
+..........................
+$ cd xenomai-3
+$ ./scripts/bootstrap
+...
+configure.ac:93: error: possibly undefined macro: LT_SYS_SYMBOL_USCORE
+      If this token and others are legitimate, please use m4_pattern_allow.
+      See the Autoconf documentation.
+autoreconf: /usr/bin/autoconf failed with exit status: 1
+..........................
+
+On Debian-based systems like Ubuntu, you need to install the
+libltdl-dev package for building Xenomai from sources.
+
+Can I mirror Xenomai git repositories ?
+---------------------------------------
+
+Yes. However, we recommend using
+link://github.com/mricon/grokmirror[grokmirror]. For more details, see
+link:/mirroring-xenomai-git-repositories-with-grokmirror[the
+following page].
+
+I ran into a technical issue which is not covered here
+------------------------------------------------------
+
+Please have a look at the
+link:Knowledge_Base_Index[knowledge base].

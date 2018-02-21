@@ -1,0 +1,309 @@
+Start Here
+==========
+
+How does Xenomai deliver real-time?
+-----------------------------------
+
+There are two options:
+
+[[cobalt]]
+- By supplementing Linux with a real-time co-kernel running
+side-by-side with it. This small extension named *Cobalt* is
+built into the Linux kernel, dealing with all time-critical
+activities, such as handling interrupts, and scheduling real-time
+threads. The Cobalt core has higher priority over the native kernel
+activities.
++
+In this _dual kernel_ configuration, all the RTOS APIs Xenomai
+provides interface with the Cobalt core, and only those APIs are
+deemed real-time capable, including the subset of POSIX 1003.1c
+services implemented by Xenomai (aka _libcobalt_).
+
+.Xenomai 3 dual kernel configuration
+image::./figures/x3-cobalt-interfaces.png["Cobalt interfaces", align="center"]
+
+[NOTE]
+Cobalt is an evolution of the former
+link:Introducing_Xenomai_3#Motivation_for_a_major_evolution[Xenomai 2 architecture].
+
+[[mercury]]
+- By relying on the real-time capabilities of the native Linux kernel,
+forming the *Mercury* core. Often, applications will require the
+https://www.osadl.org/Realtime-Linux.projects-realtime-linux.0.html[PREEMPT-RT]
+extension to be enabled in the target kernel, for delivering real-time
+services.
++
+However, this is not mandatory, it depends on the application
+requirements with respect to responsiveness and maximum jitter; some
+may even tolerate a certain percentage of deadline misses.
++
+In this _single kernel_ configuration, all the non-POSIX RTOS APIs
+Xenomai provides are accurately emulated over the native threading
+library (preferably *NPTL*, but also supports *linuxthreads* for
+legacy setups).
+
+.Xenomai 3 single kernel configuration
+image::./figures/x3-mercury-interfaces.png["Mercury interfaces", align="center"]
+
+[NOTE]
+Xenomai 3 supports both the single and dual kernel configurations. The
+discontinued Xenomai 2 architecture only supported the dual kernel
+configuration.
+
+Xenomai license terms
+---------------------
+
+All Xenomai code running in kernel space is licensed under the terms
+of the Linux kernel license, i.e. GPL v2.
+
+Xenomai libraries linked to applications are licensed under the terms
+of the LGPL v2.1.
+
+For information regarding a particular software component, you should
+look at the COPYING file available in the directory containing the
+relevant source code.
+
+Preparation checklist
+---------------------
+
+Single or dual kernel configuration?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Assuming you know the target SoC and the application requirements
+with respect to real-time guarantees, you should define which of the
+single or dual kernel configurations best fits your needs. The
+following hints may help:
+
+- Does your application actually have real-time requirements, and how
+stringent are they? If migrating an application from an _embedded_
+RTOS to a Linux-based platform, the question may stand because unlike
+legacy RTOSes, Linux sees embedded and real-time characteristics as
+orthogonal issues. Some migrated applications may even be fine with only
+emulating the original RTOS API over a regular kernel and standard
+preemption (CONFIG_PREEMPT). Those may benefit from Xenomai 3 in
+single kernel configuration.
++
+   * For stringent real-time requirements, you should consider the
+   availability of the hard real-time support for your target SoC
+   architecture and Linux kernel version.
+
+    ** Embedded architecture support for Xenomai in dual kernel
+       configuration can be viewed
+       link:Embedded_Hardware[here]. This
+       technology is based on a kernel patch which introduces a
+       mechanism for diverting all critical events to a dual kernel
+       extension, coupled to the host Linux kernel. This mechanism
+       called the _Interrupt pipeline_ (aka _I-Pipe_) is described in
+       details by this (slightly outdated)
+       link:Life_With_Adeos[document].  All
+       I-pipe patches available for various kernel releases can be
+       fetched link:/downloads/ipipe/[at this site].
+
+    ** For a single kernel configuration, the list of target
+       architectures supporting the full preemption features (aka
+       _PREEMPT-RT_) is available
+       https://www.osadl.org/Realtime-Linux.projects-realtime-linux.0.html[here].
+
+  * How many CPU cores will be involved in real-time operations?
+
+    ** in a dual kernel configuration, the Xenomai co-kernel normally
+       benefits from its simpler locking scheme when dealing with
+       real-time activities concurrently on not more than four CPU
+       cores.
+
+    ** Beyond four CPU cores running real-time activities, SMP
+       scalability will be better with a single kernel configuration.
+
+[NOTE]
+The key issue is with the number of CPU cores *actually running
+real-time threads* and receiving interrupts from real-time sources,
+not with the overall number of cores on line on the target
+hardware. Because the Cobalt co-kernel does not share any lock with the
+regular Linux kernel when dealing with real-time activities, a 16-way
+server pinning such activities on not more than four of the available
+cores would still deliver good performances in a Cobalt-based dual
+kernel configuration.
+
+- Is any of those dual kernel pros critical to your case?
+
+    * porting the Cobalt co-kernel to a new architecture is fairly
+      simple.
+
+    * it is decoupled from the development cycle of the mainline
+      Linux kernel, thus allowing to pick the desired (or required)
+      kernel version more freely.
+
+    * it can simplify the worst-case analysis and keeps the results
+      valid over update cycles of the mainline Linux kernel which
+      hosts it.
+
+    * it allows to fine-tune the non-real-time part for throughput
+      without negative impact on the real-time job.
+
+    * it does not require any tuning of the regular Linux system to
+      guarantee short and bounded latencies for the real-time job.
+
+- Is any of those single kernel pros critical to your case?
+
+    * the stock kernel drivers can be reused by real-time applications
+      with no change (provided they don't create latency issues due to
+      an unfortunate implementation). On the other hand, drivers need
+      to be specifically implemented for running over a dual kernel
+      configuration, i.e. over the in-kernel RTDM interface.
+
+    * the programming model may be simpler than with a dual kernel
+      configuration, since the kernel is deemed to enforce real-time
+      behavior globally. This said, cautious application design and
+      implementation must be a common rule regardless of the
+      underlying real-time technology, as not all available services
+      may be suited for real-time usage.
+
+    * all standard utilities for monitoring the system operations can
+      report about the real-time activities out of the box. On the
+      other hand, a dual kernel system has to adapt such tools
+      specifically for this purpose.
+
+Do you need non-POSIX real-time APIs?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Porting legacy non-POSIX applications to POSIX may not be the best
+option. Although there may be similarities, the semantics of
+traditional RTOS APIs may differ significantly from POSIX in many
+cases, which often makes the migration process quite painful and
+error-prone.
+
+Xenomai ships with emulators of traditional RTOS APIs, like
+VxWorks(TM) and pSOS(TM), both available in single and dual kernel
+configurations. Xenomai aims at accurately mimicking the original
+services with low overhead.
+
+However, maybe Xenomai does not provide an emulator yet for the API
+you are looking for, or some services are missing from the existing
+emulators, in which case you should consider raising the topic on the
+link:Mailing_Lists[e-mail discussion list]. Xenomai is based on
+generic building blocks for implementing RTOS APIs, so extending it is
+a documented option.
+
+Gathering the Linux kernel bits
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Depending on your requirements, you will need:
+
+- a Linux kernel ported to your target SoC or platform. If possible,
+prefer ftp://ftp.kernel.org/pub/[mainline kernel releases] over
+vendor-originated ones. Among other issues, kernel patches required
+for running hard real-time applications over single (PREEMPT_RT) or
+dual kernel (I-pipe) configurations are commonly based over mainline
+kernels.
+
+- for a dual kernel configuration, an
+link:/downloads/ipipe/[_I-pipe_ patch] fitting your
+target kernel. If you don't find any patch that matches exactly but
+feel lucky, you may try applying a patch issued against a kernel only
+differing by its sublevel release number, e.g. from 3.10.22 to
+3.10.20. However, even if it applies cleanly, some extra testing is
+required, and getting additional information from the
+link:Mailing_Lists[e-mail discussion list] may help.
+
+- for a single kernel configuration with hard real-time capabilities,
+a https://www.kernel.org/pub/linux/kernel/projects/rt/[PREEMPT-RT
+patch] matching your target kernel.
+
+Getting the Xenomai sources
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Xenomai 3 is the current architecture, aimed at supporting both the
+single and dual kernel configurations.
+
+.Accessing the development tree of Xenomai 3.x
+**********************************************
+git://git.xenomai.org/xenomai-3.git +
+https://git.xenomai.org/xenomai-3.git +
+http://git.xenomai.org/xenomai-3.git
+**********************************************
+
+[NOTE]
+The Xenomai project issues a tarball for each official
+link:/downloads/xenomai/stable/[stable] or
+link:/downloads/xenomai/testing/[candidate] release.  However,
+we recommend tracking our development and/or maintenance GIT trees, for
+getting the latest fixes.
+
+Using GIT
+^^^^^^^^^
+
+The Xenomai project uses http://git-scm.com/[GIT] for managing the
+source code repositories. There is no shortage of GIT crash courses,
+references, howtos, tips and comprehensive documentation available
+from the Internet. For the sake of conciseness, we will only mention
+two documentation hubs from which you should be able to find your way:
+
+- http://git-scm.com/documentation[The GIT project documentation hub].
+- https://git.wiki.kernel.org/index.php/GitDocumentation[The GIT documentation wiki].
+
+In addition, let's mention a simple tutorial for bootstrapping with
+GIT and day-to-day usage:
+
+https://www.kernel.org/pub/software/scm/git/docs/gittutorial.html
+
+Building Xenomai from sources
+-----------------------------
+
+- link:Installing_Xenomai_3_X[This document]
+  contains instructions for building and installing Xenomai 3.x.
+
+If something goes wrong
+-----------------------
+
+First and foremost, please make sure to have a look at the appropriate
+troubleshooting guide, whether you are using a
+link:Troubleshooting_A_Dual_Kernel_Configuration[dual]
+or a
+link:Troubleshooting_A_Single_Kernel_Configuration[single]
+kernel configuration.
+
+[TIP]
+If running any release from the discontinued Xenomai 2 series, or a
+Xenomai 3 release using the *Cobalt* real-time core, then you are
+running a dual kernel configuration.  Xenomai 3 over the *Mercury*
+core stands for a single kernel configuration.
+
+If still out of luck, and if your favorite Internet search engine did
+not help finding a similar/same problem already solved for another
+user, then you should try raising the issue on the
+link:Mailing_Lists[main e-mail discussion list].
+
+.How to ask for help on the mailing list
+*******************************************************************
+To maximize your chances of receiving quick and accurate responses to
+your request for help, you really want to follow
+link:Asking_For_Help[these recommendations].
+*******************************************************************
+
+Embedded Linux distributions & Xenomai
+--------------------------------------
+
+- The Yocto-based http://www.denx.de/wiki/DULG/ELDK[Embedded Linux
+Development Kit] (aka _ELDK_) includes pre-built GNU cross-development
+tools and bootable root file systems for a variety of ARM(TM),
+PowerPC(TM) and MIPS(TM) embedded target systems. It also ships with a
+pre-built stable Xenomai release.
+
+Other readings
+--------------
+
+The following books and articles describe different aspects of the
+Xenomai technology:
+
+- http://www.denx.de/en/pub/News/Xum2009AbstractsAndPresentations/Xenomai_and_Realtime_Image_Processing_Control.pdf[Image
+  processing with Xenomai 2 by Xerox UK], presented at the http://www.denx.de/en/News/XenomaiUserMeeting2009[Xenomai User Meeting '09].
+
+- http://shop.oreilly.com/product/9780596529680.do[Building Embedded
+Linux Systems, Second Edition]. This book dedicates a chapter
+explaining the dual kernel architecture of Xenomai 2.
+
+- http://xenomai.org/documentation/slides/Xenomai-OSMB-2007-01.pdf[Xenomai: the
+RTOS Chameleon for Linux], at Open Source Meets Business, Nürnberg,
+Germany, January 2007.
+
+- http://www.isde.uni-hannover.de/images/b/b3/ELROB_TechnicalPaper_RTS_University_of_Hannover.pdf[Semi-autonomous service robots] at the ELROB 2006.

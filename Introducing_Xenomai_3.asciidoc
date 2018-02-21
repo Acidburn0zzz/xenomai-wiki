@@ -1,0 +1,400 @@
+Introducing Xenomai 3
+=====================
+
+Motivation for a major evolution
+--------------------------------
+
+In the early days, Linux-based applications with stringent response
+time requirements had to be controlled by a real-time co-kernel
+running side-by-side with the Linux kernel, except in the seldom cases
+where depending on a heavily modified Linux variant was acceptable. In
+such a dual kernel configuration, applications behaved as totally
+foreign code, strictly isolated from the common Linux
+environment. Some co-kernel variants would even require those
+applications to live in kernel space, due to a lack of user-space
+support.
+
+Xenomai 2 introduced a more common programming model for real-time
+applications within regular Linux processes, not just running as
+_kernel modules in user-space_, but truly as real-time capable Linux
+applications, blurring the boundaries between the co-kernel and
+regular Linux programming environments, so that common tools such as
+GDB could be safely used to debug real-time applications for instance.
+
+.Xenomai 2 architecture
+image::./figures/x2-interfaces.png["Xenomai 2 architecture", align="center"]
+
+Xenomai 2 implements a Linux-hosted dual kernel system based on the
+I-pipe (aka _Adeos_), a lightweight and mature real-time enabling
+layer for the Linux kernel. The I-pipe is available for various
+architectures at low engineering and maintenance cost. This simple
+interrupt virtualization layer induces only a negligible runtime
+overhead, and can be ported to a new architecture fairly easily.  For
+these reasons, this _mature option is preserved in Xenomai 3_.
+
+However, the following issues have to be considered:
+
+- Xenomai is all about RTOS APIs
+  * dual kernel is not the only way to real-time
+  * real-time may not even be required in some cases
+- kernel space is hostile to foreign APIs
+  * debugging is complex
+  * extending APIs bloats the kernel
+- kernel space is no place for applications
+  * this may cause wrong software designs
+
+As the ongoing
+https://www.osadl.org/Realtime-Linux.projects-realtime-linux.0.html[PREEMPT_RT]
+effort delivers on the short and bounded latency promise with a single
+kernel configuration on selected hardware platforms for which this
+technology is available and mature, it creates opportunities to extend
+the relevance of Xenomai as a migration tool, so that moving an
+application to such a system does not necessarily entail porting the
+code over the POSIX API.
+
+Xenomai 3 seized this opportunity, by _enabling the Xenomai APIs for
+dual kernel and native Linux configurations_. In that sense, Xenomai 3
+is a paradigm shift, because Xenomai is no more tied to the dual
+kernel architecture. Instead, it supplements the Linux kernel with a
+co-kernel only when necessary.
+
+Such evolution requires the real-time application code to live in
+user-space, regardless of whether the dual kernel or native
+configuration is used. In turn, this makes the common device driver /
+application code split design most desirable, with RTDM exporting the
+same interface to both environments.
+
+The Xenomai 3 architecture
+--------------------------
+
+Xenomai 3 is the new architecture of the Xenomai real-time framework,
+which can run seamlessly side-by-side Linux as a co-kernel system like
+Xenomai 2, or natively over mainline Linux kernels.  In the latter
+case, the mainline kernel can be supplemented by the
+https://www.kernel.org/pub/linux/kernel/projects/rt/[PREEMPT-RT patch]
+to meet stricter response time requirements than standard kernel
+preemption would bring.
+
+This new architecture therefore exhibits two real-time cores, selected
+at build time. The dual kernel nicknamed _Cobalt_, is a significant
+rework of the Xenomai 2.x system. _Cobalt_ implements the
+http://www.xenomai.org/documentation/xenomai-3/html/xeno3prm/group__rtdm.html[RTDM
+specification] for interfacing with real-time device drivers.
+
+.Dual kernel Cobalt architecture
+image::./figures/x3-cobalt-interfaces.png["Cobalt architecture", align="center"]
+
+The native linux version, an enhanced implementation of the
+experimental
+http://www.osadl.org/Migration-Portability.migration-portability.0.html[Xenomai/SOLO]
+work, is called _Mercury_. In this environment, only a standalone
+implementation of the
+http://www.xenomai.org/documentation/xenomai-3/html/xeno3prm/group__rtdm.html[RTDM
+specification] in a kernel module is required, for interfacing the
+RTDM-compliant device drivers with the native kernel.
+
+.Single kernel Mercury architecture
+image::./figures/x3-mercury-interfaces.png["Mercury architecture", align="center"]
+
+This magic works with the introduction of the _Copperplate_ interface,
+which mediates between the real-time API/emulator your application
+uses, and the underlying real-time core. This way, applications are
+able to run in either environments without visible code change.
+
+Main pointers
+-------------
+
+For the impatient, here is a list of URLs to the main resources:
+
+- link:/downloads/xenomai/stable/latest[The latest Xenomai 3 release]
+- http://git.xenomai.org/xenomai-3.git/[The Xenomai 3 code repository]
+- link:Installing_Xenomai_3[How to install Xenomai 3]
+- link:Building_Applications_For_Xenomai_3[How to build applications]
+- link:Running_Applications_For_Xenomai_3[How to run applications]
+- link:Migrating_From_Xenomai_2_To_3[How to migrate from Xenomai 2]
+- link:/documentation/xenomai-3/html/xeno3prm/[Xenomai 3 Programmer's Reference Manual - online version]
+
+What's new with Xenomai 3
+-------------------------
+
+Non-POSIX APIs available in native kernel configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Xenomai 3 implements all non-POSIX RTOS APIs/emulators in user-space,
+based on building blocks provided by the _Copperplate_
+library. Compared to Xenomai 2, this has several advantages:
+
+- these APIs may run over a dual or single kernel configuration
+  indifferently, and the same goes for the applications built over
+  them.
+
+- IPC mechanisms implemented by these APIs which commonly involve data
+  transfers between real-time threads do not need to channel this data
+  through a kernel syscall anymore. Instead, such transfer happens
+  directly from user-space, even for multi-process applications
+  (e.g. message queues, or buffers).
+
+Typically, users of the _Alchemy_ API - formerly known as the _native_
+Xenomai API - will likely see better performance figures in
+thread-to-thread communications.
+
+RTDM improvements
+~~~~~~~~~~~~~~~~~
+
+New device description model
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The major changes are aimed at narrowing the gap between the regular
+Linux device driver model and RTDM even more, based on new driver and
+device description models.
+
+As a result of this, not only the RTDM API is common between the
+single and dual kernel configurations, but both expose devices the
+same way in the regular Linux device namespace.
+
+This means that RTDM device properties can be inspected via _sysfs_,
+even in a dual kernel (i.e. _Cobalt_) configuration.
+
+API extension
+^^^^^^^^^^^^^
+
+- A wait queue construct very similar to the Linux kernel wait queues
+  is available from the driver API. This allows for fine-grained
+  synchronization on arbitrary events and conditions.
+
+- The RTDM specification was extended with providing mmap() support
+  from drivers, which Xenomai 3 implements.
+
+Additional features in dual kernel mode
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Support for real-time signals
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The Cobalt kernel implements POSIX-compliant signals sent and received
+fully from _primary mode_. The +sigwait()+, +sigwaitinfo()+,
++sigtimedwait()+, +sigqueue()+, +kill()+ and +pthread_kill()+ calls
+are available as Xenomai services.
+
+Support for timerfd
+^^^^^^^^^^^^^^^^^^^
+
+The timerfd API has been introduced. It is available as a set of
+Cobalt services, delivered in real-time mode.
+
+New scheduling policies
+^^^^^^^^^^^^^^^^^^^^^^^
+
+- SCHED_QUOTA
+
+The SCHED_QUOTA policy enforces a limitation on the CPU consumption of
+threads over a globally defined period, known as the quota
+interval. This is done by pooling threads with common requirements in
+groups, and giving each group a share of the global period.
+
+When threads have entirely consumed the quota allotted to the group
+they belong to, the latter is suspended as a whole, until the next
+quota interval starts. At this point, a new runtime budget is given to
+each group, in accordance with its share.
+
+- SCHED_WEAK
+
+Members from the SCHED_WEAK class are weakly scheduled by Xenomai,
+only for the purpose of synchronizing with real-time threads from
+other scheduling classes.  However, they cannot compete for CPU
+resources with real-time threads, and leave the primary domain upon
+return from Xenomai syscalls automatically.
+
+This policy is an extension of Xenomai's special handling of the
+SCHED_OTHER policy to members of the SCHED_FIFO and SCHED_RR classes
+from a regular Linux kernel. In other words, it is now possible to run
+threads which belong to the lowest priority class Xenomai-wise and to
+the SCHED_FIFO or SCHED_RR class in the regular kernel at the same
+time.
+
+Other optimizations
+^^^^^^^^^^^^^^^^^^^
+
+- The POSIX condition variable mechanism implemented by the Cobalt
+  core has a significantly lower overhead, as it saves two useless
+  context switches in a common situation.
+
+- The POSIX semaphores available with Cobalt gained the fast
+  synchronization mechanism, directly performed from user-space
+  without system call when no contention exists on the resource. This
+  means that all basic Cobalt-based IPCs, namely POSIX mutexes,
+  condition variables and semaphores, use syscall-less operations
+  whenever possible.
+
+Better debugging tools
+^^^^^^^^^^^^^^^^^^^^^^
+
+- The link:Finding_Spurious_Relaxes#Debugging_spurious_relaxes_with_Xenomai_3_and_slackspot[_slackspot_
+utility] has been introduced to help spotting code locations in
+applications causing spurious relaxes of real-time threads, at source
+level. Unlike the former approach based on decoding manually the
+backtrace information from SIGXCPU handlers in each application
+individually, _slackspot_ combines a dedicated kernel support which
+logs the trace data about spurious relaxes, and a userland utility
+which parses this data to display the program backtrace. With the
+additional help of symbol and context filters, _slackspot_ helps in
+locating the offending code easily.
+
+Extending Cobalt kernel services
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The Cobalt kernel introduces a mechanism for extending/modifying the
+behavior of the core services it implements by mean of RTDM
+drivers. Any such driver may extend the Cobalt kernel with
+_personality_ bits, for delivering custom variations of standard
+services, or even new services.
+
+Transition Kit for easy migration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Xenomai 3 comes with a *Transition Kit* available as a library and a
+set of headers, which provides wrappers, converting the former POSIX
+and _native_ APIs calls differing or absent in Xenomai 3, to the newer
+POSIX/Cobalt and _Alchemy_ APIs respectively.
+
+Support for user-space device drivers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In the seldom cases where running a device driver in user-space is the
+best option, one may rely on the RTDM-based UDD framework shipped with
+Xenomai 3. UDD stands for _User-space Device Driver_, enabling
+interrupt control and I/O memory access interfaces to applications in
+a safe manner. It is reminiscent of the UIO framework available with
+the Linux kernel, adapted to the dual kernel Cobalt environment.
+
+Support for mixed 32/64 bit ABIs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The Cobalt core can run 32bit applications over a 64bit kernel on
+architectures which support the mixed ABI model. Currently, Cobalt
+supports the x32 and ia32 emulation ABIs over x86_64.
+
+Xenomai 3 FAQ
+-------------
+
+*Q*: I can run POSIX based applications directly over a PREEMPT_RT
+kernel on my target system, so what is the point of running Xenomai 3?
+
+*A*: If your application is already fully POSIXish, and the performances
+requirements are met, then there is likely no point. However, you may
+want to consider Xenomai 3 in two other situations:
+
+* you want to port a legacy embedded application to Linux without
+having to switch APIs, i.e. you don't want to rewrite it on top of the
+POSIX interface. Xenomai may help in this case, since it supports
+multiple programming interfaces over a common real-time layer,
+including emulators of traditional RTOS APIs. Xenomai 3 makes those
+APIs available to a PREEMPT_RT based system as well.
+
+* the target hardware platform has limited horsepower, and/or you want
+the real-time job to put the smallest possible overhead on your
+system.  This is where dual kernels are usually better than a native
+preemption system. With the latter, all parts of the Linux system have
+to run internal code that prevents real-time activities from being
+delayed in an unacceptable manner (e.g. priority inheritance
+mechanism, threaded IRQ handlers). In a dual kernel system, there is
+no need for this, since the real-time co-kernel runs separately from
+the normal Linux kernel.  Therefore, Linux is not charged for
+real-time duties, it does not even have to know about them.
+
+In short, it depends on various factors, such as your API of choice,
+the performance requirements, and the target hardware
+capabilities. This has to be evaluated on a case-by-case basis.
+
+*Q*: I want to port a RTLinux/RTAI application running in kernel space
+to Xenomai. Since Xenomai 3 discontinues kernel space APIs, should I
+pick Xenomai 2 then?
+
+*A*: We strongly discourage this: Xenomai 2.x is EOL since January
+2016; as such it is no more maintained by the Xenomai project.  You
+may want to seize this opportunity to move your code to user-space
+instead, and fully benefit from the standard programming model Xenomai
+3 introduces.
+
+*Q*: I want to port a legacy VxWorks(TM) or pSOS(TM) application to
+Xenomai. After some analysis, I concluded that I should port my code
+over the relevant kernel-based APIs. I have a single address space
+there, permanent supervisor privileges, direct access to device memory
+and ports, everything looks similar to my original runtime
+environment.  Since Xenomai 3 discontinues kernel space APIs, should I
+pick Xenomai 2 then?
+
+*A*: Same answer as previously. In addition, your original code is
+likely under a proprietary license that does not mix well with the GPL
+that rules the Linux kernel. Moving all your proprietary code to
+user-space would probably solve such license issue.  Xenomai libraries
+are licensed under the terms of the LGPL v2.1.
+
+Xenomai 3 will support those APIs in user-space, so you may want to
+reconsider the issue differently:
+
+* a multi-threaded Linux process provides a single address space as
+well, but with the added bonus of memory protection. So tasks/threads
+running your application could still share variables and code easily,
+but would not be able to crash the system by corrupting the kernel
+memory.
+
+* many legacy RTOS do not provide strong device driver semantics, and in
+such environments, application code may do device management informally
+as it sees fit. However, keeping the option of porting your code to a
+native Linux environment open, will require that you do follow the
+device driver / application split. So you may want to tackle the issue
+upfront and only once, and port your driver code over RTDM directly,
+which will keep your options open afterwards; i.e. between relying on
+native preemption or a dual kernel system.
+
+*Q*: Does the more common programming model followed by Xenomai 3 mean
+that we will not be able to implement device drivers in user-space?
+
+*A*: No. It basically means that you will not get any support from
+Xenomai 3 to implement application code in kernel space. The only API
+available from kernel space with Xenomai 3 is RTDM, for implementing
+real-time device drivers.
+
+*Q*: I am currently running an application in user-space over Xenomai
+2, what will change for me with Xenomai 3?
+
+*A*: The situation is as follows:
+
+     * if you want to keep using a dual kernel configuration, the
+       target system will have to run Linux kernel 3.10 or later.
+
+[NOTE]
+This requirement does *not* apply to a single kernel configuration,
+for which you may pick whatever kernel version you see fit.
+
+     * most applications currently based on the POSIX API should be
+       portable _as is_ to Xenomai 3. An exhaustive list of all the
+       user-visible changes is available
+       link:Migrating_From_Xenomai_2_To_3#POSIX_interface_changes[at
+       this address]. Most of these variations are handled by the
+       *Transition Kit*, see below.
+
+     * likewise, applications currently based on the former _native_
+       API should move easily over the _Alchemy_ API. An exhaustive list of all the
+       user-visible changes is available
+       link:Migrating_From_Xenomai_2_To_3#Alchemy_interface_formerly_native_API[at
+       this address]. Most of these variations are handled by the
+       *Transition Kit*, see below.
+
+     * pSOS(TM) and VxWorks(TM) applications should not see any change. You
+       may refer to
+       link:Migrating_From_Xenomai_2_To_3#pSOS_interface_changes[this
+       address] for a couple of updates to the pSOS emulator, and to
+       link:Migrating_From_Xenomai_2_To_3#VxWorks_interface_changes[this
+       address] for updates to the VxWorks emulator.
+
+     * at the moment, applications based on the uITRON and VRTX(TM)
+       APIs are not portable to Xenomai 3, since the corresponding
+       emulators are not available in this environment yet.
+
+[TIP]
+Xenomai 3 comes with a compatibility layer named the *Transition Kit*,
+consisting of a library and a set of header files which provide
+wrappers. Applications based on the POSIX and former _native_ APIs can
+directly benefit from it.

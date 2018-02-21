@@ -1,0 +1,60 @@
+RTnet Configuration File
+========================
+
+The *rtnet.conf* file is read by the rtnet startup script as it is
+started, it sets up the rtnet environment at startup. The entries in
+this file are discussed next:
+
+[[file-entries]]
+File Entries
+------------
+
+RT_DRIVER: This entry specifies the real-time driver that will be used
+to run the network card. Not all network cards are supported by RTnet,
+to find the drivers that are supported look at the source code for the
+drivers under */drivers*. The compiled drivers are located under
+*/modules*.::
+
+RT_DRIVER_OPTIONS: There might be more that one network card installed
+on a system. To identify which card has should be used by RTnet, this
+entry specifies it with a *1*. To find out which card is represented by
+which place in this setup configuration change the placement of the *1*
+and start rtnet in master mode. When you plug the network cable into a
+hub, the active card's LED will flicker constantly as it is looking for
+slaves.::
+
+IPADDR: The IP address of this system is setup here.::
+
+NETMASK: If a netmask is used in the network, it is setup here.::
+
+RT_LOOPBACK: If the loopback option was selected in the installation
+setup of RTnet then you can specify with this entry if the loopback
+device will be active or not. This loopback is used for testing the
+correct workings of RTnet, see the installation instructions for further
+details on its use.::
+
+RTCAP: To be able to use the Ethereal Network Analyzer with RTnet this
+entry is used. This also is only valid if real-time capturing support
+was sellected at RTnet's installation. For further information see
+*/Documentation/README.rtcap* and
+http://www.rts.uni-hannover.de/rtnet/download/RTnet-ETFA05.pdf[RTnet - A Flexible Hard Real-Time Networking Framework]
+
+TDMA_MODE: This entry specifies if this system is acting as the master
+or the slave in the network. See */Documentation/README.rtmac* for more
+details regarding the TDMA setup.::
+
+TDMA_SLAVES: When this system was set up as the master, then the slaves
+on the network has to be listed here. If this system was set up as
+slave, leave this blank::
+
+TDMA_CYCLE: For a simple TMDA setup, the TDMA cycle time in microseconds
+are listed here, only used if the system is setup as the master. +
+TDMA_OFFSET: For a simple TMDA setup, the TDMA offset time in
+microseconds are listed here, only used if the system is setup as the
+master. +
+TDMA_CONFIG: When the simple TDMA setup is not used and a more
+complicated setup is needed then this entry specifies the TDMA config
+file to use. It is usually situated at */etc/tdma.conf*. See
+*/Documentation/README.rtmac* for setup details of the *tdma.conf*
+file::
+

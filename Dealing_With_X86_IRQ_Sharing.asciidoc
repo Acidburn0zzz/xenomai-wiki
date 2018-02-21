@@ -1,0 +1,41 @@
+What if Xenomai and Linux devices share the same IRQ?
+=====================================================
+:author:	Gilles Chanteperdrix
+:categories:	Core
+:tags:		troubleshooting, x86, dual-kernel
+
+[CAUTION]
+IRQ sharing between RT (Xenomai kernel) and non-RT (Linux) domains is
+fragile regardless of the CPU architecture, can easily destroy
+determinism on the RT side, and should therefore be avoided whenever
+possible.
+
+Sharing IRQs between RT devices is not problematic, but still comes
+with additional overhead compared to dedicated IRQ lines.
+
+On x86, the following approaches exist to untangle devices IRQ-wise:
+
+* If your hardware implements the Message Signaled Interrupts (MSI),
+  enabling CONFIG_MSI in the kernel should fix the issue.
+* If at least one of the devices is a PCI card, try flipping its position
+on the motherboard.
+* PC104+ cards sometimes have jumpers (yeah, they still exist) to change
+the IRQ line. Otherwise, their ordering in the PC104 stack also
+influences the IRQ line
+* Some (but not many) PC and notebook BIOSes allow to change the IRQ
+assignment.
+* Disable the conflicting Linux device (e.g. in the BIOS) or simply
+don't load its driver.
+* Disable some other on-board device that is unneeded. Sometimes this
+helps to persuade the system to avoid shared IRQs.
+* Enable CONFIG_X86_LOCAL_APIC or CONFIG_X86_IO_APIC, it increases the
+number of IRQs and may help (though nobody ever reported success with
+this).
+* Ask you board vendor about possibilities to untangle IRQ lines -- or
+beat some engineer of your hardware design team if it is a homegrown
+problem.
+* In case nothing works, and for a given configuration, you may modify
+the non real-time driver which shares an IRQ with a real-time driver
+as indicated in
+http://www.xenomai.org/pipermail/xenomai-core/2008-07/msg00025.html[this
+post].

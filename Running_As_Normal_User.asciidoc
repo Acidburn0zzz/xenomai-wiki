@@ -1,0 +1,47 @@
+Running a Xenomai application as a regular user
+===============================================
+:author:	Jan Kiszka
+:email:	 	jan.kiszka@siemens.com
+:categories:	Application
+:tags:		tips
+
+As of Xenomai release 2.3.2, you can allow non-root users to access
+Xenomai services from user space. You only have to provide the ID of a
+unix group whose members shall obtain this right plus additional Linux
+capabilities required to work with Xenomai. To do so, either
+
+== With Xenomai 2.x ==
+
+* specify the module parameter `xenomai_gid=<gid>` when loading
+xeno_nucleus or
+* provide it to the kernel command line as
+`xeno_nucleus.xenomai_gid=<gid>` (provided the nucleus is built
+into the kernel) or
+* write it into sysfs
+(`echo "<gid>" > /sys/module/xeno_nucleus/parameters/xenomai_gid`)
+
+In addition, check that /dev/rtheap and /dev/rtpipe belong to the
+correct group. The Xenomai-provided udev scripts assume that there is
+a group called 'xenomai', you may have to adjust this according to the
+local configuration.
+
+== With Xenomai 3.x ==
+
+* specify the module parameter `xenomai.allowed_group=<gid>` on the kernel command line as
+or
+* write it into sysfs
+(`echo "<gid>" > /sys/module/xenomai/parameters/allowed_group`)
+
+In addition, check that /dev/rtpipe belongs to the correct group. The
+Xenomai-provided udev scripts assume that there is a group called
+'xenomai', you may have to adjust this according to the local
+configuration.
+
+[CAUTION]
+Don't believe that this mechanism allows to run Xenomai applications in
+whatever securely confined way! We grant CAP_SYS_RAWIO to all Xenomai
+users, some Xenomai services can easily be corrupted/exploited from user
+space (those based on shared heaps e.g.), and no one audits the core or
+all the drivers for security. The advantage of having a separate Xenomai
+group instead of just assigning root access directly is being able to
+avoid _accidental_ changes, nothing more!

@@ -1,0 +1,5 @@
+Knowledge Base Index
+====================
+
+pass:[[no_toc]]
+pass:[[sitemap_posts separate="false"]]

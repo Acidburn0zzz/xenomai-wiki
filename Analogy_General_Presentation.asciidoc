@@ -1,0 +1,251 @@
+Analogy General Presentation
+============================
+
+[[introduction]]
+Introduction
+------------
+
+Analogy is a free software project included in Xenomai which tries to
+provides management facilities for data acquisition devices in real
+time.
+
+By data acquisition, we mean:
+
+* reading / writing analog signals
+* reading / writing digital I/Os
+* counting pulses and frequencies
+* generating pulses
+
+By real-time, we mean:
+
+* Generally speaking: ensuring the various I/Os can be acquired and
+triggered in bounded delays
+* “Softwarely” speaking: providing a fixed determinism at any software
+layers (kernel drivers, user space applications).
+
+Analogy is a fork of the Comedi project. Comedi is a DAQ framework
+originally developed by David Schleef. His goal was "to put a generic
+interface on top of lots of different cards for measurement and control
+purposes". Comedi is mainly used with vanilla Linux and with RTAI.
+
+Analogy relies on the Real Time Driver Model, which is "an approach to
+unify the interfaces for developing device drivers and associated
+application under Linux". So, thanks to RTDM, implemented in Xenomai in
+a skin, the Analogy framework benefits from real-time determinism in
+both user and kernel spaces. That means that a Xenomai real-time task
+based on any skin (native, POSIX, etc.) can use Analogy without leaving
+the primary mode (hard real time constraints)
+
+*Note*: we have quoted many parts of the comedilib documentation in this
+document.
+
+[[daq-related-knowledge]]
+DAQ related knowledge
+---------------------
+
+[[device-hierarchy]]
+Device Hierarchy
+~~~~~~~~~~~~~~~~
+
+Analogy organizes all hardware according to the following generic
+
+hierarchy:
+
+* Channel: the lowest-level hardware component, that represents the
+properties of one single data channel; for example, an analog input, or
+a digital output. Each channel has several parameters, such as: the
+voltage range; the reference voltage; the channel polarity (unipolar,
+bipolar); a conversion factor between voltages and physical units; the
+binary values "0" and "1"; etc.
+* Sub-device: a set of functionally identical channels that are
+physically implemented on the same (chip on an) interface card. For
+example, a set of 16 identical analog outputs. Each sub-device has
+parameters for: the number of channel and the type of the channels.
+* Device: a set of sub-devices that are physically implemented on the
+same interface card; in other words, the interface card itself. For
+example, the National Instruments 6024E device has a sub-device with 16
+analog input channels, another sub-device with two analog output
+channels, and a third sub-device with eight digital inputs/outputs. Each
+device has parameters for: the device identification tag from the
+manufacturer, the identification tag given by the operating system (in
+order to discriminate between multiple interface cards of the same
+type), the number of sub-devices, etc.
+
+Some interface cards have extra components that don't fit in the
+above-mentioned classification, such as an EEPROM to store configuration
+and board parameters, or calibration inputs. These special components
+are also classified as "sub-devices" in Analogy.
+
+[[acquisition-terminology]]
+Acquisition terminology
+~~~~~~~~~~~~~~~~~~~~~~~
+
+This Section introduces the terminology that this document uses when
+talking about "acquisitions." Figure 1 depicts a typical acquisition
+sequence:
+
+* The sequence has a start and an end. At both sides, the software and
+the hardware need some finite initialization or settling time.
+* The sequence consists of a number of identically repeated scans. This
+is where the actual data acquisitions are taking place: data is read
+from the card, or written to it. Each scan also has a begin, an end, and
+a finite setup time. Possibly, there is also a settling time ("scan
+delay") at the end of a scan. So, the hardware puts a lower boundary
+(the scan interval) on the minimum time needed to complete a full scan.
+* Each scan contains one or more conversions on particular channels,
+i.e., the AD/DA converter is activated on each of the programmed
+channels, and produces a sample, again in a finite conversion time,
+starting from the moment in time called the sample time in Figure 1
+(sometimes also called the "timestamp"), and caused by a triggering
+event, called convert. In addition, each hardware has limits on the
+minimum conversion interval it can achieve, i.e., the minimum time it
+needs between subsequent conversions. Some hardware must multiplex the
+conversions onto one single AD/DA hardware, such that the conversions
+are done serially in time (as shown on the Figure); other cards have the
+hardware to do two or more acquisitions in parallel. The begin of each
+conversion is "triggered" by some internally or externally generated
+pulse, e.g., a timer.
+
+In general, not only the begin of a conversion is triggered, but also
+the begin of a scan and of a sequence. Analogy provides the API to
+configure what triggering source one wants to use in each case. The API
+also allows to specify the channel list, i.e., the sequence of channels
+that needs to be acquired during each scan.
+
+*TODO*: import the figure
+
+[[daq-functions]]
+DAQ functions
+~~~~~~~~~~~~~
+
+The basic data acquisition functionalities that Analogy offers work on
+channels, or sets of channels.
+
+[[single-acquisition]]
+Single acquisition
+^^^^^^^^^^^^^^^^^^
+
+Analogy has function calls to synchronously perform one single data
+acquisition on a specified channel: a4l_synch_read(), a4l_synch_write().
+"Synchronous" means that the calling process blocks until the data
+acquisition has finished.
+
+[[instruction]]
+Instruction
+^^^^^^^^^^^
+
+An a4l_do_insn() instruction performs (possibly multiple) data
+acquisitions on a specified channel, in a synchronous way. So, the
+function call blocks until the whole acquisition has finished. In
+addition, a4l_do_insnlist() executes a list of instructions (on
+different channels) in one single (blocking, synchronous) call, such
+that the overhead involved in configuring each individual acquisition is
+reduced.
+
+[[scan]]
+Scan
+^^^^
+
+A scan is an acquisition on a set of different channels, with a
+specified sequence and timing. Scans are not directly available as
+stand-alone function calls in the Analogy API. They are the internal
+building blocks of an Analogy command (see below).
+
+[[command]]
+Command
+^^^^^^^
+
+A command is sequence of scans, for which conditions have been specified
+that determine when the acquisition will start and stop. A a4l_command()
+function call generates aynchronous data acquisition: as soon as the
+command information has been filled in, the a4l_command() function call
+returns, the hardware of the card takes care of the sequencing and the
+timing of the data acquisition, and makes sure that the acquired data is
+delivered in a software buffer provided by the calling process.
+Asynchronous operation requires some form of "callback" functionality to
+prevent buffer overflow: after the calling process has launched the
+acquisition command, it goes off doing other things, but not after it
+has configured the "handler" that the interface card can use when it
+needs to put data in the calling process's buffer. Interrupt routines or
+DMA are typical techniques to allow such asynchronous operation. Their
+handlers are configured at driver load time, and can typically not be
+altered from user space.
+
+Buffer management is not the only asynchronous activity: a running
+acquisition must eventually be stopped too, or it must be started after
+the a4l_command() function call has prepared (but not started) the
+hardware for the acquisition. The command functionality is very
+configurable with respect to choosing which events will signal the
+starting or stopping of the programmed acquisition: external triggers,
+internal triggers, end of scan interrupts, timers, etc. The user of the
+driver can execute a Analogy instruction that sends a trigger signal to
+the device driver. What the driver does exactly with this trigger signal
+is determined in the specific driver. For example, it starts or stops
+the ongoing acquisition. The execution of the event associated with this
+trigger instruction is synchronous with the execution of the trigger
+instruction in the device driver, but it is asynchronous with respect to
+the instruction or command that initiated the current acquisition.
+
+Typically, there is one synchronous triggering instruction for each
+subdevice. Note that software triggering is only relevant for commands,
+and not for instructions: instructions are executed synchronously in the
+sense that the instruction call blocks until the whole instruction has
+finished. The command call, on the other hand, activates an acquisition
+and returns before this acquisition has finished. So, the software
+trigger works asynchronously for the ongoing acquisition.
+
+[[acquisitions-and-real-time]]
+Acquisitions and real-time
+--------------------------
+
+Thanks to RTDM, Analogy provides its services to both real-time and non
+real-time processes. Here, we will try to define the benefits of using
+an RT task with Analogy. We hope you will find it useful to find out
+your real needs.
+
+Let's start with an obvious point, Analogy displays the same features
+range in RT and NRT mode. So, there is no drawback at using real time
+services.
+
+According to the chosen acquisition mode (synchronous or asynchronous),
+Xenomai brings different advantages.
+
+[[synchronous-acquistions]]
+Synchronous acquistions
+~~~~~~~~~~~~~~~~~~~~~~~
+
+As told earlier, an acquisition instruction is implemented thanks to a
+syscall (ioctl) which will select the suitable instruction handler in
+the driver space. This handler is made available by the driver and it is
+in charge of performing the whole acquisiton (configuration + trigger +
+data transfer). The acquistion completes with the syscall return from
+kernel space.
+
+In this case, if the acquisition task runs in primary mode (managed by
+Xenomai's shceduler), the syscall management will not suffer of
+unexpected preemption from Linux. So, the whole execution of the
+instruction execution will be as determinist as Xenomai allows it. For
+instance, if you want the instruction to be performed every 200
+micro-seconds with an accuracy of +/- 20 micro-seconds, you can safely
+rely on Xenomai services; with Linux, you have to consider that the
+accuracy criteria will be broken sometimes.
+
+[[asynchronous-acquisitions]]
+Asynchronous acquisitions
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The acquistion is performed in two major steps: firstly configure and
+trigger the acquisition and secondly transfer the acquired data.
+
+For the first steps (configure and trigger), Xenomai will provide a
+better determinism than Linux does; so, for instance, if you want the
+trigger operation to be performed every 200 micro- seconds with an
+accuracy of +/- 20 micro-seconds, you can safely rely on Xenomai
+services; with Linux, you have to consider that the accuracy criteria
+will be broken sometimes.
+
+For the second step (transfer), the better determinism provided by
+Xenomai can ensure you that no buffer overflow / underflow will happen.
+Xenomai will handle the DAQ device's interrupts in bounded delays, so
+the buffer evolution will be closely managed. Consequently, Xenomai can
+allow you to allocate smaller transfer buffers.

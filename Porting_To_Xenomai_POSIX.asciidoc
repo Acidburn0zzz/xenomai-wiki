@@ -1,0 +1,711 @@
+Porting a Linux application to Xenomai dual kernel
+==================================================
+:author:	Gilles Chanteperdrix
+:categories:	Application
+:tags:		posix
+
+This document is a list of recipes I used to modify non real-time
+Linux applications to get them, or more precisely, some part of them, to
+meet deadlines using Xenomai dual kernel POSIX interface.
+
+If you have questions, suggestions or other comments about this document,
+please send them to the mailto:xenomai@xenomai.org[xenomai mailing
+list]. It is a subscriber-only mailing list, so please subscribe
+link:/mailman/listinfo/xenomai/[here] before posting.
+
+[[overview]]
+Overview
+--------
+
+Xenomai in dual kernel mode runs two kernels (hence the name): the Xenomai
+real-time kernel, scheduling threads using real-time scheduling policies
+and the Linux kernel, scheduling its threads as usual, running when no
+real-time thread of higher priority is runnable by the Xenomai kernel.
+
+To ease working with this dual kernel system, a Xenomai application
+thread may run in two modes: either the primary mode, where it is
+scheduled by the Xenomai kernel, and benefits from hard real-time
+scheduling latencies, or the secondary mode, where it is an ordinary
+Linux thread, and as such may call any Linux services.
+
+Such a thread may change mode dynamically, that is, when this thread
+calls a Xenomai real-time service while running in secondary mode, it
+switches to primary mode, when it calls any non real-time Xenomai
+service or any Linux service (including exceptions such as page faults)
+while running in primary mode, it switches to secondary mode.
+
+This description of Xenomai is a bit sketchy, for more information, you
+should have a look at the link:/Life_With_Adeos[Life with Adeos] article.
+
+Your aim, when getting an application to meet its deadlines using
+Xenomai dual kernel, is to identify the "performance constrained" loop
+in your application, and arrange for the thread running this loop to
+never get out of primary mode. This means that you must identify the
+calls made by this thread to Xenomai non real-time services and to
+Linux services, and replace them some way or another.
+
+To identify the call to services making your application switch to
+secondary mode, there are essentially two approaches:
+
+* the static code analysis;
+* the run-time checks.
+
+The best method is probably a blend of the two: find the problematic
+service calls with a static code analysis, then validate your modified
+code with run-time checks.
+
+[[compilation-for-the-xenomai-posix-skin]]
+Compilation for the Xenomai POSIX skin
+--------------------------------------
+
+The very first step to make your application meet deadlines using the
+Xenomai posix skin is to recompile it for this skin. It will not make
+your application a real-time application auto-magically, but it is
+needed if you intend to find the problematic service calls using
+run-time checks.
+
+[[compilation-flags]]
+Compilation flags
+~~~~~~~~~~~~~~~~~
+
+To ease that task, the 'xeno-config' script, installed when compiling
+Xenomai user-space support, is able to give you these flags. For
+instance, you can add the following snippet to your makefile:
+
+-------------------------------------------------------------------------------
+ XENO_DESTDIR:=/home/gilles/cross-install
+ XENO_CONFIG:=$(XENO_DESTDIR)/usr/xenomai/bin/xeno-config
+ XENO_POSIX_CFLAGS:=$(shell DESTDIR=$(XENO_DESTDIR) $(XENO_CONFIG) --skin=posix --cflags)
+ XENO_POSIX_LIBS:=$(shell DESTDIR=$(XENO_DESTDIR) $(XENO_CONFIG) --skin=posix --ldflags)
+-------------------------------------------------------------------------------
+
+XENO_DESTDIR is the staging directory used when installing
+cross-compiled binaries and libraries, in other words, the local copy of
+the root file-system of your embedded system. It is / when the
+compilation system is also the system where Xenomai runs.
+
+/usr/xenomai/bin/xeno-config is the default path of the xeno-config
+script under this root file-system, but it may be different if you chose
+a different installation prefix using Xenomai's configure script
+--prefix parameter (whose default value is /usr/xenomai).
+
+If using Xenomai link:#before_2.5.2[before version 2.5.2], the
+xeno-config syntax was a bit different.
+
+You may then add $(XENO_POSIX_CFLAGS) to the compilation flags of all
+your object files, and $(XENO_POSIX_LIBS) to the link flags of all your
+dynamic libraries (using POSIX services) and executable files.
+
+Beware: this way of obtaining the compilation flags is recommended, if
+for anything because it will make using a different release of Xenomai
+easier: the flags may change between two different releases.
+
+[[under-the-hood-the---wrap-flag]]
+Under the hood: the --wrap flag
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+So, what do these flags do? The main part of the job is done in the
+XENO_POSIX_LIBS flags. They contain a list of --wrap directives to
+substitute calls to Linux POSIX services with calls to Xenomai POSIX
+services.
+
+For instance, if the compiled application contains a call to
+pthread_create, and you pass --wrap pthread_create on the linker command
+line (so, if you link with gcc, you have to pass
+-Wl,--wrap,pthread_create on the command line), this call to
+pthread_create will be replaced with a call to __wrap_pthread_create.
+
+The Xenomai POSIX skin library, called libpthread_rt.so, also passed in
+XENO_POSIX_LIBS does contain an implementation of __wrap_pthread_create
+which will be the one finally called by your program.
+
+Among the few methods available to get POSIX applications to use Xenomai
+services, this one was chosen because:
+
+* plain Linux services are still available (see
+link:#use_Of_Linux_Original_Services[Use of Linux original services]);
+you may need them, and they would not have been available if, for
+instance macros had been used.
+
+* there is no need to change the POSIX services names in the program;
+after all, the POSIX services names are standard.
+
+[[using-static-libraries]]
+Using static libraries
+~~~~~~~~~~~~~~~~~~~~~~
+
+Due to the use of the --wrap flag, it is necessary to do the link
+edition of an application with static versions of the Xenomai POSIX skin
+library two stages. To help in this matter, versions of Xenomai
+link:#before_2.5.0[after 2.5.0] include a script called "wrap-link.sh".
+
+For more information try wrap-link.sh --help.
+
+[[incompatibilities]]
+Incompatibilities
+~~~~~~~~~~~~~~~~~
+
+Now that you have recompiled your application to use the Xenomai POSIX
+skin library, it may no longer work, there are small differences which
+you should address before going further.
+
+[[mlockall]]
+mlockall and stack size
+^^^^^^^^^^^^^^^^^^^^^^^
+
+link:#before_2.6.3[Starting with version 2.6.3], as part of their
+initialization, Xenomai libraries systematically call mlockall to
+commit and lock the whole application memory. When the memory is not
+commited, Linux uses an on-demand paging scheme, that is, memory pages
+are only allocated upon first use. The problem is that for this to
+work, an exception (namely a page fault) has to happen, and some Linux
+kernel services have to run, including the dynamic allocation of a
+physical page, and possibly latencies in the order of milliseconds in
+the wort case where a disk write is needed to free one page. The
+exception thus requires a thread running in primary mode to switch to
+secondary mode.  When using mlockall, on the other hand, any memory
+demanded to the kernel is immediately commited, so that page faults no
+longer happen.  Note that this paging scheme is not related to
+swapping, so, even on a system without swap, mlockall must be called.
+
+On some architectures, calling mlockall may not be enough to eliminate
+all the page faults, but apart from such cases, the Adeos I-pipe avoids
+page faults when possible.
+
+Unfortunately, using mlockall has some effects, and you must pay
+attention to a detail otherwise considered unimportant in a Linux
+application: the threads stack size. As a matter of fact, if the Linux
+threading library asks for 2MiB (the default on most platforms) to the
+system for thread stacks, the 2MiB are immediately allocated. With
+numerous threads and a memory-constrained embedded system, this quickly
+becomes a problem.
+
+In order to avoid this problem, Xenomai changes the threads
+default stack size to a smaller size. This means that for threads
+which require a larger size, the pthread_attr_setstacksize() service
+should be called before pthread_create(). Please note, that some
+apparently innocuous libc services such as printf use the stack, so
+setting the stack size to some really low value like 4KiB will cause
+segmentation faults due to stack overflows in these service.
+
+The main thread is treated separately: since it is not created by
+pthread_create(), pthread_attr_setstacksize() does not allow changing
+its stack size, the shell ulimit builtin should be used instead. Even
+when using mlockall, the main thread stack may grow on-demand,
+requiring page faults, so, an application which requires a large stack
+for the main thread should fault the main thread stack before any
+section where it does not want to leave the primary mode.
+
+[[real-time-priorities]]
+Real-time priorities
+^^^^^^^^^^^^^^^^^^^^
+
+To get your application threads to be really considered as real-time
+threads by Xenomai scheduler, you will have to get them to use the
+real-time scheduling policy (called SCHED_FIFO). To do that, you either
+have to use the pthread_attr_setinheritsched,
+pthread_attr_setschedpolicy, pthread_attr_setschedparam services before
+the call to pthread_create, or to use the pthread_setschedparam to
+change an existing thread scheduling parameters.
+
+Note, however, what the SCHED_FIFO scheduling policy means: it means
+that the scheduler will run a thread with this scheduling policy as long
+as it is runnable, and no other thread of higher priority is runnable.
+Concretely, if a thread using the SCHED_FIFO policy runs an infinite
+loop, nothing else runs, your system is locked up. Such things happen.
+For instance, such innocent piece of code as:
+
+-------------------------------------------------------------------------------
+ pthread_mutex_lock(&mutex);
+ /* (...) */
+ while (!cond)
+      pthread_cond_wait(&cond, &mutex);
+ /* (...) */
+ pthread_mutex_unlock(&mutex);
+-------------------------------------------------------------------------------
+
+may cause such an infinite loop if cond or mutex are not initialized, or
+after one of them has been destroyed.
+
+[[static-mutex-and-condition-variables-initializations]]
+Static mutex and condition variables initializations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The POSIX standard defines PTHREAD_COND_INITIALIZER and
+PTHREAD_MUTEX_INITIALIZER for static mutexes and condition variables
+initialization.
+
+Unfortunately, the Xenomai POSIX skin requires a system call to
+initialize these objects. So, we were left we two choices when
+implementing these objects:
+
+* either initialize the object upon first call to another service,
+* or require the users to call initialization services.
+
+We chose the second solution: having pthread_mutex_lock call the
+initialization routine would destroy the determinism expected from such
+a service, on the other hand having users call pthread_mutex_init by
+themselves force them to do it at a non critical time.
+
+So, to get an application to use Xenomai POSIX skin mutexes and
+condition variables, you have to look for all the static initializer and
+replace them with calls to pthread_mutex_init/pthread_cond_init made at
+non critical times.
+
+[[use-of-linux-original-services]]
+Use of Linux original services
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+It may happen that you would like to use Linux services instead of
+Xenomai POSIX skin overloaded services. In this case, the --wrap
+mechanism described in section
+link:#under_The_Hood_The___Wrap_Flag[Under the hood: the --wrap flag].
+offers a solution: prefix the name of the service you would like to use
+with the `__real_` prefix, such as, for instance `__real_pthread_create`.
+
+If you do that, and would still want to be able to compile your
+application without Xenomai (it may be a good idea, as it allows, for
+instance, to run your application with valgrind, which you can not do
+with an application compiled for Xenomai), Xenomai compilation flags
+define a preprocessor macro (`__XENO__`) which allows you to know whether
+or not you are compiling the application for Xenomai. You can use it for
+instance in the following way:
+
+-------------------------------------------------------------------------------
+ /* Open a plain Linux UDP socket. */
+ #ifndef __XENO__
+       fd = socket(PF_INET, SOCK_DGRAM, 0);
+ #else /* __XENO__ */
+       fd = __real_socket(PF_INET, SOCK_DGRAM, 0);
+ #endif /* __XENO__ */
+-------------------------------------------------------------------------------
+
+[[mixing-fork-with-xenomai-posix-skin-services]]
+Mixing fork with Xenomai POSIX skin services
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Most Xenomai services are handled on a per-process basis, which means
+that by default, you can not use in a process, an object (mutex or
+condition variable, for instance), defined in another process.
+Unfortunately, this means that when using fork, contrarily to what
+happens for a plain Linux process, the child can not use objects which
+have been initialized by its parent process.
+
+There are two ways out of this issue. Either, what you really want to do
+is simply to make your process a daemon, you do not really want to share
+objects between; in this case, you should arrange for the initialization
+services to be called after the fork, and everything should work
+normally. Please note that this may not be as easy as it seems, for
+instance, when using C++ static objects with a non trivial constructor,
+the constructor gets invoked before even entering the main function. To
+solve this particular issue, a possible approach is to modify the object
+constructor to put the uninitialized objects in a list and exit
+immediately, and walk the list after the fork to trigger the constructor
+again and run the POSIX skin objects initialization services.
+
+If, on the other hand what you want to do is to really share the POSIX
+skin objects between several processes, in which case, you should use
+the pthread_mutexattr_setpshared, pthread_condattr_setpshared or pass 1
+as second argument of the sem_init services.
+
+[[chasing-the-unwanted-mode-switches]]
+Chasing the unwanted mode switches
+----------------------------------
+
+If you followed the indications in the previous sections, you should
+now have an application which compiles and runs on a Xenomai-enabled
+system. It may still not be a real-time application, because the
+time-critical loop, or real-time loop may still be synchronized with
+some Linux activities, and as such, may not be able to meet short
+deadlines. There are various causes why this may happen.
+
+The first of them is the reproducible unwanted mode switch to secondary
+mode. It may be due to the use of a Linux system call, or exceptions of
+any kind (unaligned accesses on processor where this is not supported,
+or FPU exceptions cause by floating point computations errors come to my
+mind). As we will see later, this one is easy to detect.
+
+The second is the seldom unwanted mode switch to secondary mode. As a
+matter of fact, there are function calls such as malloc for instance,
+which do their job most of the time without issuing a system call, but
+which issue a system call from time to time. Due to their unfrequent
+nature, these ones are harder to catch, but it is still possible.
+
+Finally comes a special kind of priority inversion. It is not an
+unwanted mode switch per se, but has the same effect. It happens if a
+thread shares data with the real-time loop thread and protects these
+data with a mutex, and experiences a rescheduling, or a mode switch
+while holding this mutex. If our critical thread, the one running the
+real-time loop, now wants to lock the mutex, it will have to wait for
+the non critical thread to synchronize with Linux, and end the critical
+section. For instance:
+
+[cols=",,",]
+|=======================================================================
+|Thread 1 |Thread 2 |Timeline
+
+|`pthread_mutex_lock(&mutex);` |(...) |Thread 1 switches to primary mode
+by acquiring mutex.
+
+|(...) |`pthread_mutex_lock(&mutex);` |Thread 2 is suspended, it is now
+waiting for mutex.
+
+|`write(fd, buffer, sizeof(buffer));` |(...) |Thread 1 switches to
+secondary mode and may then be preempted or simply interrupted by the
+Linux kernel. If this happens, it will cause Thread 2 to experience such
+a latency since it is waiting for mutex, as if it had switched to
+secondary mode.
+|=======================================================================
+
+The kernel option CONFIG_XENO_OPT_DEBUG_SYNCH_RELAX allows detecting
+such condition, and should be enabled. You can probably even keep it
+in a production system as it does not incur a high overhead (the
+condition is checked when a mutex is contended, so should have no
+impact on the "fast path"). Note that it was not available
+link:#before_2.5.0[before version 2.5.0].
+
+[[detection]]
+Detection
+~~~~~~~~~
+
+[[using-the-pthread_warnsw-bit]]
+Using the PTHREAD_WARNSW bit
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This Xenomai feature enables run-time checks on a per-thread basis.
+
+To enable these checks for the current thread use:
+-------------------------------------------------------------------------------
+ pthread_set_mode_np(0, PTHREAD_WARNSW);
+-------------------------------------------------------------------------------
+
+As this call is specific to Xenomai (as indicated by the _np suffix),
+you may want to surround it with a `#ifdef __XENO__`.
+
+This will detect run-time errors and cause a SIGXCPU signal to be sent
+to the thread, you will find more details on this method in
+the link:/finding-spurious-relaxes[Finding spurious relaxes] document.
+
+[[using---wrap]]
+Using --wrap
+^^^^^^^^^^^^
+
+For the second kind of unwanted mode switches (the unfrequent ones), for
+which the run-time checks may not be enough, there is a way to get them
+detected anyway.
+
+Define for instance the following function:
+
+-------------------------------------------------------------------------------
+ void *__wrap_malloc(size_t size)
+ {
+    getpid();
+    return __real_malloc(size);
+ }
+-------------------------------------------------------------------------------
+
+And link the final executable passing -Wl,--wrap,malloc on gcc command
+line. This way, when malloc happens to be called by a thread running in
+primary mode, the call to getpid() will cause a systematic switch to
+secondary mode.
+
+Actually, malloc is a bad example, because Xenomai,
+link:#before_2.6.0[starting with version 2.6.0] already handles the
+case of malloc, but the same trick may be used with other services.
+
+[[remedies]]
+Remedies
+~~~~~~~~
+
+This section gives a list of the usual causes of secondary mode switches
+and proposes various remedies.
+
+[[access-to-drivers]]
+Access to drivers
+^^^^^^^^^^^^^^^^^
+
+In this case the secondary mode switches are due to calls to open, read,
+write, ioctl, socket, connect, sendto, recvfrom, etc...
+
+The cure is to rewrite drivers using a Xenomai based driver framework.
+The common drivers skin is RTDM, a set of Xenomai services which offer
+the equivalent of Linux services for writing drivers like character
+devices and socket protocols.
+
+On top of RTDM, other APIs exist such as Real-time socket CAN, an API
+for writing drivers for the CAN protocol, Comedi/RTDM, an API for
+acquisition cards, RTnet, an implementation of an UDP/IP layer for
+real-time ethernet drivers, USB4RT, an API for USB drivers, and probably
+other such APIs.
+
+Porting a Linux driver to RTDM is usually not as hard as it seems: the
+RTDM services resemble their Linux equivalents, so any people with Linux
+driver knowledge should be able to port drivers to RTDM. For more
+information on the RTDM framework, see:
+http://www.xenomai.org/documentation/branches/v2.3.x/pdf/RTDM-and-Applications.pdf[RTDM and Applications]
+
+From an application point of view, using the Xenomai POSIX skin wrapped
+services allows for manipulation of file descriptors provided by the
+RTDM skin as if they were ordinary file descriptors
+
+[[logging-writing-to-files]]
+Logging / writing to files
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This should not come as a surprise, but calls to printf, fprintf, and
+more generally all the stdio functions may result in the call the write
+system call, which means a switch to secondary mode.
+
+link:#before_2.6.0[Since version 2.6.0], such calls are wrapped by Xenomai
+libraries and do not cause their caller to switch to secondary
+mode.
+
+[[reading-from-file]]
+Reading from file
+^^^^^^^^^^^^^^^^^
+
+Of course, reading from files also causes switches to secondary mode.
+However, a simple solution is available: the mmap service. Thanks to the
+use of mlockall, mmaping a file is equivalent to loading it entirely in
+memory. The call to mmap itself causes a switch to secondary mode, but
+in most cases, it is possible to call this service in a non critical
+part of the code. Note however, that doing this may consume a lot of
+memory if the file is large.
+
+[[timing-services]]
+Timing services
+^^^^^^^^^^^^^^^
+
+Xenomai dual kernel POSIX interface supports the two POSIX clocks:
+
+* CLOCK_MONOTONIC, based on whatever high resolution counter the
+architecture proposes (the tsc on the x86 platform for instance)
+converted to nanoseconds using a fixed frequency, thus can be read
+without even a system call. Since the counter is typically started
+during the boot process, CLOCK_MONOTONIC value is usually roughly the
+machine uptime.
+
+* CLOCK_REALTIME returns the wallclock time, and to this end adds a
+variable offset to CLOCK_MONOTONIC value. That offset can be changed
+using the clock_settime() service. Starting with
+link:#before_3.0[Xenomai 3], this clock can also be read without a
+system call.
+
+Unfortunately, the values of these clocks are not aligned with Linux
+corresponding clocks, and even drift, especially when Linux clock is
+corrected using NTP. So, in order for a Xenomai application to have a
+coherent view of time, starting with link:#before_3.0[Xenomai 3], the
+gettimeofday() and time() services are also wrapped by Xenomai
+libraries.
+
+Occasionally, an application using Xenomai may want to access Linux
+idea of the wallclock time, particularily if it is corrected with NTP,
+for instance if it must generate precise absolute timestamps. Starting
+with link:#before_2.6.0[version 2.6.0], it is possible to do so
+without leaving primary mode, and without even a system call on most
+architectures, by using Xenomai clock_gettime service
+with the CLOCK_HOST_REALTIME clock identifier. This identifier can
+only be used with the clock_gettime() service.
+
+The CLOCK_REALTIME and CLOCK_MONOTONIC clocks can be used with other
+services, in particular timer services such as timer_create() or
+timerfd_create(). Note however that triggering asynchronous signal
+handlers in primary mode is not supported. Starting with
+link:#before_3.0[Xenomai 3] a thread can wait in primary mode for the
+signals triggered by the timer services with sigwait() and friends.
+
+[[dynamic-allocations]]
+Dynamic allocations
+^^^^^^^^^^^^^^^^^^^
+
+As should now be obvious, dynamic allocation services, i.e. malloc,
+calloc, posix_memalign, etc... cause switches to secondary mode, so they
+should be avoided.
+
+The usual way to handle allocations in a real-time application is to
+allocate memory at startup, and have finite limits on the memory usable
+by the application. This is acceptable in the case of real-time
+applications, because they should be simple enough, and their usage
+known in advance, to be able to assess their maximum memory usage.
+
+Other methods include using stack for allocation.
+
+One technique we found useful in a C++ program using the STL was to
+implement an allocator for the STL containers implementing the standard
+allocator interface.
+
+[[io-multiplexing-with-select]]
+I/O multiplexing with select
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The select service allows to wait for events on several file
+descriptors. link:#before_2.5.0[Starting with Xenomai 2.5.0], the
+Xenomai POSIX skin supports the select service, however, it only works
+for RTDM file descriptors and POSIX message queue descriptors. You can
+not mix these kinds of file descriptors with plain Linux file
+descriptors. So, if your application runs a thread handling events on
+various file descriptors, and after porting this application to
+Xenomai, you would like to run select on Linux file descriptors as
+well as Xenomai file descriptors, you will have to replace this thread
+with two threads: one for Linux file descriptors, one for Xenomai file
+descriptors.
+
+Unfortunately, you are not finished when you have done that. That is
+because an application using select has some kind of built-in protection
+again multiple accesses to data: everything done by the thread calling
+select is sequenced, so there is no multiple access. By splitting the
+thread in two threads, you break that protection.
+
+One way to avoid this issue may be to get the threads to communicate.
+For instance, when one thread suppresses data, and does not want a
+second thread to use the data which has been freed, the first thread may
+notify the second.
+
+link:#before_3.0[Starting with Xenomai 3], an XDDP socket can be
+used as a two ways communication between real-time and non real-time
+select loops, the select() service can be used on both ends. You can find
+examples using XDDP sockets
+link:/documentation/xenomai-3/html/api/xddp-label_8c-example.html[here]
+and link:/documentation/xenomai-3/html/api/xddp-echo_8c-example.html[here].
+
+Changes history
+---------------
+
+[[before-3.0]]
+Before Xenomai 3
+~~~~~~~~~~~~~~~~
+
+* Whereas CLOCK_MONOTONIC could be read without a system call,
+CLOCK_REALTIME required a system call.
+
+* Only the clock_gettime() service was replaced by Xenomai; if an
+application wanted a coherent view of time when using several
+services, it had to wrap the services it wanted to use. For instance:
+
+-------------------------------------------------------------------------------
+ int __wrap_clock_gettime(clockid_t id, struct timespec *ts);
+
+ int __wrap_gettimeofday(struct timeval *tv, struct timezone *tz)
+ {
+	struct timespec ts;
+	int ret = __wrap_clock_gettime(CLOCK_REALTIME, &ts);
+	if (ret == 0) {
+		tv->tv_sec = ts.tv_sec;
+		tv->tv_usec = ts.tv_nsec / 1000;
+	}
+	return ret;
+ }
+
+ time_t __wrap_time(time_t *t)
+ {
+	struct timespec ts;
+	int ret = __wrap_clock_gettime(CLOCK_REALTIME, &ts);
+	if (ret)
+		return (time_t)-1;
+
+	if (t)
+		*t = ts.tv_sec;
+	return ts.tv_sec;
+ }
+-------------------------------------------------------------------------------
+
+* The timer services timer_create(), timer_settime() could not really
+be used as the signals they triggered would cause the target thread to
+switch to secondary mode. So, an application was required to dedicate
+a thread to handle a list of timers with nanosleep()/clock_nanosleep()
+or select().
+
+* The timer services timerfd_create(), timerfd_settime() were not
+implemented.
+
+* The select() service could not be used on the real-time end of an
+XDDP socket. So, for two ways communication between a real-time and a
+non real-time select loop, a message queue could be used for the non
+real-time to real-time direction, and starting with
+link:#before_2.5.0[version 2.5.0] and XDDP socket could be used for
+the other direction.
+
+[[before-2.6.3]]
+Before version 2.6.3
+~~~~~~~~~~~~~~~~~~~~
+
+Xenomai POSIX library only invoked mlockall if the
+--enable-posix-auto-mlockall option was passed
+to the configure script when compiling Xenomai user-space
+support. So, applications which did not want to depend on this
+configuration had to call mlockall by themselves, before using any
+Xenomai service, by using:
+
+-------------------------------------------------------------------------------
+ mlockall(MCL_CURRENT | MCL_FUTURE);
+-------------------------------------------------------------------------------
+
+[[before-2.6.0]]
+Before version 2.6.0
+~~~~~~~~~~~~~~~~~~~~
+
+* The call to malloc was not wrapped by Xenomai libraries, making it
+mandatory to use the --wrap trick described in section
+link:#using___Wrap[Using --wrap].
+
+* The calls to stdio functions, such as printf were not wrapped by
+Xenomai libraries, instead the rtdk library had to be used, with stdio
+functions prefixed with rt_. For instance, the primary mode printf was
+called rt_printf. Also, the rtdk library had to be initialized with
+rt_print_auto_init(1), or rt_print_init() had to be called for each
+thread who wanted to use the rtdk library. For even earlier versions,
+see link:#before_2.4.0[Before version 2.4.0].
+
+* The CLOCK_HOST_REALTIME identifier was not available to access Linux
+clock for a thread running in primary mode using clock_gettime().
+
+[[before-2.5.2]]
+Before version 2.5.2
+~~~~~~~~~~~~~~~~~~~~
+
+xeno-config did not take a --skin parameter, and the parameters to
+get posix cflags, resp. ldflags was --posix-cflags,
+resp. --posix-ldflags. These options are still supported in later
+Xenomai 2.x versions, but were removed from Xenomai 3.
+
+[[before-2.5.0]]
+Before version 2.5.0
+~~~~~~~~~~~~~~~~~~~~
+
+* In order to compile a POSIX application using Xenomai POSIX skin
+compiled as a static library, first partially link the objects to be
+linked with the wrapping flags applied, then link the result with the
+libpthread_rt.a library, without the wrapping flags. For instance, to
+link the binary program foo made of the binaries foo.o and bar.o with
+Xenomai POSIX skin, use:
+
+----------------------------------------------------------------------------------
+gcc -o foo.tmp -Wl,-Ur -nostdlib foo.o bar.o -Wl,@/usr/xenomai/lib/posix.wrappers
+gcc -o foo foo.tmp -L/usr/xenomai/lib -lpthread_rt -lpthread -lrt
+----------------------------------------------------------------------------------
+
+* kernel option CONFIG_XENO_OPT_DEBUG_SYNCH_RELAX was not available,
+so it was not possible to detect the condition described in
+link:#chasing_The_Unwanted_Mode_Switches[chasing the unwanted mode switches].
+The rule of thumb to avoid the corresponding priority inversion is
+this: if a mutex is shared
+between critical and non-critical threads, enable priority inheritance
+for this mutex, and do not ever make a call to a secondary mode service
+while holding it.
+
+* the select system call was not supported.
+
+* the only way for Xenomai threads running in primary mode to
+communicate with plain Linux applications was to use the native
+skin RT_PIPE. This API has now been deprecated in favor of the XDDP
+sockets.
+
+[[before-2.4.0]]
+Before version 2.4.0
+~~~~~~~~~~~~~~~~~~~~
+
+The rtdk library did not exist, so in order to log from primary mode,
+the cure was to delegate the write to file to a separate thread, and
+communicate with that thread using for instance POSIX message queues
+(opened in non-blocking mode on its real-time side), or a simple ring
+buffer.

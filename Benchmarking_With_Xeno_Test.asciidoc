@@ -1,0 +1,37 @@
+Benchmarking with xeno-test
+===========================
+:author:	Gilles Chanteperdrix
+:categories:	Benchmark
+:tags:		dual-kernel
+
+xeno-test is simple script running a series of unit tests of Xenomai
+features, then the latency test under a user-specified
+load. The aim of this script is to allow Xenomai users to run
+reproducible latency measurements, under a load which would
+approximate the load of their system in production.
+
+The dohell script is a companion of xeno-test, derived from snippets
+posted on the Linux Kernel Mailing List, which allows to generate a
+synthetic load (network load, disk I/O load, cpu load, and Linux
+syscalls coverage with LTP).
+
+For network load, a server must be listening on another machine, for
+connections on a TCP port. The default port used for this is the
+"discard" port available in the inetd daemon.
+
+The xeno-test command line used by the Xenomai developers to measure
+latency enables all the possible dohell sources of load:
+
+--------------------------------------------------------------------------------
+xeno-test -l "dohell -s <serverip> -l <path/to/ltp> -m <mntpoint>" -g <filename>
+--------------------------------------------------------------------------------
+
+On ARM machines running with with FCSE enabled in "guaranteed" mode,
+it does not make much sense to run the LTP testsuite, the limitation
+to 95 processes would cause several key tests to fail, so, we use dohell
++-b+ option to periodically spawn the +hackbench+ test with 80 threads
+(to not exceed the 95 processes limit). The command-line becomes:
+
+--------------------------------------------------------------------------------
+xeno-test -l "dohell -s <serverip> -b <path/to/hackbench> 7200" -g <filename>
+--------------------------------------------------------------------------------

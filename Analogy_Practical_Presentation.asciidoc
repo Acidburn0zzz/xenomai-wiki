@@ -1,0 +1,275 @@
+Analogy Practical Presentation
+==============================
+
+[[overview]]
+Overview
+--------
+
+This page tries to gather useful pieces of information related with the
+analogy framework.
+
+[[an-analogy-oddity-the-attach-procedure]]
+An Analogy oddity: the attach procedure
+---------------------------------------
+
+[[driver---rtdm-device]]
+Driver <-> RTDM device
+~~~~~~~~~~~~~~~~~~~~~~
+
+Unlike common Linux / RTDM drivers, the driver registering does not
+create one or many RTDM device(s) that user applications can directly
+open.
+
+The Analogy framework declares a pre-defined set of RTDM devices (by
+default: 10 nodes) and the user has to use the configuration application
+"analogy_config" to make a driver reachable through a specific RTDM
+device node.
+
+For example, with the command:
+
+`/xeno_install/sbin/analogy_config analogy0 analogy_ni_pcimio `
+
+the driver "analogy_ni_pcimio" will be accessible through the device
+node "analogy0".
+
+[[driver---daq-device]]
+Driver <-> DAQ device
+~~~~~~~~~~~~~~~~~~~~~
+
+Once the RTDM device node is attached to a specific driver, the driver
+will try to initialize the related DAQ device.
+
+Once more, an Analogy driver has an initialization procedure of its own.
+Usually, a driver initiatlization method is launched either at insmod
+time or at boot time; after having probed the hardware, the driver
+initializes all the available devices.
+
+With Analogy, only the probe operation is launched at boot (or insmod)
+time. Then, at attach time, a specific DAQ card is selected and
+initialized.
+
+The device selection depends on options passed by analogy_config to the
+driver. Consequently, selecting a specific device is driver-dependant.
+
+The end-user has to know the options allowed by the driver he wants to
+use.
+
+For example, the driver "analogy_ni_pcimio" accepts two options: the PCI
+bus number and the PCI slot number. Consequently, typing
+
+`/xeno_install/sbin/analogy_config analogy0 analogy_ni_pcimio 0xa,3`
+
+will trigger the initialization of the board located on the PCI bus 10
+and at the slot 3; so, the device node named "analogy0" is "connected"
+to this specific DAQ card.
+
+[[test-programs-descriptions]]
+Test programs descriptions
+--------------------------
+
+[[insn_read]]
+insn_read
+~~~~~~~~~
+
+The program insn_read performs one or many synchronous read
+operation(s).
+
+Here is a dump of the help message: usage: insn_read [OPTS]
+
+`       OPTS:    -v, --verbose: verbose output` +
+`                -d, --device: device filename (analogy0, analogy1, ...)` +
+`                -s, --subdevice: subdevice index` +
+`                -S, --scan-count: count of scan to perform` +
+`                -c, --channel: channel to use` +
+`                -R, --range: range to use` +
+`                -w, --raw: dump data in raw format` +
+`                -h, --help: print this help`
+
+The main options are:
+
+* the scan count (-S) to define the size of the acquired data. If the
+data size is higher than 4096 bytes, many read instructions will be
+triggered
+* the range index (-R) to convert the acquired data into physical values
+(V, mA, etc.)
+* the raw mode (-w) which only works if the program output has been
+redirected to a file. The acquired data will be saved as binary data
+instead of formatted text.
+
+[[insn_write]]
+insn_write
+~~~~~~~~~~
+
+The program insn_write one synchronous write operation. In synchronous
+mode, it seems difficult to acquire or output the evolution of a signal
+because no data transfer rate can be set. That is why, performing many
+synchronous write operations is useless; only the last transferred
+sample is significant.
+
+Here is a dump of the help message: usage: insn_write [OPTS]
+
+`       OPTS:    -v, --verbose: verbose output` +
+`                -d, --device: device filename (analogy0, analogy1, ...)` +
+`                -s, --subdevice: subdevice index` +
+`                -c, --channel: channel to use` +
+`                -R, --range: range to use` +
+`                -V, --value: value to write` +
+`                -h, --help: print this help`
+
+The main option is the one which set the value to apply (-V). If a range
+is specified (with the option -R), the value must be physical.
+
+[[insn_bits]]
+insn_bits
+~~~~~~~~~
+
+The program insn_bits only works on digital subdevice. If no subdevice
+is indicated, the whole set of subdevices will be scanned until an
+digital one is found. Each digital line composing the subdevice can be
+set thanks to the two main arguments: a bitfield and a mask so as to
+indicate which bits of the bitfield must be set.
+
+Here is a dump of the help message: usage: insn_bits [OPTS]
+
+`       OPTS:    -v, --verbose: verbose output` +
+`                -d, --device: device filename (analogy0, analogy1, ...)` +
+`                -s, --subdevice: subdevice index` +
+`                -h, --help: print this help`
+
+[[cmd_read]]
+cmd_read
+~~~~~~~~
+
+The program cmd_read performs an asynchronous acquisition. It is done in
+two steps:
+
+* Send a command so as to configure the acquisition parameters
+* Read transferred data until there is no more.
+
+Here is a dump of the help message: usage: cmd_read [OPTS]
+
+`       OPTS:    -v, --verbose: verbose output` +
+`                -r, --real-time: enable real-time acquisition mode` +
+`                -d, --device: device filename (analogy0, analogy1, ...)` +
+`                -s, --subdevice: subdevice index` +
+`                -S, --scan-count: count of scan to perform` +
+`                -c, --channels: channels to use (ex.: -c 0,1)` +
+`                -m, --mmap: mmap the buffer` +
+`                -w, --raw: dump data in raw format` +
+`                -h, --help: print this help`
+
+Before listing the tuning possibilities, it is important to notice that
+some parameters are still not configurable. The most annoying ones are
+the scan interval and the conversion interval. Their default values are
+large enough so that they should be accepted on any board:
+
+* scan interval = 8 ms
+* conversions inter = 500 µs.
+
+With such values, the reader will understand that cmd read cannot
+simultaneously acquire more than 16 channels (16 * 500 µs = 8 ms).
+
+The main options are:
+
+* the scan count (-S) to define the size of the acquired data
+* the possibility to avoid memory copies between kernel space and user
+space thanks to a shared buffer (-m)
+* the real-time option (-r) to execute cmd_read in primary mode
+* the raw mode (-w) which only works if the program output has been
+redirected to a file. The acquired data will be saved as binary data
+instead of formatted text.
+
+[[cmd_write]]
+cmd_write
+~~~~~~~~~
+
+The program cmd_write performs asynchronous output operations. Like
+cmd_read, it is fulfilled in two steps:
+
+* Send a command so as to configure the acquisition parameters
+* Send data to the driver
+
+So far, this test program does not allow to use stdin in order to send
+other values than default ones.
+
+Here is a dump of the help message: usage: cmd_write [OPTS]
+
+`       OPTS:    -v, --verbose: verbose output` +
+`                -d, --device: device filename (analogy0, analogy1, ...)` +
+`                -s, --subdevice: subdevice index` +
+`                -S, --scan-count: count of scan to perform` +
+`                -c, --channels: channels to use (ex.: -c 0,1)` +
+`                -m, --mmap: mmap the buffer` +
+`                -h, --help: print this help`
+
+The main options are:
+
+* the scan count (-S) to define the size of the written data
+* the possibility to avoid memory copies between user space and kernel
+space thanks to a shared buffer (-m)
+* the real-time option (-r) to execute cmd_write in primary mode
+
+[[drivers-list]]
+Drivers list
+------------
+
+[[ni_pcimio]]
+ni_pcimio
+~~~~~~~~~
+
+This drivers suppors a long list of National Instruments PCI / PXI
+cards:
+
+* PCI-MIO-16XE-50, PCI-MIO-16XE-10, PCI-MIO-16E-1, PCI-MIO-16E-4,
+PCI-6014
+* PCI-6023E, PCI-6024E, PCI-6025E, PXI-6025E
+* PCI-6030E, PXI-6030E, PCI-6031E, PCI-6032E, PCI-6033E, PCI-6034E,
+PCI-6035E, PCI-6036E
+* PCI-6040E, PXI-6040E
+* PCI-6052E, PXI-6052E
+* PCI-6070E, PXI-6070E, PCI-6071E, PXI-6071E
+* PCI-6110, PCI-6111
+* PCI-6220, PCI-6221
+* PCI-6143, PXI-6143
+* PCI-6224, PCI-6225, PCI-6229
+* PCI-6250, PCI-6251, PCIe-6251, PCI-6254, PCI-6259, PCIe-6259
+* PCI-6280, PCI-6281, PXI-6281, PCI-6284, PCI-6289,
+* PCI-6711, PXI-6711, PCI-6713, PXI-6713,
+* PCI-6731, PCI-6733, PXI-6733,
+
+The file /proc/analogy/XX-analogy_ni_pcimio lists the available
+subdevices:
+
+`--  Subdevices --`
+
+`| idx | type` +
+`|  00 | Analog input subdevice` +
+`|  01 | Analog output subdevice` +
+`|  02 | Digital input/output subdevice` +
+`|  03 | Unused subdevice` +
+`|  04 | Unused subdevice` +
+`|  05 | Calibration subdevice` +
+`|  06 | Memory subdevice` +
+`|  07 | Digital input/output subdevice` +
+`|  08 | Unused subdevice` +
+`|  09 | Serial subdevice` +
+`|  10 | Unused subdevice` +
+`|  11 | Counter subdevice` +
+`|  12 | Counter subdevice` +
+`|  13 | Counter subdevice`
+
+[[s526]]
+s526
+~~~~
+
+This driver supports the board Sensory s526.
+
+The file /proc/analogy/XX-analogy_s526 lists the available subdevices:
+
+`--  Subdevices --`
+
+`| idx | type` +
+`|  00 | Counter subdevice` +
+`|  01 | Analog input subdevice` +
+`|  02 | Analog output subdevice` +
+`|  03 | Digital input/output subdevice`

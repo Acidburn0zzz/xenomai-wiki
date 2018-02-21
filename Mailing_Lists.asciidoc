@@ -1,0 +1,36 @@
+
+Mailing Lists
+=============
+
+== Main e-mail discussion list ==
+
+You may register to
+https://www.xenomai.org/mailman/listinfo/xenomai/[this discussion list]
+for getting help, reporting issues, suggesting ideas and sending
+patches.
+
+The proper etiquette for posting to this list is as follows:
+
+- Please no top posting
+- Please wrap lines at 75 characters
+- Please no HTML, only plain text e-mails. Even the most hopeless MUAs
+  have a switch to turn off HTML in message composition, please use
+  it.
+- Please DO NOT SHOUT!!!!!! in e-mails, particularly when asking for
+  help. This tends to make people awake and grumpy.
+- Please do not send screenshots when plain text pasted into your
+  message would suffice.
+
+The archive can be accessed at
+http://www.xenomai.org/pipermail/xenomai/[this URL].
+
+[IMPORTANT]
+Please do not send private e-mails to Xenomai maintainers for getting
+help, use the discussion list instead.
+
+== GIT e-mail notifications ==
+
+Commit e-mail notifications are enabled for the GIT repositories we
+maintain, you may register to
+https://www.xenomai.org/mailman/listinfo/xenomai-git/[this mailing list]
+for tracking progress of our development.

@@ -1,0 +1,142 @@
+Serial 16550A Driver
+====================
+
+[[real-time-serial-driver-for-16550a-compatible-devices]]
+Real-Time Serial Driver for 16550A-Compatible Devices
+-----------------------------------------------------
+
+Driver version: 1.5 and later
+
+[[preparation]]
+Preparation
+~~~~~~~~~~~
+
+* decide which serial ports are to be managed by the real-time driver
+* identify their I/O addresses and IRQ numbers:
+
+`setserial /dev/ttySx`
+
+* disable the Linux driver for all these devices:
+
+`setserial /dev/ttySx uart none`
+
+[[invocation]]
+Invocation
+~~~~~~~~~~
+
+`modprobe xeno_16550A io=<addr>[,...] irq=<no>[,...] baud_base=<val>[,...]
+ tx_fifo=<val>[,...] start_index=<val>[,...]`
+
+[cols="<,",options="header",]
+|=======================================================================
+|Argument |Description
+|`io` |I/O addresses of the devices, comma separated (e.g.
+"0x3f8,0x2f8") *Note:* In the driver that comes with Xenomai 2.3 and
+earlier (driver versions < 1.5), this argument is called `ioaddr`.
+
+|`irq` |Interrupt numbers of the devices, comma separated (e.g. "4,3")
+
+|`baud_base` |Maximum baud rates of the devices, comma separated,
+default is 115200
+
+|`tx_fifo` |Transmitter FIFO sizes of the devices in bytes, comma
+separated, default is 16
+
+|`start_index` |First device instance number to be used, default is 0
+(=> "rtser0")
+|=======================================================================
+
+[[baud_base-detection]]
+baud_base detection
+^^^^^^^^^^^^^^^^^^^
+
+If you are not sure about Baud Base of serial ports, try to use next
+values:
+
+* 115200
+** 16550A-compatible onboard RS-232 controllers
+
+* 921600
+** Moxa CP-132U
+** Moxa CP-118U
+** Moxa CP-134U V2
+
+If your board is not listed here, you can try value of maximum speed of
+you board, that listed in "features" list in user's manual, like ... up
+to 921.6 Kbps ... that mean 921600 baud is maximum tranfer speed of your
+board.
+
+[[io-irq-detection]]
+io, irq detection
+^^^^^^^^^^^^^^^^^
+
+For onboard controller `io`, `irq` parameter could be found in BIOS,
+standart values are "0x3f8,0x2f8" for `io` and "4,3" for `irq`. For
+multiport adapters you can use `setserial` to detect `io`, irq :
+
+-----------------------------------------------
+[root@dvplayout ~]# setserial -g /dev/ttyM2
+/dev/ttyM2, UART: 16550A, Port: 0xc810, IRQ: 22
+-----------------------------------------------
+
+This works only if you have loaded specific board kernel module.
+
+Another method is to use `lspci` to detect io port ranges and irq:
+
+--------------------------------------------------------------------------------------------
+[root@tvdevctl ~]# lspci -v
+--- skipped --
+06:01.0 Serial controller: Moxa Technologies Co Ltd Unknown device 1180 (prog-if 02 [16550])
+	Subsystem: Moxa Technologies Co Ltd Unknown device 1180
+	Flags: medium devsel, IRQ 9
+	I/O ports at 1040 [size=32]
+	I/O ports at 1000 [size=64]
+	I/O ports at 1060 [size=16]
+--- skipped --
+--------------------------------------------------------------------------------------------
+
+As you can see, multiport board occupied IRQ 9 and 3 I/O ports range.
+Moxa boards use two address regions for `io`: 0x1000 for the first UART,
+0x1008 for the second one, etc.
+
+Loading driver for all 8 ports:
+
+--------------------------------------------------------------------------------
+/sbin/modprobe xeno_16550A \
+	       io=0x1000,0x1008,0x1010,0x1018,0x1020,0x1028,0x1030,0x1038 \
+	       irq=9,9,9,9,9,9,9,9 \
+	       baud_base=921600,921600,921600,921600,921600,921600,921600,921600
+--------------------------------------------------------------------------------
+
+[[full-featured-example]]
+Full-featured example
+^^^^^^^^^^^^^^^^^^^^^
+
+If you want to use onboard serial controllers together with an
+additional multiport board, you just need to specify the full set of
+UART configurations with `io`, `irq`, `baud_base` parameters on load:
+
+----------------------------------------------------
+/sbin/modprobe xeno_16550A \
+	       io=0x3f8,0x2f8,0xdf00,0xdf08 \
+	       irq=4,3,11,11 \
+	       baud_base=115200,115200,921600,921600
+----------------------------------------------------
+
+[[in-kernel-driver-setup]]
+In-Kernel Driver Setup
+----------------------
+
+If you prefer to compile xeno_16550A into the kernel, the arguments
+listed above have to be provided as kernel parameter. Just prepend the
+prefix `xeno_16550A.`, e.g. `xeno_16550A.io=0x3f8,0x2f8`. To control the
+standard Linux 8250 serial driver, either disable it at compile time or
+set the number of managed ports via `8250.nr_uarts=N`.
+
+[[usage]]
+Usage
+-----
+
+The device API is described in the Xenomai API documentation under
+http://www.xenomai.org/documentation/trunk/html/api/group__rtserial.html[Serial
+Device Profile].

@@ -1,0 +1,168 @@
+RTnet Howto
+===========
+
+With Ethernet, the communications are not deterministic because of the
+collision which can occur between several host on a network with a hub,
+or because of the unknown latency in the case of the switch .
+
+The deterministic communication is not allowed by the Ethernet protocol
+because of the possibility of collisions which can occurs and supported
+by the mechanism CSMA/CD (Carrier Sense Multiple Access/Collision
+Detection).
+
+RTnet is a protocol stack which run between the Ethernet layer and the
+application layer (or IP layer). It aims, through the use of time
+intervals (time-slots), is to make deterministic communication, by
+disabling the collision detection CSMA/CD, and prevent buffering packet
+in the network. RTnet is a software developed to run on Linux kernel
+with RTAI or Xenomai real-time extension. It exploits the real time
+kernel extension to ensure the determinism on the communication stack.
+In this aim, all the instructions related to this protocol makes use
+real time kernel functions rather than those of Linux, which bound
+latencies to the execution times and latencies of interruptions which
+provide deterministic's communication .
+
+[[tdma-operation]]
+TDMA Operation
+--------------
+
+Communication timeshare TDMA (Time Division Multiple Access) is at the
+basis of the determinism of the protocol. The use of time intervals
+(time slots) allocated to the hosts for sending data can no longer use
+the mechanism of collision detection (CDMA / CD) and therefore bound the
+time between transmission and reception of a message. Based on a
+master-slave operation to synchronize the clocks of each host of the
+network and allocate time slots to each host, the protocol depends
+mainly on the master which issues periodically a synchronization
+message. ((Wiki: tdma.png? 600))
+
+[[syncing]]
+Syncing
+-------
+
+Rtnet uses time division multiplexing TDMA (Time Division Multiple
+Access) to avoid collisions of communication, the master sends at the
+beginning of each cycle a frame containing the information from the
+global clock to synchronize. The synchronization frames are sent
+periodically in the network and contain a cycle number encoded on 4
+bytes, the value of the reference time of the master in nanoseconds and
+the value of the reference time when the transmission was made, this
+value help to reduce the deviation of the global clock. The
+synchronization message contains the following data: To remedy the lack
+of a centralized master-slave, secondary master (backup-master) can be
+established by booking additional slots for the backup master. If the
+primary master falls, the secondary master is activated after taking
+into account the shift from the previous frame synchronization. When the
+primary master back into service, it is synchronized with the active
+secondary master,then the secondary master is disabled.
+
+[[protocol-stack]]
+Protocol stack
+--------------
+
+Rtnet protocol stack contains a physical part to the transport layer of
+the OSI model. It was developed specifically to work on real-time
+kernels RTAI and Xenomai. To ensure determinism for communication
+applications, it is necessary that the Ethernet controller application
+software used all functions meet hard real-time constraints.
+Consequently, the network layer protocols and transport in particular
+must be implemented for using the real time kernel of Linux rather than
+commonly used. ((Wiki: pile.png))
+
+[[physical-layer]]
+Physical Layer
+--------------
+
+The physical layer, supported by the Ethernet controller, requires the
+use of a specific driver derived from Linux. Handling memory, interrupt
+handling mechanisms or masking interrupts require action which need to
+be done by the real time kernel to ensure determinism. Also take into
+account in the Ethernet driver the most accurate detection possible
+instants of emission and reception. From the material point of view, any
+Ethernet controller can be used and other physical layers could be
+supported (such as Firewire). The management controller is performed in
+a non-real time what is the initialization, setup and shutdown, so that
+special attention should be paid to the functions of transmitting and
+receiving. At the transmission, save the value of the global clock,
+while at the reception function, it is necessary to save the value of
+the global clock at the moment of reception, to allow controlling the
+jitter precisely.
+
+[[data-link-layer]]
+Data Link Layer
+---------------
+
+Ethernet as a standard operation can not provide hard real-time
+communication, whether on networks based on repeaters or switches for
+which there is risk of collision. The quality of service provided by the
+IEEE 802.1q offers a good solution to this problem, but the
+centralization of the switches is costly wiring. The data link protocol
+of Rtnet is provided by the kernel module called Rtmac, incorporating a
+module TDMA. TDMA module manages communication over the network
+(synchronization, cycle time, etc..) Although this layer is an optional
+extension of the stack Rtnet, it brings a deterministic media access
+protocol based on these services:
+
+`* Forwarding specific packets to appropriate services.` +
+`* Exchange of control messages and data with higher layer protocols.` +
+`* Possibility to define a media access control-specific interface in the case of using multiple network interfaces.` +
+`* Service tunneling to exchange data with non real-time networks.`
+
+Rtmac layer from Rtnet is a module providing the following services:
+
+`* Interception of package information specific to redirect them to appropriate services.` +
+`* Exchange of control data or specific information in parallel data applications for the upper layers.` +
+`* Setting up tunnels to communicate with non-real time systems via` +
+`* Use a virtual interface and adding a header to distinguish this flow.`
+
+[[tdma-layer]]
+TDMA Layer
+----------
+
+Rtnet uses time division access network in the data link layer, to
+prevent collisions occur. This protocol synchronizes clocks of nodes in
+the network segment, using a master-slave communication, and defines the
+transmission time of data to the synchronization message transmitted
+periodically. A node can join the network even when it is started, if he
+knows his time access, manually configured on the node or the server
+configuration in place on a network node (rtcfg). Once this parameter
+obtained node will evaluate the time to go back on the network by
+sending queries to the master sync, which is going to respond by
+including in the packet sent timing information that can calculate the
+time of return.
+
+[[network-and-transport-layer]]
+Network and transport layer
+---------------------------
+
+Stacks of UDP / IP and TCP / IP network and transport layers are
+supported, by simplifying the process of routing and optimization of
+fragmentation. The Address Resolution Protocol (ARP) is adapted to
+operate only during initialization. In the context of communications on
+a bus, these protocols may be unnecessary, but are relevant for
+communication with an external network, typically non-real time. The IP
+protocol is implemented to run on the real time kernel and supports
+fragmentation to send packets whose size exceeds the MTU (Maximum
+Transmission Unit). To perform routing two tables are used, the first
+table, the routing table of guests, contains the IP addresses of hosts
+reachable on the LAN. The second table, optional, use the gateway
+address to other networks in real time, allowing the establishment of
+networks with more complex structures. The contents of the routing table
+is similar to the ARP table of the standard IP stack. For Rtnet this
+table is used for the routing process, which is not necessarily the case
+for the standard battery. UDP and TCP are implemented above the IP layer
+(Version 4), UDP is used for hard real-time transmissions. TCP in turn
+has recently been implemented in the aim to communicate with elements of
+the network which does not run Rtnet, TCP is much more complicated
+(described in more than one hundred RFCs). Therefore its implementation
+has been greatly simplified since its usefulness is limited. UDP for its
+part, the default protocol to use to establish a real-time communication
+between two applications Rtnet. Rtcfg is a protocol defined for Rtnet to
+configure the network effectively. For that a network node is used as a
+server and sends to other nodes (clients) configuration information.
+Thanks to the presence of a virtual interface, it is possible to run all
+network layer protocols and implemented in the higher standard Linux
+kernel. It is also possible for the limited communications network node
+does not use routing protocol and transport (socket type RAW).
+
+http://citeseerx.ist.psu.edu%2Fviewdoc%2Fdownload%3Fdoi%3D10.1.1.67.9870%26rep%3Drep1%26type%3Dpdf&rct=j&q=rtnet&ei=eSubTOXPNpC44AaSicGJAQ&usg=AFQjCNGbOkKUr6T1seTgZ9ToYkBGyFFLiA&sig2=keCzvUo9LCi28q2hcR7tlg&cad=rja[Rtnet presentation at IEEE conference by Jan Kiska]

@@ -1,0 +1,60 @@
+Building applications for Xenomai 3.x
+=====================================
+
+Compiling a Xenomai 3 application
+---------------------------------
+
+Please refer to link:Application_Setup_And_Init[this document] for
+detailed explanations on the build and setup processes of a Xenomai
+application.
+
+To sum it up, you should use the +xeno-config+ script to get the
+proper compilation and linker flags related to Xenomai, in order to
+build your application for whichever _Cobalt_ or _Mercury_ core.
+
+The complete usage of the +xeno-config+ script can be found at
+http://www.xenomai.org/documentation/xenomai-3/html/man1/xeno-config/index.html[this
+URL].
+
+For the impatient, here is a trivial Makefile fragment retrieving the
+compiler and flags for building the single-file application +vxapp.c+,
+over the VxWorks emulation API:
+
+-----------------------------------------------------------
+XENO_CONFIG := /usr/xenomai/bin/xeno-config
+CFLAGS := $(shell $(XENO_CONFIG) --vxworks --cflags)
+LDFLAGS := $(shell $(XENO_CONFIG) --vxworks --ldflags)
+CC := $(shell $(XENO_CONFIG) --cc)
+
+EXECUTABLE := vxapp
+
+all: $(EXECUTABLE)
+
+%: %.c
+	$(CC) -o $@ $< $(CFLAGS) $(LDFLAGS)
+-----------------------------------------------------------
+
+Compiling a RTDM-based module
+-----------------------------
+
+The rules for building a regular kernel module/driver apply to
+RTDM-based drivers as well, with no additional requirement. For
+instance, the Makefile recipe for building +some_driver.ko+, composed
+of two files, namely foo.c and bar.c, based on the RTDM API, would be:
+
+-----------------------------------------------------------
+obj-y += some_driver.o
+some_driver-y := foo.o bar.o
+-----------------------------------------------------------
+
+Building this module out of the kernel tree should be done from the
+directory containing the module sources, as follows:
+
+---------------------------------------------
+$ make -C /path/to/kernel/tree M=$PWD modules
+---------------------------------------------
+
+[NOTE]
+Before the driver module can be built for a dual kernel configuration,
+the target kernel tree must have been prepared and built as documented
+link:Installing_Xenomai_3#Preparing_the_Cobalt_kernel[here].

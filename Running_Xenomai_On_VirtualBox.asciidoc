@@ -1,0 +1,302 @@
+Running Xenomai on VirtualBox
+=============================
+:author:		Jorge Ramirez-Ortiz
+:email:			jro@xenomai.org
+:categories:		Application
+:tags:			virtualbox, QEMU
+
+
+Introduction
+------------
+
+Guest virtual machines allow to run multiple Xenomai enabled boxes on
+your development workstation while keeping your development
+environment on the host machine. 
+
+VirtualBox permits network reconfiguration at runtime: the guest
+machine can run on a private internal network or as part of the system
+network without having to restart the machine.
+
+Downloads
+---------
+
+.Download and install VirtualBox from the link below:
+
+https://www.virtualbox.org/wiki/Downloads
+
+.Download an ISO image for your distro of choice
+
+Using the _share_drive_ extension that ships with VirtualBox to share
+git trees between boxes is not recommended - symbolic links created on
+the guest are not seen by the host; it is therefore more convenient
+to use standard NFS settings, in our case the host would be the NFS
+server, the guest machine the NFS client.
+
+Once the system boots, we need to replace the kernel in the guest
+machine with a _close_enough_ version of one for which an I-PIPE patch
+already exists (I am running Fedora 20 with vanilla kernel 3.10.32 and
+IPIPE).
+
+Notice that you will have to replace the distro kernel with a _vanilla_
+kernel (kernel.org) unless you want to port I-PIPE to some distro of
+your choice.
+
+.Download I-PIPE
+
+Check the list of available link:/downloads/ipipe/[I-PIPE patches] for
+your kernel release.
+
+Alternatively clone the ipipe tree and checkout the branch that you need.
+
+Host: Compiling kernel and Xenomai
+----------------------------------
+
+On the host machine create the directory structure that you will be
+sharing with the guest machine and export it over NFS. 
+
+On that share place the kernel and a configuration file, the ipipe
+patch, the xenomai git tree and an out of tree directory (build.d) to
+compile Xenomai. 
+
+----------------------------------------------------------------------
+<host>:/home/jro/guests/xeno1/
+<host>:/home/jro/guests/xeno1/build.d
+<host>:/home/jro/guests/xeno1/xenomai-forge.git
+<host>:/home/jro/guests/xeno1/linux-3.10.32.git
+<host>:/home/jro/guests/xeno1/ipipe-core-3.10.32-x86-2.patch
+<host>:/home/jro/guests/xeno1/kernel-3.10.32-xenomai-analogy-trimmed.config
+
+<guest>:/home/jro/mnt/
+----------------------------------------------------------------------
+
+Building the vanilla kernel
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following script illustrate a working example on how to prepare
+and then build the kernel with I-PIPE and Xenomai support.
+
+-----------------------------------------------------------------------------
+[host]$ cat kmake.sh 
+#!/bin/sh
+set -e
+
+linux_tree=/home/jro/guests/xeno1/linux-3.10.32.git
+eval linux_`grep '^PATCHLEVEL =' $linux_tree/Makefile | sed -e 's, ,,g'`
+eval linux_`grep '^SUBLEVEL =' $linux_tree/Makefile | sed -e 's, ,,g'`
+eval linux_`grep '^VERSION =' $linux_tree/Makefile | sed -e 's, ,,g'`
+linux_version="$linux_VERSION.$linux_PATCHLEVEL.$linux_SUBLEVEL" 
+echo "linux version: $linux_version"
+
+cd /home/jro/guests/xeno1/xenomai-jro.git
+./scripts/prepare-kernel.sh --forcelink --linux=$linux_tree
+--ipipe=/home/jro/guests/xeno1/ipipe-core-3.10.32-x86-2.patch
+
+cd $linux_tree
+git status
+git add -f .
+git commit -m "ipipe 3.10.32 and Xenomai applied"
+git log --oneline
+fi
+
+read -p "invoking menuconfig [enter]" 
+cd $linux_tree
+cp
+/home/jro/guests/xeno1/kernel-3.11.10-xenomai-analogy-trimmed.config
+.config
+
+
+make menuconfig
+fi
+
+read -p "invoking make [enter]" 
+cd $linux_tree 
+make -j8 
+make -j8 modules
+----------------------------------------------------------------------------------------------------------------------------
+
+Notice that cnce your guest system is running, over subsequent
+interations, you might want to trim down the initial .config to your
+target requirements (by default Fedora will compile in every single
+driver in the linux kernel which might not be want you want)  
+
+Also, when running the kernel menu config you should pay attention to
+the big bold Xenomai warnings which will display if you enabled ACPI,
+CPU IDLE or some other Xenomai conflicting configs; typical
+indications of something going wrong would be negative (out of range)
+values when you run the Xenomai latency tests after the install.
+
+Building Xenomai
+~~~~~~~~~~~~~~~~
+
+The following script illustrates a working example on how to build
+Xenomai.
+
+
+--------------------------------------------------------------------------------------------------------------------
+[host]$ cat xmake.sh 
+#!/bin/bash
+set -e
+cd /home/jro/guests/xeno1/build.d
+../xenomai-jro.git/configure --with-core=cobalt --enable-smp
+--enable-pshared --enable-assert --enable-asciidoc
+
+make -j8 
+---------------------------------------------------------------------------------------------------------------------
+
+Guest: Installing the kernel and Xenomai
+----------------------------------------
+
+Since the install will require superuser priviledges it is advisable to
+prepare a couple of scripts on your guest machines to take care of
+this action. If for whatever reason the scripts are the NFS shared
+drive, maybe it would also make sense to restrict the execution of the
+script to a known server so you dont risk installing an incompatible
+Xenomai architecture on your host environment - or simply replacing
+your server's kernel. A simple way of doing this on bash would be to
+add the following to your install script.  
+
+--------------------------------------------------------------------------------
+if [ `hostname -s`  != ${guestname} ]; then
+exit 1
+fi
+--------------------------------------------------------------------------------
+
+Installing Xenomai
+~~~~~~~~~~~~~~~~~~
+
+The following script illustrates a working example to install Xenomai
+on the guest machine.
+
+--------------------------------------------------------------------------------
+[guest]$ more xinstall.sh 
+set -e
+cd /home/jro/mnt/build.d
+su -c 'make install DESTDIR=/'
+--------------------------------------------------------------------------------
+
+The build.d out-of-tree directory that we used to compile Xenomai,
+will contain paths relative to the host machine where Xenomai was
+built (ie <host>:/home/jro/guests/xeno1/xenomai-forge.git). 
+
+All you have to do on your guest machine to  bypass this inconvenience
+is to create a symbolic link; if you mounted the host NFS share for
+this guest on /home/jro/mnt, the link would be as follows:
+
+-----------------------------------------------------------------------------------------------
+[guest]$ mkdir -p /home/jro/guests/xeno1
+[guest]$ ln -s /home/jro/mnt/xenomai-forge.git
+/home/jro/guests/xeno1/xenomai-forge.git
+
+-----------------------------------------------------------------------------------------------
+
+Installing the vanilla kernel
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following script illustrates a working example to install a kernel
+compiled on the host.
+
+--------------------------------------------------------------------------------
+[guest]$ more kinstall.sh 
+
+#!/bin/sh
+set -e
+
+PS1='\[\e[0;33m\][\u@\h no_git \W]\$\[\e[0m\] '
+
+linux_tree=/home/jro/mnt/linux-3.10.32.git
+
+eval linux_`grep '^PATCHLEVEL =' $linux_tree/Makefile | sed -e 's,,,g'`
+eval linux_`grep '^SUBLEVEL =' $linux_tree/Makefile | sed -e 's, ,,g'`
+eval linux_`grep '^VERSION =' $linux_tree/Makefile | sed -e 's, ,,g'`
+linux_version="$linux_VERSION.$linux_PATCHLEVEL.$linux_SUBLEVEL" 
+echo "linux version: $linux_version"
+
+cd $linux_tree
+su -c  'make modules_install'
+su -c 'cp arch/x86/boot/bzImage /boot/vmlinuz-$linux_version+'
+su -c 'cp System.map /boot/System.map-$linux_version+'
+su -c 'dracut --force /boot/initramfs-$linux_version+.img $linux_version+'
+su -c 'grub2-mkconfig -o /boot/grub2/grub.cfg' 
+------------------------------------------------------------------------------
+
+
+Network options
+---------------
+
+Once the basic setup is in place, and to be able to work independently
+of external routers or switches, you should change the VirtualBox
+network settings to using VirtualBox's host-only-adapter (this can be
+done at runtime from the settings tab from your guest machine (no need
+to halt it)): your host workstation will keep access to any internet
+services that you usually require while you keep all your VMs on your
+local private network always available. 
+
+This is particularly useful if you spend a lot of time on planes or
+trains without wifi coverage: you could use that idle time to work on
+different Xenomai architectures.  
+
+http://www.virtualbox.org/manual/ch06.html#network_hostonly
+
+The instructions on the link above are a bit convoluted - fortunately
+everything can be setup from the VirtualBox UI. 
+Notice that, in the case of virtualbox, the host-only network is  configured
+_globaly_ for the host via "File->Preferences->Network",  while the guest
+network options are obviously a per-machine setting. 
+
+The host network settings could look something like this (vboxnet0
+would be the Xenomai network while wlan0 would be the standard
+network)
+
+--------------------------------------------------------------------------------
+vboxnet0  Link encap:Ethernet  HWaddr 0a:00:27:00:00:00  
+          inet addr:172.168.56.1  Bcast:172.168.56.255
+	  Mask:255.255.255.0
+          inet6 addr: fe80::800:27ff:fe00:0/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:10819 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:0 (0.0 B)  TX bytes:730403 (730.4 KB)
+
+wlan0     Link encap:Ethernet  HWaddr 74:de:2b:44:03:64  
+          inet addr:192.168.1.132  Bcast:192.168.1.255
+          Mask:255.255.255.0
+          inet6 addr: fe80::76de:2bff:fe44:364/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:257822 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:182851 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:255458228 (255.4 MB)  TX bytes:30721909 (30.7 MB)
+--------------------------------------------------------------------------------
+
+it is also recommended that you modify your .ssh/config to simplify
+the access to the virtual machines (ie)
+
+--------------------------------------------------------------------------------
+    Hostname		xenomai-1
+    User		tron
+    Identityfile 	~/.ssh/id_rsa.pub
+
+    Hostname		xenomai-2
+    User		troff
+    Identityfile	~/.ssh/id_rsa.pub
+--------------------------------------------------------------------------------
+
+where /etc/hosts would contain
+
+--------------------------------------------------------------------------------
+      xenomai-1		172.168.56.2
+      xenomai-2		172.168.56.3
+--------------------------------------------------------------------------------
+
+
+[[caveats]]
+caveats
+~~~~~~~
+
+Dont expect to achive great latency figures on your VMs though.
+
+
+
+
+

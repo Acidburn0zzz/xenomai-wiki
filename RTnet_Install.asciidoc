@@ -1,0 +1,239 @@
+RTnet Installation
+==================
+
+This page describes the general installation procedures to follow for
+installing RTnet with Xenomai. This is intended as a guide to the
+beginner, multiple deviations to these instructions can be implemented
+for custom installations.
+
+[[installing-rtnet]]
+Installing RTnet
+----------------
+
+* The basic installation of Xenomai should be completed first, see the
+http://www.xenomai.org/documentation/xenomai-2.6/html/README.INSTALL/[Xenomai]
+documentation regarding this.
+* The newest RTnet source files (*.tar.bz2) need to be downloaded from
+the http://www.rtnet.org[RTnet] site and extracted to the _/usr/src_
+folder on your local machine.
+* A symbolic link (shortcut) is created to the extracted RTnet source in
+_/usr/src_, it should be named _rtnet_, this is for quick access to the
+RTnet folder.
+* The permission and ownership flags of the RTnet folder should be set
+to root.
+* Change the working folder to RTnet and call the gconfig utility as
+follows:
+
+--------------
+$ cd rtnet
+$ make gconfig
+--------------
+
+* Select the following option in the gconfig menu:
+
+1.  Variant->Xenomai 2.1
+2.  Add-ons->Real-time Capturing Support->ON
+3.  Examples->RTnet Application Examples->ON
+
+* Save the setup and exit.
+* Run the make and make install in the RTnet folder as follows:
+
+---------------------
+$ make
+$ make install
+---------------------
+
+The RTnet installation folder will be created under _/usr/local/rtnet_
+
+* Create the RTnet management device node
+
+--------------------------------
+$ sudo mknod /dev/rtnet c 10 240
+--------------------------------
+
+[[testing-with-a-single-node-local-loopback]]
+Testing with a single node (local loopback)
+-------------------------------------------
+
+The testing procedure is as follows:
+
+* Disconnect the RTnet node's network cable from your normal non
+real-time ehternet network
+* Restart the systems into the patched kernel mode.
+* Display the Network setup with the command
+
+----------
+$ ifconfig
+----------
+
+This will show you have the eth0 running (which is your network card)
+and the lo running (which is the local loop-back)
+
+* You need to disable the non-realtime network operation of the
+network card as follows:
+
+--------------------
+$ ifconfig eth0 down
+--------------------
+
+* Then, unload the network card's device drivers, e.g.
+
+--------------------
+$ sudo rmmod 8139too
+--------------------
+
+* Load the required modules of your real-time Linux extension needed
+  for RTnet operations. If you have built the RTDM support of Xenomai
+  2.x into the kernel, or you are running Xenomai 3.x, nothing has to
+  be done. Otherwise issue:
+
+-------------------------
+$ sudo modprobe xeno_rtdm
+-------------------------
+
+* Edit the following parameters in the
+link:Rtnet_Configuration_File[RTnet
+configuration file] located at _/usr/local/rtnet/etc/rtnet.conf_:
+
+1.  Set the host up as master or slave depending on how you are going to
+use it.
+2.  The RT_DRIVER should be the realtime equivalent of the module you
+removed nl. rt_8139too.
+3.  RT_DRIVER_OPTIONS should just have empty quotes because there is
+only one card on the Host.
+4.  IPADDR = 127.0.0.2 because you setup yourself as the master with
+this address and you want to talk to the local loopback which will be
+setup as a slave at 127.0.0.1
+5.  NETMASK = 255.255.255.0
+6.  RT_LOOPBACK = yes
+7.  RTCAP = yes if you want to run real time capturing of packets like
+Ethereal.
+8.  Setup TDMA_SLAVES = 127.0.0.1 for loopback as the slave.
+
+* Save the file and from the _sbin/_ directory, and run:
+
+--------------------
+$ sudo ./rtnet start
+--------------------
+
+* It will wait for slaves. press cntl ^C to go out of its waiting for
+  slaves. You can see that RTnet is running by calling +lsmod+ and
+  finding the realtime driver of the network card in the loaded module
+  list. If it is not listed then RTnet is not running.
+
+* Ping the local loopback as follows:
+
+-------------------------
+$ sudo ./rtping 127.0.0.1
+-------------------------
+
+* To stop RTnet transmitting on the card, run:
+
+-------------------
+$ sudo ./rtnet stop
+-------------------
+
+[[testing-with-multiple-nodes]]
+Testing with multiple nodes
+---------------------------
+
+The testing procedure is as follows:
+
+* Disconnect the RTnet nodes from the normal non real-time ehternet
+network.
+
+* Connect the RTnet nodes to each other using a switch (or hub).
+
+* Restart the systems into the patched kernel mode.
+
+* Modify the rtnet configuration file
+  _/usr/local/rtnet/etc/rtnet.conf_. You should check the following:
+
+.Mandatory steps
+=====================================================================
+. RT_DRIVER must be set to the correct real-time Ethernet NIC driver
+. Set IPADDR to the station's (network-unique) IP address
+. Set TDMA_MODE to 'master' or 'slave', depending on the node's role
+. Place the slaves' IP addresses in TDMA_SLAVES, separated by spaces
+  (only required by master)
+=====================================================================
+
+* Shut down the non-real time Ethernet device
+
+* Unload the non-real time Ethernet device driver modules
+
+* Load the required Xenomai modules
+
+* Change to directory /usr/local/rtnet/sbin
+
+* Start RTnet on all nodes. The nodes should see each others, and then
+return to the command prompt:
+
+--------------------
+$ sudo ./rtnet start
+--------------------
+
+* Check the communication between the nodes with the following
+command, where is the IP address of a remote node:
+
+---------------
+$ sudo ./rtping
+---------------
+
+Stop the command with ^C.
+
+* Unload the RTnet modules:
+
+-------------------
+$ sudo ./rtnet stop
+-------------------
+
+[[debugging-rtnet]]
+Debugging RTnet
+---------------
+
+If RTnet doesn't work, or only works intermittedly, it is likely due
+to one of these known issues:
+
+* _/dev/rtnet_ device node is missing.
+* Xenomai is not working as expected on your hardware.
+* The Linux driver for the real-time network device was built into the
+kernel and blocks the hardware.
+* IRQ clash. Xenomai is able to detect conflicts and report them to the
+kernel console.
+* you are using rt_e1000 driver and RTnet 0.9.9 or older. See
+RTnet:rt_e1000 for a workaround.
+
+Steps to resolve problems:
+
+* Check the kernel console or the system log for suspicious messages.
+* Validate that the basic tests of your real-time extension are working
+correctly. Xenomai, e.g., comes with an basic test called
++latency+.
+* Collect informations about your setup (versions, configuration, output
+messages) and post a support request on
+http://sourceforge.net/mail/?group_id=68976[rtnet-users].
+
+[[using-realtime-rtnet-and-non-realtime-network-together]]
+Using realtime (RTnet) and non-realtime network together
+--------------------------------------------------------
+
+If you have two (or more) ethernet lines available on your system, you
+can configure one to use RTnet (realtime) and the other one to use
+non-realtime network:
+
+* Unload the non-realtime driver.
+* Load and start rtnet on *one* card using _cards_ parameter (e.g.
++insmod rt_e1000.ko cards=1,0+).
+* Load the non-realtime module and bring it up (the standard way using
+insmod and ifup). It will take whatever cards are left.
+
+The parameter _cards_ accepts an array of zeros and ones. For instance
++insmod rt_e1000.ko cards=0,1,0+ will use the "middle" card of 3.
+
+See script fragment below for an example:
+
+------------------------------------------------------------
+$ sudo insmod /usr/local/rtnet/modules/rt_e1000.ko cards=1,0
+$ sudo insmod e1000 $ sudo ifup eth1
+------------------------------------------------------------

@@ -1,0 +1,54 @@
+Getting the I-pipe patch
+========================
+
+Xenomai 2 and Xenomai 3 over the _Cobalt_ core (i.e. dual kernel mode)
+both need special kernel support to deliver fast and deterministic
+response time to external interrupts, and services seamlessly
+integrated with the standard Linux kernel.
+
+This support is provided by the _interrupt pipeline_ (aka _I-pipe_) in
+the form of a kernel patch you have to apply against a vanilla kernel
+tree, before the Xenomai co-kernel can be built into Linux.
+
+== GIT kernel tree
+
+The Xenomai project maintains the git://git.xenomai.org/ipipe.git
+kernel tree, which includes the _interrupt pipeline_ code, based on
+the mainline Linux tree available from kernel.org.
+
+The I-pipe tree contains the following branches:
+
+  * ipipe-${VERSION}.${PATCHLEVEL}.y is the current maintenance branch
+    for the pipeline on top of kernel version v${VERSION}.${PATCHLEVEL},
+    for all CPU architectures supported by the _Cobalt_ core. Such branch
+    is rebased over stable mainline releases over time.
+
+  * legacy/core-X.Y is there mainly for archiving purpose, with the
+    early implementation of the I-pipe _core_ series for kernel vX.Y.
+
+  * legacy/ipipe-<kver>-<arch> contains the older pipeline
+    implementation for the given kernel version and architecture,
+    which predates the I-pipe _core_ series. Xenomai 2.6 can run over
+    any of these legacy releases. However, Xenomai 3/Cobalt can run
+    over the current I-pipe _core_ series only, and therefore won't
+    run over the legacy I-pipe releases.
+
+  * raw/ipipe-<kver> may appear from time to time. These are unstable
+    branches exchanged between the I-pipe maintainers as they
+    collaborate to port the pipeline to a newer kernel version. You
+    most likely don't want to use such very early material, which may
+    not even compile for you.
+
+  * vendor/* branches contain ports of the interrupt pipeline to
+    vendor-specific kernel trees. Unlike maintenance branches, a
+    vendor-oriented branch is usually not actively maintained, but
+    rather represents a snapshot of a working I-pipe implementation
+    targeting a specific SoC, based on a particular release of a
+    vendor kernel.
+
+== Download area
+
+We issue self-contained patches adding the pipeline support to a given
+mainline kernel version for a particular CPU architecture.
+
+You can fetch them from this link:/downloads/ipipe/[download area].

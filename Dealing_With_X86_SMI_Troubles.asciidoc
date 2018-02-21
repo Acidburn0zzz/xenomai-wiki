@@ -1,0 +1,218 @@
+Dealing with x86 SMI troubles
+=============================
+:author:	Philippe Gerum
+:email:	 	rpm@xenomai.org
+:categories:	Core
+:tags:		troubleshooting, x86
+
+Why are SMIs a problem?
+-----------------------
+
+http://en.wikipedia.org/wiki/System_Management_Mode[System Management
+Interrupts] or SMIs are special interrupts at the highest priority
+causing the x86 CPU to enter the System Management Mode, a variant of
+the flat real mode for executing some handler implemented by the BIOS.
+SMIs don't go through the interrupt controller, they are detected by
+the CPU logic in between instructions and unconditionally dispatched
+from there. This introduces critical issues for real-time systems:
+
+- SMIs may preempt the real-time code for an undefined amount of time,
+  at any time, and cannot be masked or preempted by kernel
+  software. Actually, the kernel software does not even know about
+  ongoing SMI requests.
+
+- Transitioning to/from the SMM context requires the CPU to
+  save/restore most of its register file, switching to a different CPU
+  mode. With multi-core systems, the BIOS may even wait for all CPU
+  cores to enter SMM before serializing the execution of the pending
+  SMI request. This is yet another source of unexpected delay.
+
+- SMM handlers invoked by SMIs are implemented in the BIOS, therefore
+  their implementation is opaque to us. We may just observe the
+  pathological latency spots some of them cause (e.g. seeing 300
+  microsecond delays with USB-related SMI is common).
+
+[CAUTION]
+This means that regardless of using a single or dual kernel
+configuration, SMIs will bite the same way.  Very unfortunately, SMIs
+are commonly involved in health monitoring operations such as thermal
+control in x86 chipsets, or regular device management such as USB
+support, so there is no simple and straightforward option for dealing
+with them.
+
+Which hardware is exposed?
+--------------------------
+
+Almost all x86 desktop and server class hardware badly relies on SMIs
+nowadays, for all sort of internal management operations and so-called
+optimizations.
+
+You will be generally luckier with SoC platforms specifically aimed at
+supporting embedded applications, which frequently involve real-time
+constraints. You should definitely ask your vendor about the SMI issue
+upfront, and/or test the hardware by yourself before buying.
+
+Detecting SMI woes
+------------------
+
+By default, the SMI workaround code present in the Xenomai core
+attempts to detect potential issues with SMI/SMM, by determining the
+underlying chipset identification. This corresponds to the following
+kernel parameter setting:
+
+.with the Xenomai 2.x series
+---------------
+xeno_hal.smi=0
+---------------
+
+or,
+
+.with the Xenomai 3.x series
+--------------------
+xenomai.smi=detect
+--------------------
+
+Xenomai warns you about potential problems ahead due to your current
+chipset enabling SMIs, by issuing this warning to the kernel log:
+
+---------------------------------------------------------------
+Xenomai: SMI-enabled chipset found, but SMI workaround disabled
+---------------------------------------------------------------
+  
+At this point, you may want to know whether such warning really
+applies to your case. To this end, you should run Xenomai's `latency`
+test program under load, checking for pathological latency
+("pathological" meaning more than, say, 100 micro-seconds).
+
+If you do *not* observe any such latency spots, then this warning is
+harmless and you can proceed as follows:
+
+- optionally turn this warning off by disabling Xenomai's SMI
+detection entirely. This is done by adding this parameter to the
+kernel command line:
+
+.with the Xenomai 2.x series
+---------------
+xeno_hal.smi=-1
+---------------
+
+or,
+
+.with the Xenomai 3.x series
+--------------------
+xenomai.smi=disabled
+--------------------
+
+- you may safely skip the rest of this discussion.
+
+Otherwise, if you did observe any pathological latency spot, then you
+have a problem with SMIs, and this warning was intended to you.
+
+Some processors have a model specific register (MSR), returning the
+count of SMI since boot. The `rdmsr` tool from the
+https://01.org/msr-tools[msr-tools] package allows reading this MSR with the
+following command:
+
+-------------------------------------------------------------------------------
+# rdmsr 0x34
+-------------------------------------------------------------------------------
+
+`rdmsr` will return an error message if your processor does not have that
+register. Using this tool before and after the latency test shows a high
+latency, you will be able to confirm that the issue you have is due to SMI.
+
+Xenomai allows you to enable two *workarounds* via kernel parameters
+which may help you.
+
+[CAUTION]
+As the name suggests, such workarounds do not fix the main issue, they
+merely try mitigating the impact of it, at the expense of disabling
+SMI generation for certain sources when/if the chipset allows
+it. However, [underline]#you must make sure by yourself that disabling
+SMI sources for your chipset is safe, and will not cause hazards for
+your hardware#.
+
+Disabling all SMIs sources ([underline]#WITH EXTREME CAUTION#)
+--------------------------------------------------------------
+
+The first workaround which you may try is disabling all SMI
+sources as follows:
+
+.with the Xenomai 2.x series
+---------------
+xeno_hal.smi=1
+---------------
+
+or,
+
+.with the Xenomai 3.x series
+-------------------
+xenomai.smi=enabled
+-------------------
+
+Once done, you have to check that:
+
+- the kernel log messages do not contain the message:
+-------------------------------------------------------------------------------
+Xenomai: SMI workaround failed!
+-------------------------------------------------------------------------------
+
+if they do, skip to <<disabling-smi-selectively, the next section>>.
+
+- every device on your system is still responding properly
+  (e.g. keyboard, mouse, NIC).
+
+- your motherboard is not overheating even under sustained high load
+  conditions. In case of unexpected and intempestive reboots while
+  stress-testing your system, then it is most likely that you should
+  re-enable SMIs immediately, and abandon this approach.
+
+- the latency test does not reveal any pathological spot anymore.
+
+If only a particular device is not working properly, then it probably
+requires SMIs, in which case disabling them globally is not an option.
+However, you might have some luck disabling all SMI sources but the
+one required by this device.
+
+The same goes in case of system overheating: you might try to keep the
+SMI source for thermal control enabled, disabling others.
+
+Disabling SMI sources selectively
+---------------------------------
+
+[[disabling-smi-selectively]]
+
+In order to selectively control SMI sources, check the documentation
+of your Intel chipset, looking for the discussion about the SMI_EN
+register, and the bit values corresponding to SMI sources defined for
+such chipset.
+
+You can pass a bit mask to the kernel parameter below, so that Xenomai
+will attempt to disable each SMI source whose bit is cleared in the
+<enable-mask> value, leaving other sources enabled:
+
+.with the Xenomai 2.x series
+---------------
+xeno_hal.smi_mask=<enable-mask>
+---------------
+
+or,
+
+.with the Xenomai 3.x series
+---------------
+xenomai.smi_mask=<enable-mask>
+---------------
+
+Again, check that the kernel log messages do not contain:
+-------------------------------------------------------------------------------
+Xenomai: SMI workaround failed!
+-------------------------------------------------------------------------------
+If they contain this message, you can not use Xenomai SMI workaround to
+avoid SMI, you should check your BIOS for settings that are likely to cause
+SMI.
+
+Using a careful and incremental approach, refining the set of disabled
+sources, you should try stopping only the SMI source causing the
+pathological latency, keeping the rest of the system safe and sane.
+Each iteration should revalidate the current status by running the
+standard Xenomai latency test.

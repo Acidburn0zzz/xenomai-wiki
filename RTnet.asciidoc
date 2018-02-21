@@ -1,0 +1,75 @@
+RTnet
+=====
+
+[[overview]]
+Overview
+--------
+
+http://www.rtnet.org[RTnet] has been designed to lend real-time
+networking functionality to both the RTAI and Xenomai
+environments. This document seeks to serve as a springboard for the
+beginner into RTnet with Xenomai.  The following links gives more
+information regarding various aspects of the installation and
+programming of RTnet in the Xenomai environment.
+
+* link:Rtnet_Howto[Howto]
+* link:Rtnet_Installation[Installation instructions]
+* link:Rtnet_Programming[Programming]
+
+The code of the RTnet project is organized in a modular way. The usual
+big picture is a TDMA realtime fieldbus, but you can also use RTnet
+for much simpler tasks, such as realtime point-to-point
+communication.
+
+For simpler tasks, you may not need all of RTnet. These help
+https://web.archive.org/web/20071123091559/http://www.linux-automation.de/konferenz/papers/Jan_Kiszka_UNI-HANNOVER_RTNET/RTnet-Kickoff-LAK2005-04.pdf[slides
+(in german)] may help.
+
+[[rtnet-structure]]
+RTnet Structure
+---------------
+
+After the installation of RTnet there should be two folders of interest
+regarding RTnet.
+
+[[source-folder]]
+Source Folder
+~~~~~~~~~~~~~
+
+The first is the RTnet source where the RTnet source code is located.
+Its default location is at _/usr/src/rtnet-x.y.z .
+
+This folder will in future be referenced to as **. In this folder the
+raw RTnet code is located. The sub folders of interest to the normal
+programmer is the *Documentation/* and *examples/* folders. The
+*Documentation/* folder contains basic information regarding the
+structure and used of functionalities in RTnet. On the other hand the
+*examples/* folder contains the source code of the examples that has
+been compiled and placed in the */examples* folder.
+
+[[installation-folder-overview]]
+Installation Folder Overview
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The second folder of interest is the folder where RTnet was installed
+into. The default location for this would be _/usr/local/rtnet_.
+
+This folder will be referred to in the future as **. The installation
+folder contains all of the compiled executables and kernel modules
+needed to run RTnet. The sub folders in ** are discussed next.
+
+. etc: The two setup configuration files for RTnet are located in this
+folder.  +rtnet.conf+ and +tdma.conf+ settings are both discussed in
+this link:Rtnet_Configuration_File[document].
+
+. examples: The compiled RTnet examples are placed here.
+
+. sbin: In this folder there are various scripts that are used to run
+and configure RTnet.
+
+. include: This is the folder that contains the include files that
+will be used in compliling any RTnet programs.
+
+. modules: The compiled modules for RTnet and all of the components to
+make it run efficiently along with the real-time device drivers, are
+located here.

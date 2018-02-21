@@ -1,0 +1,22 @@
+Maintainers
+===========
+
+*Gilles Chanteperdrix <gilles.chanteperdrix@xenomai.org>*::
+
+       ARM and x86 architectures, Xenomai 2, Xenomai 3/cobalt.
+
+*Jan Kiszka <jan.kiszka@siemens.com>*::
+
+       x86 architecture, RTDM.
+
+*Jorge Ramirez-Ortiz <jro@xenomai.org>*::
+
+       Analogy stack.
+
+*Wolfgang Grandegger <wolfgang@grandegger.com>*::
+
+       RTCAN stack.
+
+*Philippe Gerum <rpm@xenomai.org>*::
+
+       Remaining details.

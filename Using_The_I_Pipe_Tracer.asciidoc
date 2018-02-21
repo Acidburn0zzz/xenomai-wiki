@@ -1,0 +1,519 @@
+Using The I-Pipe Tracer
+=======================
+:author:	Jan Kiszka
+:email:	 	jan.kiszka@siemens.com
+:categories:	Core
+:tags:		debug, i-pipe
+
+[[features]]
+Features
+--------
+
+* Traces events with high-resolution timestamp, a user-provided value,
+and the current I-pipe domain states
+* Supported events are
+** kernel function entries
+** entry and exit of a critical section (with separate longest-path
+evaluation)
+** PID + current process priority
+** user-provided event IDs
+* Comes with instrumentation for hard IRQs-off tracing
+* Kernel and user-space API (the latter via Xenomai)
+* Strictly deterministic, causes no undefined latency peaks during
+runtime
+* NMI-safe
+
+[[installation]]
+Installation
+------------
+
+The tracer is a built-in feature of the
+link:/downloads/ipipe/[I-pipe].  To enable tracing support, go the the
+"Kernel hacking" section of the kernel configuration and switch on
+"I-pipe debugging" and then "Latency tracing".
+
+[[configuration]]
+Configuration
+-------------
+
+The following options are available at kernel configuration time:
+
+* "Enable tracing on boot" `CONFIG_IPIPE_TRACE_ENABLE` +
+Defines if the tracer is active by default when booting the system or
+shall be later enabled via `/proc/ipipe/trace/enable`. Specifically if
+function tracing is enabled, deferring to switch on the tracer reduces
+the boot time on low-end systems.
+
+* "Instrument function entries" `CONFIG_IPIPE_TRACE_MCOUNT` +
+Trace each entry of a kernel function. Note that this instrumentation,
+though it is the most valuable one, has a significant performance impact
+on low-end systems (~50% larger worst-case latencies on a Pentium-I 133
+MHz).
+
+* "Trace IRQs-off times" `CONFIG_IPIPE_TRACE_IRQSOFF` +
+Instrument each disable and re-enable of hardware IRQs. This allows to
+identify the longest path in a system with IRQs disabled.
+
+* "Depth of trace log" `CONFIG_IPIPE_TRACE_SHIFT` +
+Controls the number of trace points. The I-pipe tracer maintains four
+ring buffers per CPU of the given capacity in order to switch traces in
+a lock-less fashion with respect to potentially pending output requests
+on those buffers. If you run short on memory, try reducing the trace log
+depth which is set to 16000 trace points by default.
+
+* "Use vmalloc'ed trace buffer" `CONFIG_IPIPE_TRACE_VMALLOC` +
+Instead of reserving static kernel data, the required buffer is
+allocated via vmalloc during boot-up when this option is enabled. This
+can help to start systems that are low on memory, but it slightly
+degrades overall performance. Try this option when a traced kernel hangs
+unexpectedly at boot time.
+
+*Note:* Since 2.6.29, the I-pipe tracer makes use of ftrace lower layers
+for function tracing. `CONFIG_FUNCTION_TRACE` is enabled for that
+reason, and `/proc/sys/kernel/ftrace_enabled` also influences the I-pipe
+function tracer. This switch can be used to dynamically enable or
+disable the tracer, reducing the overhead of `CONFIG_IPIPE_TRACE_MCOUNT`
+to an absolute minimum when disabled. Ftrace's function and graph
+tracers themselves are still not usable over I-pipe kernels, latest
+I-pipe will prevent conflicting use.
+
+[[usage]]
+Usage
+-----
+
+Traces can be generated in many ways. One happens automatically when
+`CONFIG_IPIPE_TRACE_IRQSOFF` is enabled. Another way is to invoke the
+testsuite, namely _latency_ or _irqbench_ with the option `-f` to
+trigger a freeze on each new maximum latency. And finally one can
+instrument kernel or user space code with
+Xenomai:I-pipe Tracer#API[explicite tracer invocations].
+
+All tracing related controls and information can be found under
+`/proc/ipipe/trace/`. Here is an overview:
+
+* `max` +
+The longest trace path between all begin and end marks. Read from it for
+dumping the content, write any data to it for resetting.
+
+* `frozen` +
+The first frozen back-trace triggered by an instrumented application (or
+via `echo 1 &gt; frozen`). Read from it for dumping the content, write 0
+to it for resetting, write an integer value > 0 to additionally trigger
+a freeze.
+
+* `enable` +
+Global switch to turn all tracing on or off. Default depends on
+`CONFIG_IPIPE_TRACE_ENABLE`. Read from it for dumping the state, write 0
+to disable and > 0 to enable.
+
+* `pre_trace_points` +
+The number of additional trace points to be reported before the longest
+trace path. Default: 10. Read from it for dumping the state, write an
+integer >= 0 to set a new value.
+
+* `post_trace_points` +
+The number of additional trace points to be captured and reported both
+for the longest trace path and the frozen path. Default: 10. Read from
+it for dumping the state, write an integer >= 0 to set a new value. +
+*Note:* This value affects the latency of the tracer when it freezes a
+new "max" or "frozen" path, because `post_trace_points` will be copied
+from the frozen trace buffer to the new working buffer. Keep the number
+small to avoid noticeable impact on the system latency.
+
+* `back_trace_points` +
+The number of trace points backwards to be reported for the frozen trace
+path (including the freeze event itself). Default: 30. Read from it for
+dumping the state, write an integer >= 0 to set a new value.
+
+* `verbose` +
+Report more details in "max" or "frozen" listings, e.g. the I-pipe
+domain states, user-provided values, or the related name and priority of
+traced PIDs. Just give it a try. Default: off. Read from it for dumping
+the state, write 0 to disable and > 0 to enable.
+
+* `trigger` +
+Freeze the trace when a specific function entry is recorded. On writing
+a function's symbolic name to this entry, the kernel will try to resolve
+it and arm the trigger on success. Write an empty string to disable the
+trigger, read the value to obtain its current state.
+
+* `/proc/sys/kernel/ftrace_enabled` +
+Write 0 to it for disabling the function tracer's hooks in all kernel
+functions, 1 to enable it. Disabling widely eliminates the overhead of
+`CONFIG_IPIPE_TRACE_MCOUNT` so that instrumented kernels can be
+considered for production systems.
+
+[[interpreting-traces]]
+Interpreting Traces
+-------------------
+
+The following traces were taken on Pentium M 1.3 GHz system by running
+`latency -f`. The first one represents the longest path with hard IRQs
+disabled:
+
+`I-pipe worst-case tracing service on 2.6.17.13-adeos/ipipe-1.5-00` +
+`------------------------------------------------------------` +
+`Begin: `` cycles, Trace Points: `` (``/``), Length: ` +
+ +
+` +----- `` ('|': locked)` +
+` |+---- ` +
+` ||+--- ` +
+` |||+-- ` +
+` ||||+- `` ('*': domain stalled, '+': current, '#': current+stalled)` +
+` |||||                        +---------- `` ('+': > 1 us, '!': > 10 us)` +
+` |||||                        |        +- `` ('N')` +
+` |||||                        |        |` +
+`      ``    ``   ``    ``  `` ` +
+`     +``                  -6    0.154  cond_resched+0x8 (core_sys_select+0x1ee)` +
+`     +func                  -6    1.395  __copy_to_user_ll+0xa (core_sys_select+0x1fa)` +
+`     +func                  -5    0.148  copy_to_user+0xb (sys_select+0x143)` +
+`     +func                  -4    0.152  cond_resched+0x8 (copy_to_user+0x16)` +
+`     +func                  -4    0.252  cond_resched+0x8 (copy_to_user+0x3e)` +
+`     +func                  -4    0.596  __copy_to_user_ll+0xa (copy_to_user+0x49)` +
+`     +func                  -3    0.192  __ipipe_stall_root+0x8 (sysenter_tail+0x5)` +
+`     #func                  -3    0.153  __ipipe_unstall_iret_root+0x9 (sysenter_exit+0x0)` +
+` |   #``   ``    -3    0.161  __ipipe_unstall_iret_root+0x1e (sysenter_exit+0x0)` +
+` |   +``     0x8000000d    -3    3.423  __ipipe_unstall_iret_root+0x55 (sysenter_exit+0x0)` +
+`|   +`` ` +
+`:|   +func                   0    0.378  __ipipe_handle_irq+0xe (common_interrupt+0x25)` +
+`:|   +func                   0    0.257  __ipipe_ack_system_irq+0x8 (__ipipe_handle_irq+0x80)` +
+`:|   +func                   0    0.439  __ipipe_dispatch_wired+0xe (__ipipe_handle_irq+0x8a)` +
+`:|  # func                   1    0.150  xnintr_clock_handler+0x8 (__ipipe_dispatch_wired+0x7d)` +
+`:|  # func                   1    0.293  rthal_nmi_disarm+0x8 (xnintr_clock_handler+0xd)` +
+`:|  # func                   1    0.260  xnintr_irq_handler+0xe (xnintr_clock_handler+0x1c)` +
+`:|  # func                   1    0.148  xnpod_announce_tick+0x8 (xnintr_irq_handler+0x39)` +
+`:|  # func                   2    0.427  xntimer_do_tick_aperiodic+0xe (xnpod_announce_tick+0xf)` +
+`:|  # func                   2    0.304  xnthread_periodic_handler+0x8 (xntimer_do_tick_aperiodic+0x7b)` +
+`:|  # func                   2    0.283  xnpod_resume_thread+0xe (xnthread_periodic_handler+0x28)` +
+`:|  # `` `` ``     3    0.973  `` (xnthread_periodic_handler+0x28)` +
+`:|  # func                   4    0.908  rthal_nmi_arm+0xd (xntimer_do_tick_aperiodic+0x1e5)` +
+`:|  # func                   4    0.495  do_nmi+0xd (nmi_stack_correct+0x1d)` +
+`:|  # func                   5+   1.088  dummy_nmi_callback+0x8 (do_nmi+0x39)` +
+`:|  # func                   6    0.312  atomic_notifier_call_chain+0x8 (do_nmi+0x7b)` +
+`:|  # func                   6    0.543  notifier_call_chain+0xb (atomic_notifier_call_chain+0xd)` +
+`:|  # func                   7    0.545  rthal_nmi_watchdog_tick+0xe (do_nmi+0x97)` +
+`:|  # func                   7    0.523  default_nmi_watchdog_tick+0x8 (rthal_nmi_watchdog_tick+0x94)` +
+`:|  # func                   8+   1.325  write_watchdog_counter+0xd (default_nmi_watchdog_tick+0x84)` +
+`:|  # func                   9    0.285  xnpod_schedule+0xe (xnintr_irq_handler+0xec)` +
+`:|  # [24296] ``   ``    10    0.964  ` +
+`:|  # func                  11    0.547  __switch_to+0xe (xnpod_schedule+0x689)` +
+`:|  # [24014] samplin 99    11    0.633  ` +
+`:|  # func                  12    0.161  __ipipe_restore_pipeline_head+0xa (xnpod_wait_thread_period+0x1b7)` +
+`|  + end     0x80000000    12    0.695  __ipipe_restore_pipeline_head+0x8b (xnpod_wait_thread_period+0x1b7)` +
+` |  + begin   0x80000001    13    0.000  __ipipe_dispatch_event+0xcf (__ipipe_syscall_root+0x78)`
+
+The following path was triggered from user space by the `latency` test
+when it noticed a new maximum latency in its periodic benchmark thread:
+
+`I-pipe frozen back-tracing service on 2.6.17.13-adeos/ipipe-1.5-00` +
+`------------------------------------------------------------` +
+`Freeze: 1595261734220 cycles, Trace Points: 50 (+10)` +
+ +
+` +----- Hard IRQs ('|': locked)` +
+` |+---- ` +
+` ||+--- ` +
+` |||+-- Xenomai` +
+` ||||+- Linux ('*': domain stalled, '+': current, '#': current+stalled)` +
+` |||||                        +---------- Delay flag ('+': > 1 us, '!': > 10 us)` +
+` |||||                        |        +- NMI noise ('N')` +
+` |||||                        |        |` +
+`      Type    User Val.   Time    Delay  Function (Parent)` +
+`:    +func                 -55    0.143  snd_ac97_read+0xa [snd_ac97_codec] (snd_ac97_set_rate+0x117 [snd_ac97_codec])` +
+`:    +func                 -55    0.443  snd_ac97_valid_reg+0x8 [snd_ac97_codec] (snd_ac97_read+0x16 [snd_ac97_codec])` +
+`:    +func                 -54    0.480  snd_intel8x0_codec_read+0xe [snd_intel8x0] (snd_ac97_read+0x28 [snd_ac97_codec])` +
+`:    +func                 -54    0.425  snd_intel8x0_codec_semaphore+0xa [snd_intel8x0] (snd_intel8x0_codec_read+0x20 [snd_intel8x0])` +
+`:    +func                 -53    0.808  igetdword+0x8 [snd_intel8x0] (snd_intel8x0_codec_semaphore+0x42 [snd_intel8x0])` +
+`:    +func                 -52    0.824  igetbyte+0x8 [snd_intel8x0] (snd_intel8x0_codec_semaphore+0x60 [snd_intel8x0])` +
+`:    +func                 -52!  39.555  iagetword+0x8 [snd_intel8x0] (snd_intel8x0_codec_read+0x5c [snd_intel8x0])` +
+`:|   +begin   0xffffffd8   -12    0.140  common_interrupt+0x20 (iagetword+0x14 [snd_intel8x0])` +
+`:|   +func                 -12    0.183  __ipipe_handle_irq+0xe (common_interrupt+0x25)` +
+`:|   +func                 -12    0.156  __ipipe_ack_system_irq+0x8 (__ipipe_handle_irq+0x80)` +
+`:|   +func                 -11    0.145  __ipipe_dispatch_wired+0xe (__ipipe_handle_irq+0x8a)` +
+`:|  # func                 -11    0.135  xnintr_clock_handler+0x8 (__ipipe_dispatch_wired+0x7d)` +
+`:|  # func                 -11    0.164  rthal_nmi_disarm+0x8 (xnintr_clock_handler+0xd)` +
+`:|  # func                 -11    0.191  xnintr_irq_handler+0xe (xnintr_clock_handler+0x1c)` +
+`:|  # func                 -11    0.178  xnpod_announce_tick+0x8 (xnintr_irq_handler+0x39)` +
+`:|  # func                 -11    0.218  xntimer_do_tick_aperiodic+0xe (xnpod_announce_tick+0xf)` +
+`:|  # func                 -10    0.175  xnthread_periodic_handler+0x8 (xntimer_do_tick_aperiodic+0x7b)` +
+`:|  # func                 -10    0.146  xnpod_resume_thread+0xe (xnthread_periodic_handler+0x28)` +
+`:|  # [24014] samplin 99   -10    0.376  xnpod_resume_thread+0x57 (xnthread_periodic_handler+0x28)` +
+`:|  # func                 -10    0.422  rthal_nmi_arm+0xd (xntimer_do_tick_aperiodic+0x1e5)` +
+`:|  # func                  -9    0.164  xnpod_schedule+0xe (xnintr_irq_handler+0xec)` +
+`:|  # [ 5783] firefox -1    -9    0.508  xnpod_schedule+0x90 (xnintr_irq_handler+0xec)` +
+`:|  # func                  -9    0.393  __switch_to+0xe (xnpod_schedule+0x689)` +
+`:|  # [24014] samplin 99    -8    0.360  xnpod_schedule+0x75d (xnpod_suspend_thread+0x102)` +
+`:|  # func                  -8    0.161  __ipipe_restore_pipeline_head+0xa (xnpod_wait_thread_period+0x1b7)` +
+`:|  + end     0x80000000    -8    0.330  __ipipe_restore_pipeline_head+0x8b (xnpod_wait_thread_period+0x1b7)` +
+`:|  + begin   0x80000001    -7    0.193  __ipipe_dispatch_event+0xcf (__ipipe_syscall_root+0x78)` +
+`:|  + end     0x80000001    -7+   1.605  __ipipe_dispatch_event+0x15b (__ipipe_syscall_root+0x78)` +
+`:   + func                  -6    0.155  __ipipe_syscall_root+0xa (system_call+0x20)` +
+`:   + func                  -5    0.166  __ipipe_dispatch_event+0xe (__ipipe_syscall_root+0x78)` +
+`:|  + begin   0x80000001    -5    0.209  __ipipe_dispatch_event+0x2c (__ipipe_syscall_root+0x78)` +
+`:|  + end     0x80000001    -5    0.179  __ipipe_dispatch_event+0x9c (__ipipe_syscall_root+0x78)` +
+`:   + func                  -5    0.560  hisyscall_event+0xe (__ipipe_dispatch_event+0xac)` +
+`:   + func                  -4    0.142  __rt_timer_tsc2ns+0xc (hisyscall_event+0x140)` +
+`:   + func                  -4    0.391  __copy_from_user_ll+0xa (__rt_timer_tsc2ns+0x1e)` +
+`:   + func                  -4    0.496  rt_timer_tsc2ns+0xe (__rt_timer_tsc2ns+0x29)` +
+`:   + func                  -3    0.240  __copy_to_user_ll+0xa (__rt_timer_tsc2ns+0x3e)` +
+`:|  + begin   0x80000001    -3    0.195  __ipipe_dispatch_event+0xcf (__ipipe_syscall_root+0x78)` +
+`:|  + end     0x80000001    -3    0.439  __ipipe_dispatch_event+0x15b (__ipipe_syscall_root+0x78)` +
+`:   + func                  -2    0.136  __ipipe_syscall_root+0xa (system_call+0x20)` +
+`:   + func                  -2    0.187  __ipipe_dispatch_event+0xe (__ipipe_syscall_root+0x78)` +
+`:|  + begin   0x80000001    -2    0.198  __ipipe_dispatch_event+0x2c (__ipipe_syscall_root+0x78)` +
+`:|  + end     0x80000001    -2    0.179  __ipipe_dispatch_event+0x9c (__ipipe_syscall_root+0x78)` +
+`:   + func                  -2    0.340  hisyscall_event+0xe (__ipipe_dispatch_event+0xac)` +
+`:   + func                  -1    0.489  xnshadow_sys_trace+0xb (hisyscall_event+0x140)` +
+`:   + func                  -1    0.161  ipipe_trace_frozen_reset+0x9 (xnshadow_sys_trace+0x62)` +
+`:   + func                  -1    0.140  __ipipe_global_path_lock+0x9 (ipipe_trace_frozen_reset+0x13)` +
+`:|  + begin   0x80000001    -1    0.653  __ipipe_global_path_lock+0x1b (ipipe_trace_frozen_reset+0x13)` +
+`:|  + end     0x80000001     0    0.449  __ipipe_global_path_unlock+0x5b (ipipe_trace_frozen_reset+0x56)` +
+`<   + freeze  0x00009c9b     0    0.218  xnshadow_sys_trace+0x6b (hisyscall_event+0x140)` +
+` |  + begin   0x80000001     0    0.184  __ipipe_dispatch_event+0xcf (__ipipe_syscall_root+0x78)` +
+` |  + end     0x80000001     0    0.473  __ipipe_dispatch_event+0x15b (__ipipe_syscall_root+0x78)` +
+`    + func                   0    0.148  __ipipe_syscall_root+0xa (system_call+0x20)` +
+`    + func                   1    0.178  __ipipe_dispatch_event+0xe (__ipipe_syscall_root+0x78)` +
+` |  + begin   0x80000001     1    0.178  __ipipe_dispatch_event+0x2c (__ipipe_syscall_root+0x78)` +
+` |  + end     0x80000001     1    0.155  __ipipe_dispatch_event+0x9c (__ipipe_syscall_root+0x78)` +
+`    + func                   1    0.210  hisyscall_event+0xe (__ipipe_dispatch_event+0xac)` +
+`    + func                   1    0.140  __rt_task_wait_period+0xd (hisyscall_event+0x140)` +
+`    + func                   1    0.151  rt_task_wait_period+0x8 (__rt_task_wait_period+0x34)` +
+`    + func                   2    0.000  xnpod_wait_thread_period+0xe (rt_task_wait_period+0x33)`
+
+The following is from RTnet mailing list and contains explanatory notes
+to help you understand the content of a frozen file. It was taken to
+check if a frame is sent on the right time (2300us):
+
+`[... snipped by author ...]` +
+`> :    +end     0x8000000e -3762! 1463.108  default_idle+0x5a (cpu_idle+0x46)` +
+`> :|   +begin   0xfffffff4 -2299    0.249  common_interrupt+0x29 (default_idle+0x5c)` +
+ +
+`NIC IRQ arrives. They all go through common_interrupt, there is a "begin" mark, and this mark carries` +
+`0xfffffff4, which is ~IRQ = 11. Timestamp: about 2299 us before we froze the trace.` +
+ +
+`> :|   +func               -2299    0.185  __ipipe_handle_irq+0x14 (common_interrupt+0x2e)` +
+`> :|   +func               -2299    0.377  __ipipe_ack_irq+0x8 (__ipipe_handle_irq+0xaf)` +
+`> :|   +func               -2298    0.181  __ipipe_ack_level_irq+0x12 (__ipipe_ack_irq+0x19)` +
+`> :|   +func               -2298    0.157  mask_and_ack_8259A+0x14 (__ipipe_ack_level_irq+0x22)` +
+`> :|   +func               -2298+   4.369  __ipipe_spin_lock_irqsave+0x9 (mask_and_ack_8259A+0x29)` +
+`> :|   #func               -2294    0.269  __ipipe_spin_unlock_irqrestore+0x9 (mask_and_ack_8259A+0x73)` +
+`> :|   +func               -2293    0.201  __ipipe_dispatch_wired+0x16 (__ipipe_handle_irq+0x68)` +
+`> :|  # func               -2293    0.257  xnintr_irq_handler+0xe (__ipipe_dispatch_wired+0x9f)` +
+`> :|  # func               -2293+   1.033  e1000_intr+0x11 [rt_e1000] (xnintr_irq_handler+0x3b)` +
+`> :|  # func               -2292+   1.375  xnpod_get_time+0x14 (e1000_intr+0x39 [rt_e1000])` +
+`> :|  # func               -2290+   1.193  rt_eth_type_trans+0xe [rtnet] (e1000_intr+0xda [rt_e1000])` +
+`> :|  # func               -2289    0.711  rtnetif_rx+0x11 [rtnet] (e1000_intr+0xf1 [rt_e1000])` +
+`> :|  # func               -2289    0.181  e1000_alloc_rx_buffers+0xe [rt_e1000] (e1000_intr+0x42d [rt_e1000])` +
+`> :|  # func               -2288    0.559  alloc_rtskb+0x14 [rtnet] (e1000_alloc_rx_buffers+0x149 [rt_e1000])` +
+`> :|  # func               -2288    0.319  e1000_alloc_rx_buffers+0xe [rt_e1000] (e1000_intr+0x42d [rt_e1000])` +
+`> :|  # func               -2287    0.487  alloc_rtskb+0x14 [rtnet] (e1000_alloc_rx_buffers+0x149 [rt_e1000])` +
+`> :|  # func               -2287    0.491  rtdm_event_signal+0xa (e1000_intr+0x40a [rt_e1000])` +
+`> :|  # func               -2287+   3.526  xnsynch_flush+0xe (rtdm_event_signal+0x39)` +
+`> :|  # func               -2283    0.205  xnpod_resume_thread+0xe (xnsynch_flush+0x80)` +
+`> :|  # [   -1] -``-   98 -2283+   5.663  xnpod_resume_thread+0x56 (xnsynch_flush+0x80)` +
+ +
+`We wake up the task manager (priority 98, the name is unknown to the tracer, thus "-``-").` +
+ +
+`> :|  # func               -2277+   1.011  xnpod_schedule+0xe (rtdm_event_signal+0x65)` +
+`> :|  # func               -2276    0.351  rthal_irq_end+0x8 (xnintr_irq_handler+0x110)` +
+`> :|  # func               -2276    0.185  __ipipe_end_level_irq+0x8 (rthal_irq_end+0x22)` +
+`> :|  # func               -2276    0.159  enable_8259A_irq+0xa (__ipipe_end_level_irq+0x18)` +
+`> :|  # func               -2275+   1.339  __ipipe_spin_lock_irqsave+0x9 (enable_8259A_irq+0x1f)` +
+`> :|  # func               -2274    0.265  __ipipe_spin_unlock_irqrestore+0x9 (enable_8259A_irq+0x9c)` +
+`> :|  # func               -2274    0.845  xnpod_schedule+0xe (xnintr_irq_handler+0x12a)` +
+`> :|  # [ 3348] tdmacfg -1 -2273+   9.807  xnpod_schedule+0x90 (xnintr_irq_handler+0x12a)` +
+`> :|  # [   -1] -``-   98 -2263+   6.024  xnpod_schedule+0x554 (xnpod_suspend_thread+0x18b)` +
+`> :|  # func               -2257    0.425  __ipipe_restore_pipeline_head+0x11 (rtdm_event_timedwait+0x77)` +
+`> :|  + end     0x80000000 -2257+   2.308  __ipipe_restore_pipeline_head+0x7c (rtdm_event_timedwait+0x77)` +
+`> :   + func               -2254+   1.963  rt_stack_deliver+0xe [rtnet] (rt_stack_mgr_task+0x4d [rtnet])` +
+`> :|  + begin   0x80000000 -2252+   1.535  rt_stack_deliver+0x17b [rtnet] (rt_stack_mgr_task+0x4d [rtnet])` +
+`> :|  # func               -2251+   3.952  rtcap_rx_hook+0xa [rtcap] (rt_stack_deliver+0x44 [rtnet])` +
+`> :|  # func               -2247+   1.439  ipipe_trigger_irq+0xd (rtcap_rx_hook+0x8d [rtcap])` +
+`> :|  # func               -2245+   1.511  __ipipe_handle_irq+0x14 (ipipe_trigger_irq+0x14c)` +
+`> :|  # func               -2244    0.307  __ipipe_walk_pipeline+0xe (__ipipe_handle_irq+0x81)` +
+`> :|  # func               -2244    0.173  __ipipe_restore_pipeline_head+0x11 (rt_stack_deliver+0x16b [rtnet])` +
+`> :|  + end     0x80000000 -2244    0.249  __ipipe_restore_pipeline_head+0x7c (rt_stack_deliver+0x16b [rtnet])` +
+`> :|  + begin   0x80000000 -2243    0.777  rt_stack_deliver+0x15d [rtnet] (rt_stack_mgr_task+0x4d [rtnet])` +
+`> :|  # func               -2242    0.157  __ipipe_restore_pipeline_head+0x11 (rt_stack_deliver+0x197 [rtnet])` +
+`> :|  + end     0x80000000 -2242    0.685  __ipipe_restore_pipeline_head+0x7c (rt_stack_deliver+0x197 [rtnet])` +
+`> :   + func               -2242+   1.361  rtmac_proto_rx+0xc [rtmac] (rt_stack_deliver+0xf3 [rtnet])` +
+`> :   + func               -2240+   3.214  tdma_packet_rx+0x14 [tdma] (rtmac_proto_rx+0x75 [rtmac])` +
+ +
+`The TDMA RX callback.` +
+ +
+`> :|  + begin   0x80000000 -2237    0.229  tdma_packet_rx+0x5c0 [tdma] (rtmac_proto_rx+0x75 [rtmac])` +
+`> :|  # func               -2237    0.173  __ipipe_restore_pipeline_head+0x11 (tdma_packet_rx+0x5ac [tdma])` +
+`> :|  + end     0x80000000 -2237    0.195  __ipipe_restore_pipeline_head+0x7c (tdma_packet_rx+0x5ac [tdma])` +
+`> :   + func               -2236    0.193  _rtdm_synch_flush+0x16 (tdma_packet_rx+0x173 [tdma])` +
+`> :|  + begin   0x80000000 -2236    0.205  _rtdm_synch_flush+0x8b (tdma_packet_rx+0x173 [tdma])` +
+`> :|  # func               -2236+   1.601  xnsynch_flush+0xe (_rtdm_synch_flush+0x44)` +
+`> :|  # func               -2234    0.167  xnpod_resume_thread+0xe (xnsynch_flush+0x80)` +
+`> :|  # [   -1] -``-   99 -2234+   1.125  xnpod_resume_thread+0x56 (xnsynch_flush+0x80)` +
+`> :|  # func               -2233    0.559  xnpod_schedule+0xe (_rtdm_synch_flush+0x4e)` +
+`> :|  # [   -1] -``-   98 -2233+   2.216  xnpod_schedule+0x90 (_rtdm_synch_flush+0x4e)` +
+`> :|  # [   -1] -``-   99 -2230    0.331  xnpod_schedule+0x554 (xnpod_suspend_thread+0x18b)` +
+ +
+`We woke up and switched to the TDMA worker thread (prio 99).` +
+ +
+`> :|  # func               -2230    0.205  __ipipe_restore_pipeline_head+0x11 (rtdm_event_timedwait+0x77)` +
+`> :|  + end     0x80000000 -2230    0.955  __ipipe_restore_pipeline_head+0x7c (rtdm_event_timedwait+0x77)` +
+`> :|  + begin   0x80000000 -2229+   3.488  tdma_worker+0x58f [tdma] (xnarch_thread_redirect+0x25)` +
+`> :|  # func               -2225    0.169  __ipipe_restore_pipeline_head+0x11 (tdma_worker+0x6d7 [tdma])` +
+`> :|  + end     0x80000000 -2225    0.189  __ipipe_restore_pipeline_head+0x7c (tdma_worker+0x6d7 [tdma])` +
+`> :   + func               -2225    0.225  rtdm_task_sleep_until+0x14 (tdma_worker+0x191 [tdma])` +
+ +
+`The worker is supending itself now. As the slot offset is 2300 us, we should wake up in about that time` +
+`(minus some correction calculations that are irrelevant here).` +
+ +
+`> :|  + begin   0x80000000 -2225    0.197  rtdm_task_sleep_until+0xbb (tdma_worker+0x191 [tdma])` +
+`[... snipped by author ...]` +
+`> :    +end     0x8000000e -2151! 2137.326  default_idle+0x5a (cpu_idle+0x46)` +
+`> :|   +begin   0xffffffff   -14    0.449  common_interrupt+0x29 (default_idle+0x5c)` +
+ +
+`Timer IRQ.` +
+ +
+`> :|   +func                 -13+   1.437  __ipipe_handle_irq+0x14 (common_interrupt+0x2e)` +
+`> :|   +func                 -12    0.499  __ipipe_ack_irq+0x8 (__ipipe_handle_irq+0xaf)` +
+`> :|   +func                 -12    0.169  __ipipe_ack_level_irq+0x12 (__ipipe_ack_irq+0x19)` +
+`> :|   +func                 -11    0.157  mask_and_ack_8259A+0x14 (__ipipe_ack_level_irq+0x22)` +
+`> :|   +func                 -11+   1.431  __ipipe_spin_lock_irqsave+0x9 (mask_and_ack_8259A+0x29)` +
+`> :|   #func                 -10    0.255  __ipipe_spin_unlock_irqrestore+0x9 (mask_and_ack_8259A+0xf5)` +
+`> :|   +func                 -10    0.263  __ipipe_dispatch_wired+0x16 (__ipipe_handle_irq+0x68)` +
+`> :|  # func                  -9    0.199  xnintr_clock_handler+0x8 (__ipipe_dispatch_wired+0x9f)` +
+`> :|  # func                  -9    0.215  xnintr_irq_handler+0xe (xnintr_clock_handler+0x17)` +
+`> :|  # func                  -9    0.217  xnpod_announce_tick+0x8 (xnintr_irq_handler+0x3b)` +
+`> :|  # func                  -9    0.525  xntimer_do_tick_aperiodic+0xe (xnpod_announce_tick+0xf)` +
+`> :|  # func                  -8    0.425  xnthread_timeout_handler+0x8 (xntimer_do_tick_aperiodic+0x1f5)` +
+`> :|  # func                  -8    0.169  xnpod_resume_thread+0xe (xnthread_timeout_handler+0x1e)` +
+`> :|  # [   -1] -``-   99    -8+   5.091  xnpod_resume_thread+0x56 (xnthread_timeout_handler+0x1e)` +
+`> :|  # func                  -2    0.201  xnpod_schedule+0xe (xnintr_irq_handler+0x12a)` +
+`> :|  # [    0] -``-   -1    -2    0.881  xnpod_schedule+0x90 (xnintr_irq_handler+0x12a)` +
+`> :|  # [   -1] -``-   99    -1    0.401  xnpod_schedule+0x554 (xnpod_suspend_thread+0x18b)` +
+`> :|  # func                  -1    0.205  __ipipe_restore_pipeline_head+0x11 (rtdm_task_sleep_until+0xa0)` +
+`> :|  + end     0x80000000    -1+   1.229  __ipipe_restore_pipeline_head+0x7c (rtdm_task_sleep_until+0xa0)` +
+`> <   + freeze  0x00000000     0    1.775  tdma_worker+0x198 [tdma] (xnarch_thread_redirect+0x25)` +
+ +
+`The worker got woken up right on time and will now prepare to send a packet.` +
+ +
+`>     + func                   1    1.747  printk+0x14 (tdma_worker+0x1bb [tdma])` +
+ +
+`A printk instrumentation (output nicely postponed until Linux runs again).` +
+ +
+`>     + func                   3    0.189  __ipipe_spin_lock_irqsave+0x9 (printk+0x6b)` +
+`>  |  + begin   0x80000001     3    0.743  __ipipe_spin_lock_irqsave+0x3d (printk+0x6b)` +
+`>  |  # func                   4    0.501  vscnprintf+0xc (printk+0x93)` +
+`>  |  # func                   4    6.578  vsnprintf+0xe (vscnprintf+0x1b)` +
+`>  |  # func                  11    1.991  number+0xe (vsnprintf+0x2f9)` +
+`>  |  # func                  13    0.221  __ipipe_spin_unlock_irqrestore+0x9 (printk+0xa9)` +
+`>  |  + end     0x80000001    13    0.293  __ipipe_spin_unlock_irqrestore+0x2d (printk+0xa9)` +
+`>     + func                  14    0.229  ipipe_trigger_irq+0xd (printk+0xb7)` +
+`>  |  + begin   0x80000001    14    0.187  ipipe_trigger_irq+0x3a (printk+0xb7)` +
+`>  |  + func                  14    0.729  __ipipe_handle_irq+0x14 (ipipe_trigger_irq+0xb6)` +
+`>  |  + func                  15    0.251  __ipipe_walk_pipeline+0xe (__ipipe_handle_irq+0x81)` +
+`>  |  + end     0x80000001    15    0.489  ipipe_trigger_irq+0xc0 (printk+0xb7)` +
+`>     + func                  15    0.143  printk+0x14 (tdma_worker+0x1d5 [tdma])` +
+`>     + func                  16    0.393  __ipipe_spin_lock_irqsave+0x9 (printk+0x6b)` +
+`>  |  + begin   0x80000001    16    0.155  __ipipe_spin_lock_irqsave+0x3d (printk+0x6b)` +
+`>  |  # func                  16    0.141  vscnprintf+0xc (printk+0x93)` +
+`>  |  # func                  16    0.319  vsnprintf+0xe (vscnprintf+0x1b)` +
+`>  |  # func                  17    0.499  number+0xe (vsnprintf+0x2f9)` +
+`>  |  # func                  17    0.147  __ipipe_spin_unlock_irqrestore+0x9 (printk+0xa9)` +
+`>  |  + end     0x80000001    17    0.535  __ipipe_spin_unlock_irqrestore+0x2d (printk+0xa9)` +
+`>     + func                  18    1.855  tdma_xmit_request_cal_frame+0xe [tdma] (tdma_worker+0x1f3 [tdma])` +
+ +
+`Here we go: the Calibration frame is about to be sent!` +
+ +
+`>     + func                  20    0.201  alloc_rtskb+0x14 [rtnet] (tdma_xmit_request_cal_frame+0x31 [tdma])` +
+`>  |  + begin   0x80000000    20    0.431  alloc_rtskb+0xcb [rtnet] (tdma_xmit_request_cal_frame+0x31 [tdma])` +
+`>  |  # func                  20    0.157  __ipipe_restore_pipeline_head+0x11 (alloc_rtskb+0xb7 [rtnet])` +
+`>  |  + end     0x80000000    20    0.561  __ipipe_restore_pipeline_head+0x7c (alloc_rtskb+0xb7 [rtnet])` +
+`>     + func                  21    1.939  rt_eth_header+0x14 [rtnet] (tdma_xmit_request_cal_frame+0xc7 [tdma])` +
+`>     + func                  23    0.213  rtcap_xmit_hook+0xe [rtcap] (tdma_xmit_request_cal_frame+0x11c [tdma])` +
+`>  |  + begin   0x80000000    23    0.563  rtcap_xmit_hook+0x11b [rtcap] (tdma_xmit_request_cal_frame+0x11c [tdma])` +
+`>  |  # func                  24    0.157  __ipipe_restore_pipeline_head+0x11 (rtcap_xmit_hook+0x127 [rtcap])` +
+`>  |  + end     0x80000000    24    0.193  __ipipe_restore_pipeline_head+0x7c (rtcap_xmit_hook+0x127 [rtcap])` +
+`>     + func                  24    0.347  xnpod_get_time+0x14 (rtcap_xmit_hook+0x9f [rtcap])` +
+`>  |  + begin   0x80000000    24    0.227  rtcap_xmit_hook+0x16b [rtcap] (tdma_xmit_request_cal_frame+0x11c [tdma])` +
+`>  |  # func                  25    0.157  __ipipe_restore_pipeline_head+0x11 (rtcap_xmit_hook+0x157 [rtcap])` +
+`>  |  + end     0x80000000    25    0.173  __ipipe_restore_pipeline_head+0x7c (rtcap_xmit_hook+0x157 [rtcap])` +
+`>     + func                  25    0.169  ipipe_trigger_irq+0xd (rtcap_xmit_hook+0xfd [rtcap])` +
+`>  |  + begin   0x80000001    25    1.201  ipipe_trigger_irq+0x3a (rtcap_xmit_hook+0xfd [rtcap])` +
+`>  |  + func                  26    0.207  __ipipe_handle_irq+0x14 (ipipe_trigger_irq+0xb6)` +
+`>  |  + func                  27    0.163  __ipipe_walk_pipeline+0xe (__ipipe_handle_irq+0x81)` +
+`>  |  + end     0x80000001    27    0.837  ipipe_trigger_irq+0xc0 (rtcap_xmit_hook+0xfd [rtcap])` +
+`>     + func                  28    2.660  e1000_xmit_frame+0xe [rt_e1000] (rtcap_xmit_hook+0x108 [rtcap])` +
+ +
+`The driver does its Xmit work.` +
+ +
+`>  |  + begin   0x80000000    30    0.331  e1000_xmit_frame+0x411 [rt_e1000] (rtcap_xmit_hook+0x108 [rtcap])` +
+`>  |  # func                  31    0.157  __ipipe_restore_pipeline_head+0x11 (e1000_xmit_frame+0x42f [rt_e1000])` +
+`>  |  + end     0x80000000    31    1.111  __ipipe_restore_pipeline_head+0x7c (e1000_xmit_frame+0x42f [rt_e1000])` +
+`>  |  + begin   0x80000000    32    1.015  e1000_xmit_frame+0x421 [rt_e1000] (rtcap_xmit_hook+0x108 [rtcap])` +
+`>  |  # func                  33    0.555  xnpod_get_time+0x14 (e1000_xmit_frame+0x311 [rt_e1000])` +
+`>  |  # func                  33    0.183  __ipipe_restore_pipeline_head+0x11 (e1000_xmit_frame+0x362 [rt_e1000])` +
+`>  |  + end     0x80000000    34    1.067  __ipipe_restore_pipeline_head+0x7c (e1000_xmit_frame+0x362 [rt_e1000])` +
+`>  |  + begin   0x80000000    35    0.981  tdma_worker+0x6c8 [tdma] (xnarch_thread_redirect+0x25)` +
+`>  |  # func                  36    0.157  __ipipe_restore_pipeline_head+0x11 (tdma_worker+0x59f [tdma])` +
+`>  |  + end     0x80000000    36    0.207  __ipipe_restore_pipeline_head+0x7c (tdma_worker+0x59f [tdma])` +
+`>     + func                  36    0.163  rtdm_event_wait+0xb (tdma_worker+0x413 [tdma])` +
+ +
+`And the worker finally falls asleep again, this time waiting for the next Sync event.` +
+ +
+`>     + func                  36    0.173  rtdm_event_timedwait+0x14 (rtdm_event_wait+0x1b)` +
+`>  |  + begin   0x80000000    36    0.217  rtdm_event_timedwait+0x92 (rtdm_event_wait+0x1b)` +
+`>  |  # func                  37    0.225  xnsynch_sleep_on+0xe (rtdm_event_timedwait+0x128)` +
+`>  |  # func                  37    0.407  xnpod_suspend_thread+0xe (xnsynch_sleep_on+0x3c2)` +
+`>  |  # func                  37    0.509  xnpod_schedule+0xe (xnpod_suspend_thread+0x18b)` +
+`>  |  # [   -1] -``-   99    38    0.533  xnpod_schedule+0x90 (xnpod_suspend_thread+0x18b)` +
+`>  |  # func                  38    1.521  __switch_to+0xe (xnpod_schedule+0x47c)` +
+`>  |  # [    0] -``-   -1    40    0.799  xnpod_schedule+0x554 (xnintr_irq_handler+0x12a)` +
+ +
+`Back to Linux (prio -1).` +
+`[... snipped by author ...]` +
+` `
+
+[[api]]
+API
+---
+
+[[xenomai-tracer-api]]
+Xenomai Tracer API
+~~~~~~~~~~~~~~~~~~
+
+The following services are available both in kernel and user space by
+including `nucleus/trace.h`. If the tracer is not enabled, all service
+calls return `-ENOSYS`. This abstraction of the I-pipe tracer is also
+intended to map on Ingo Molnar's latency tracer for -rt one day.
+
+* `int xntrace_max_begin(unsigned long v)`
+* `int xntrace_max_end(unsigned long v)`
+* `int xntrace_max_reset(void)`
+* `int xntrace_user_start(void)`
+* `int xntrace_user_stop(unsigned long v)`
+* `int xntrace_user_freeze(unsigned long v, int once)`
+* `int xntrace_special(unsigned char id, unsigned long v)`
+* `int xntrace_special_u64(unsigned char id, unsigned long long v)`
+
+The next services are only available to kernel space users.
+
+* `int xntrace_pid(pid_t pid, short prio)`
+* `int xntrace_panic_freeze(void)`
+* `int xntrace_panic_dump(void)`
+
+[[i-pipe-tracer-api]]
+I-pipe Tracer API
+~~~~~~~~~~~~~~~~~
+
+This is the low-level I-pipe tracer API. It is only available if
+`CONFIG_IPIPE_TRACE` is enabled.
+
+* `void ipipe_trace_begin(unsigned long v)`
+* `void ipipe_trace_end(unsigned long v)`
+* `void ipipe_trace_freeze(unsigned long v)`
+* `void ipipe_trace_special(unsigned char special_id, unsigned long v)`
+* `void ipipe_trace_pid(pid_t pid, short prio)`
+* `int ipipe_trace_max_reset(void)`
+* `int ipipe_trace_frozen_reset(void)`
+* `void ipipe_trace_panic_freeze(void)`
+* `void ipipe_trace_panic_dump(void)`
+* `void ipipe_trace_event(unsigned char id, unsigned long delay_tsc)`
+

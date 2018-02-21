@@ -1,0 +1,36 @@
+Resolving Error Codes
+=====================
+:author:	Jan Kiszka
+:email:	 	jan.kiszka@siemens.com
+:categories:	Application
+:tags:		tips
+:tags:		debugging
+
+What the heck does "error -19" means? Ever asked yourself or some
+mailing list this question? Here is a script (I called it _errno_) to
+answer this automatically:
+
+--------------------------------------------------------------------------------------
+#!/bin/sh
+
+ERRNO_HEADERS="/usr/include/asm-generic/errno-base.h /usr/include/asm-generic/errno.h"
+
+if [ "$1" = "" ]; then
+    ERR="[[:digit:]]+"
+else
+    ERR=$1
+fi
+
+cat $ERRNO_HEADERS | grep -E "[[:space:]]$ERR[[:space:]]/"
+--------------------------------------------------------------------------------------
+
+Now, when you run
+
+`errno 19`
+
+you will get this:
+
+`#define    ENODEV      19  /* No such device */`
+
+Additionally, a list of all defined error constants can be retrieved by
+invoking the script without parameters.

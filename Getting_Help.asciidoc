@@ -1,0 +1,31 @@
+Getting help
+============
+
+If you need pointers to understand what Xenomai is all about, and how
+to find resources on this project, you may want to have a look at this
+link:Home[read-me-first document] intended to newcomers.
+
+If you encounter an issue with Xenomai which is not covered by the
+link:Troubleshooting_A_Dual_Kernel_Configuration[dual
+kernel troubleshooting guide], or the
+link:Troubleshooting_A_Single_Kernel_Configuration[single
+kernel troubleshooting guide] depending on your configuration, then
+the best place to find help is the main e-mail discussion list of the
+Xenomai project.
+
+[TIP]
+Over the years, many issues have been discussed on the list, so you
+may first want to search the
+http://www.xenomai.org/pipermail/xenomai/[list archive] using your
+favorite search engine for a solution to a similar/same problem.
+
+You will have to subscribe to the Xenomai e-mail discussion list at
+https://www.xenomai.org/mailman/listinfo/xenomai[this address] before
+posting your question. The mailing list _netiquette_ is given at
+link:Mailing_Lists[this address].
+
+[TIP]
+In order to maximize your chances of receiving quick and accurate
+responses to your question on the mailto:xenomai@xenomai.org[mailing
+list], you may want to read and follow
+link:Asking_For_Help[these advices].
