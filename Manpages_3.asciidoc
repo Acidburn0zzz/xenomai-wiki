@@ -1,0 +1,18 @@
+Commands and utilities
+======================
+
+- Test programs
+* http://www.xenomai.org/documentation/xenomai-3/html/man1/clocktest/index.html[clocktest(1)]
+* http://www.xenomai.org/documentation/xenomai-3/html/man1/dohell/index.html[dohell(1)]
+* http://www.xenomai.org/documentation/xenomai-3/html/man1/latency/index.html[latency(1)]
+* http://www.xenomai.org/documentation/xenomai-3/html/man1/switchtest/index.html[switchtest(1)]
+* http://www.xenomai.org/documentation/xenomai-3/html/man1/xeno-test/index.html[xeno-test(1)]
+- Utilities
+* http://www.xenomai.org/documentation/xenomai-3/html/man1/autotune/index.html[autotune(1)]
+* http://www.xenomai.org/documentation/xenomai-3/html/man1/rtcanconfig/index.html[rtcanconfig(1)]
+* http://www.xenomai.org/documentation/xenomai-3/html/man1/rtcanrecv/index.html[rtcanrecv(1)]
+* http://www.xenomai.org/documentation/xenomai-3/html/man1/rtcansend/index.html[rtcansend(1)]
+* http://www.xenomai.org/documentation/xenomai-3/html/man1/slackspot/index.html[slackspot(1)]
+* http://www.xenomai.org/documentation/xenomai-3/html/man1/xeno/index.html[xeno(1)]
+* http://www.xenomai.org/documentation/xenomai-3/html/man1/xeno-config/index.html[xeno-config(1)]
+* http://www.xenomai.org/documentation/xenomai-3/html/man1/corectl/index.html[corectl(1)]

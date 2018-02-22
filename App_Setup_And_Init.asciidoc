@@ -1,10 +1,11 @@
-Application setup and init
-==========================
-
 :author:	Philippe Gerum
 :email:	 	rpm@xenomai.org
 :categories:	Application
 :tags:		init, main-routine, C++
+:toc:
+
+Application setup and init
+==========================
 
 NOTE: This guide is specific to Xenomai 3. Most of the features
 described here have no counterparts in Xenomai 2.
@@ -112,17 +113,19 @@ The list of standard options is as follows:
 	this pool.  In absence of suffix, the value is normally
 	interpreted as a count of bytes, except if lower than 65536,
 	see below.
-[NOTE]
+
 	If the value is lower than 65536 with no suffix, it is
 	interpreted as a count of kilobytes for backward compatibility
 	purpose with the former syntax. This work around may disappear
 	anytime when transitioning to Xenomai 3.0 final, so make sure
 	to fix any launch script(s) accordingly. Typically, suffixing
 	the current value with a 'K' multiplier would address the issue.
+
 [CAUTION]
 	The shared heap is living in the /tmpfs filesystem,
 	and therefore consumes RAM space.
 
+[horizontal]
 *--cpu-affinity=<cpu[,cpu]...>*::
 
 	The set of CPUs available for running Xenomai threads created
@@ -287,9 +290,10 @@ over the +set_config_tunable()+ call.
 The Xenomai libraries define two sets of built-in tunables.
 
 .Configuration tunables
-[options="header",grid="cols",frame="topbot",cols="m,2*d"]
-|================================================================================
+[width="75%",options="header",grid="cols",frame="topbot",cols="<s,m,d"]
+|===
 ^|NAME              ^|DESCRIPTION                    ^|DEFAULT
+
  |cpu_affinity       | same as --cpu-affinity option  | any online CPU
  |no_mlock           | same as --no-mlock option      | off
  |no_sanity          | same as --no-sanity option     | !CONFIG_XENO_SANITY
@@ -298,15 +302,17 @@ The Xenomai libraries define two sets of built-in tunables.
  |session_label      | same as --session option       | none (i.e. anonymous)
  |registry_root      | same as --registry-root option   | CONFIG_XENO_REGISTRY_ROOT
  |shared_registry    | same as --shared-registry option | off (i.e. private)
-|===============================================================================
+|===
+
 
 .Runtime tunables
-[options="header",grid="cols",frame="topbot",cols="m,2*d"]
-|============================================================================
+[options="header",grid="cols",frame="topbot",cols="<s,m,d"]
+|===
 ^|NAME              ^|DESCRIPTION                    ^|DEFAULT
+
 |verbosity_level    | same as --verbose option       | 1
 |trace_level        | same as --trace option         | 0
-|============================================================================
+|===
 
 === Defining your own tunables
 
@@ -377,7 +383,8 @@ static inline read_runtime_tunable(foo, int)
 
 int setting = get_runtime_tunable(foo);
 set_runtime_tunable(foo, !setting);
------------------------------------------------------
+
+------------------------------------------------------
 
 [[changing-default-tunable-value]]
 === Overriding factory default values of tunables

@@ -1,5 +1,7 @@
-Embedded Hardware
-=================
+:toc:
+
+Supported Hardware
+==================
 
 Dual kernel configuration
 -------------------------
@@ -273,7 +275,7 @@ platforms.
 x86
 ~~~
 
-All x86-compatible 32/64bit processor types starting from i486 CPUs
+All x86-compatible 32/64bit processor types starting from i586 CPUs
 and better are supported. Lower latencies are achieved when a TSC and
 local APIC are available from the CPU. Make sure the processor type
 you pick in your kernel configuration actually matches your CPU. In

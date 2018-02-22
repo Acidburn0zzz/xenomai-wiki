@@ -1,5 +1,7 @@
-RTnet Howto
-===========
+:toc:
+
+RTnet Basics
+============
 
 With Ethernet, the communications are not deterministic because of the
 collision which can occur between several host on a network with a hub,

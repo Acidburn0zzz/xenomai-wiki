@@ -1,20 +1,19 @@
+:toc:
+
 FAQ
 ===
 
 On what hardware does Xenomai run?
 ----------------------------------
 
-Embedded hardware, desktop, server. This said, Xenomai has a strong
-focus on embedded systems, and most Xenomai ports nowadays target
-those platforms.
-
-See the link:Embedded_Hardware[embedded hardware list], and the
-link:Other_Hardware[other-hardware list].
+link:Supported_Hardware[Embedded hardware, desktop, server]. This
+said, Xenomai has a strong focus on embedded systems, and most Xenomai
+ports nowadays target those platforms.
 
 Is my embedded setup supported by Xenomai?
 ------------------------------------------
 
-See the link:Embedded_Hardware[embedded hardware list].
+See the link:Supported_Hardware[hardware list].
 
 If your board is not listed above, you may want to get more information
 from the mailto:xenomai@xenomai.org[Xenomai mailing list].
@@ -76,7 +75,7 @@ kernel as soon as GDB regains control).
 How to compile a RTDM-based driver?
 -----------------------------------
 
-See link:Building_Applications_For_Xenomai_3_X#compiling_a_rtdm_Based_module[there].
+See link:Building_Applications_For_Xenomai_3#compiling_a_rtdm_Based_module[there].
 
 Running scripts/bootstrap complains about LT_SYS_SYMBOL_USCORE
 --------------------------------------------------------------

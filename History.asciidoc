@@ -1,18 +1,5 @@
-About Xenomai
-=============
-
-Xenomai is a Free Software project in which engineers from a wide
-background collaborate to build a versatile real-time framework for
-the Linux(C) platform.
-
-The main project goal is to help migrating industrial applications
-from proprietary real-time systems to Linux.
-
-Xenomai is about making various real-time operating system APIs
-available to Linux-based platforms. When the target Linux kernel
-cannot meet the requirements with respect to response time
-constraints, Xenomai can also supplement it for delivering stringent
-real-time guarantees based on an original co-kernel technology.
+Xenomai history
+===============
 
 Originally named _Xenodaptor_, the project that would soon become
 Xenomai http://www.mail-archive.com/rtl@fsmlabs.com/msg01156.html[was
@@ -37,7 +24,7 @@ I-pipe], followed a year after by
 http://article.gmane.org/gmane.linux.real-time.rtai/3248[RTAI].
 
 In the 2003-2005 period, the original core team members - namely
-link:Gilles_Chanteperdrix_1975_2016[Gilles Chanteperdrix] and
+link:Gilles_Chanteperdrix[Gilles Chanteperdrix] and
 mailto:rpm@xenomai.org[Philippe Gerum] - contributed significantly to
 the https://lwn.net/Articles/61013/[RTAI project], before focusing
 back on Xenomai's own goals, which led to the release of Xenomai 2.0
@@ -46,13 +33,3 @@ in October 2005.
 Since then, Xenomai has been actively maintained and ported to various
 CPU architectures, for a user base mainly involved in the industrial
 automation industry.
-
-The link:Introducing_Xenomai_3[Xenomai 3] architecture introduces
-a paradigm shift, as users are no more tied to the dual kernel configuration
-enabled by the I-pipe, but may run the real-time APIs and their applications
-transparently over a single kernel configuration as well.
-
-
-
-[NOTE]
-Site header courtesy of link:http://www.freewebheaders.com[Free Web Headers].

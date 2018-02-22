@@ -1,9 +1,11 @@
-Running Xenomai on VirtualBox
-=============================
 :author:		Jorge Ramirez-Ortiz
 :email:			jro@xenomai.org
 :categories:		Application
 :tags:			virtualbox, QEMU
+:toc:
+
+Running Xenomai on VirtualBox
+=============================
 
 
 Introduction

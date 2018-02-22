@@ -8,7 +8,7 @@ The current Xenomai development takes place into the
 http://git.xenomai.org/xenomai-3.git/[xenomai-3 repository].
 
 Users running Xenomai in
-link:Home#How_does_Xenomai_deliver_real_Time[dual kernel] mode
+link:Start_Here#How_does_Xenomai_deliver_real_Time[dual kernel] mode
 can find detailed information about the
 link:Getting_The_I_Pipe_Patch[I-pipe development trees].
 

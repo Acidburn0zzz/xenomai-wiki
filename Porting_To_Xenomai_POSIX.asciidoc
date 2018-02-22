@@ -1,8 +1,10 @@
-Porting a Linux application to Xenomai dual kernel
-==================================================
 :author:	Gilles Chanteperdrix
 :categories:	Application
 :tags:		posix
+:toc:
+
+Porting a Linux application to Xenomai dual kernel
+==================================================
 
 This document is a list of recipes I used to modify non real-time
 Linux applications to get them, or more precisely, some part of them, to
@@ -561,12 +563,11 @@ For instance, when one thread suppresses data, and does not want a
 second thread to use the data which has been freed, the first thread may
 notify the second.
 
-link:#before_3.0[Starting with Xenomai 3], an XDDP socket can be
-used as a two ways communication between real-time and non real-time
-select loops, the select() service can be used on both ends. You can find
-examples using XDDP sockets
-link:/documentation/xenomai-3/html/api/xddp-label_8c-example.html[here]
-and link:/documentation/xenomai-3/html/api/xddp-echo_8c-example.html[here].
+link:#before_3.0[Starting with Xenomai 3], an XDDP socket can be used
+as a two way communication channel between real-time and non real-time
+select loops, the select() service can be used on both ends. You can
+find examples using XDDP sockets in the +demo/posix/cobalt+ directory
+of the Xenomai source tree.
 
 Changes history
 ---------------

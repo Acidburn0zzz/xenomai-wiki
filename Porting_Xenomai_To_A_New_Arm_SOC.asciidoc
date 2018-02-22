@@ -1,8 +1,10 @@
-Porting Xenomai dual kernel to a new ARM SoC
-============================================
 :author:	Gilles Chanteperdrix
 :categories:	Core
 :tags:		i-pipe, arm
+:toc:
+
+Porting Xenomai dual kernel to a new ARM SoC
+============================================
 
 This document will try and guide you through the task of porting
 the I-pipe core to a new ARM SoC. This is all that is necessary to get

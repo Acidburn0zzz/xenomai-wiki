@@ -1,55 +1,12 @@
-RTnet Installation
-==================
+:toc:
 
-This page describes the general installation procedures to follow for
-installing RTnet with Xenomai. This is intended as a guide to the
-beginner, multiple deviations to these instructions can be implemented
-for custom installations.
+Setting up RTnet 
+================
 
-[[installing-rtnet]]
-Installing RTnet
-----------------
-
-* The basic installation of Xenomai should be completed first, see the
-http://www.xenomai.org/documentation/xenomai-2.6/html/README.INSTALL/[Xenomai]
-documentation regarding this.
-* The newest RTnet source files (*.tar.bz2) need to be downloaded from
-the http://www.rtnet.org[RTnet] site and extracted to the _/usr/src_
-folder on your local machine.
-* A symbolic link (shortcut) is created to the extracted RTnet source in
-_/usr/src_, it should be named _rtnet_, this is for quick access to the
-RTnet folder.
-* The permission and ownership flags of the RTnet folder should be set
-to root.
-* Change the working folder to RTnet and call the gconfig utility as
-follows:
-
---------------
-$ cd rtnet
-$ make gconfig
---------------
-
-* Select the following option in the gconfig menu:
-
-1.  Variant->Xenomai 2.1
-2.  Add-ons->Real-time Capturing Support->ON
-3.  Examples->RTnet Application Examples->ON
-
-* Save the setup and exit.
-* Run the make and make install in the RTnet folder as follows:
-
----------------------
-$ make
-$ make install
----------------------
-
-The RTnet installation folder will be created under _/usr/local/rtnet_
-
-* Create the RTnet management device node
-
---------------------------------
-$ sudo mknod /dev/rtnet c 10 240
---------------------------------
+This page describes the steps for setting up the RTnet stack shipped
+with Xenomai 3. This is intended as a guide to the beginner, multiple
+deviations to these instructions can be implemented for custom
+installations.
 
 [[testing-with-a-single-node-local-loopback]]
 Testing with a single node (local loopback)
@@ -86,10 +43,6 @@ $ sudo rmmod 8139too
   for RTnet operations. If you have built the RTDM support of Xenomai
   2.x into the kernel, or you are running Xenomai 3.x, nothing has to
   be done. Otherwise issue:
-
--------------------------
-$ sudo modprobe xeno_rtdm
--------------------------
 
 * Edit the following parameters in the
 link:Rtnet_Configuration_File[RTnet
@@ -139,7 +92,7 @@ Testing with multiple nodes
 
 The testing procedure is as follows:
 
-* Disconnect the RTnet nodes from the normal non real-time ehternet
+* Disconnect the RTnet nodes from the normal non real-time ethernet
 network.
 
 * Connect the RTnet nodes to each other using a switch (or hub).
@@ -192,10 +145,9 @@ $ sudo ./rtnet stop
 Debugging RTnet
 ---------------
 
-If RTnet doesn't work, or only works intermittedly, it is likely due
+If RTnet doesn't work, or only works intermittently, it is likely due
 to one of these known issues:
 
-* _/dev/rtnet_ device node is missing.
 * Xenomai is not working as expected on your hardware.
 * The Linux driver for the real-time network device was built into the
 kernel and blocks the hardware.

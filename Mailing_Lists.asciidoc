@@ -4,9 +4,9 @@ Mailing Lists
 
 == Main e-mail discussion list ==
 
-You may register to
-https://www.xenomai.org/mailman/listinfo/xenomai/[this discussion list]
-for getting help, reporting issues, suggesting ideas and sending
+You may subscribe to
+https://www.xenomai.org/mailman/listinfo/xenomai/[this discussion
+list] for getting help, reporting issues, suggesting ideas and sending
 patches.
 
 The proper etiquette for posting to this list is as follows:
@@ -31,6 +31,6 @@ help, use the discussion list instead.
 == GIT e-mail notifications ==
 
 Commit e-mail notifications are enabled for the GIT repositories we
-maintain, you may register to
-https://www.xenomai.org/mailman/listinfo/xenomai-git/[this mailing list]
-for tracking progress of our development.
+maintain, you may subscribe to
+https://www.xenomai.org/mailman/listinfo/xenomai-git/[this mailing
+list] for tracking progress of our development.

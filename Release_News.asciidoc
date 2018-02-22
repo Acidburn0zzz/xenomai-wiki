@@ -663,12 +663,6 @@ respect to kernel support. Official support available with -rc2 is still
 based on 2.6.28.10 though, from the Blackfin project SVN/GIT mirror (see
 ksrc/arch/blackfin/patches/README for more).
 
-Btw, more information regarding which hardware Xenomai supports is
-available from:
-
-* link:Embedded_Hardware[Embedded Device Support]
-* link:Other_Hardware[Other Hardware Support]
-
 Oh, last point: 2.5-rc2 has a decent stability record among Xenomai
 maintainers, but as usual, let me emphasize the obvious: at the end of
 the day, only _you_ can make sure the upcoming 2.5 will work for you,

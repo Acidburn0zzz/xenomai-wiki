@@ -17,8 +17,9 @@ system?
 - safe IPC techniques between rt and non-rt threads.
 
 - update the documentation about how one can run Xenomai applications
-  as http://git.xenomai.org/xenomai-kbase.git/tree/Running_As_Normal_User.adoc[non-root user],
-  specifically the http://git.xenomai.org/xenomai-3.git/commit/?id=cf21e806295981a9d0e342f683bfef419b6e3c68[Copperplate settings].
+  as link:Running_As_Regular_User[non-privileged user], specifically the
+  http://git.xenomai.org/xenomai-3.git/commit/?id=cf21e806295981a9d0e342f683bfef419b6e3c68[Copperplate
+  settings].
 
 - how to set up a multi-process application.
 

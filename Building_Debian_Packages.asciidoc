@@ -1,3 +1,5 @@
+:toc:
+
 Building Debian Packages
 ========================
 :author:	Gilles Chanteperdrix
@@ -241,7 +243,7 @@ linux-3.10.32$ make oldconfig
 
 Configure the kernel: Despite using Debian packages, you still have to
 configure the kernel. This may not be so easy especially on x86, please
-see the link:Configuring_For_X86_Based_Dual_Kernels[x86 kernel configuration checklist]
+see the link:Configuring_For_X86_Based_Kernels[x86 kernel configuration checklist]
 for more details.
 
 -------------------------------------------------------------------------------

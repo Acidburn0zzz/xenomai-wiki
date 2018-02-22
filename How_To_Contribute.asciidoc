@@ -20,11 +20,11 @@ Getting Set up:
 --------------
 Before starting to contribute you should have read the following documents:
 
-- link:Home[Getting Started]
+- link:Start_Here[Getting Started]
 - link:Getting_The_Xenomai_Code[Getting The Code]
-- link:Installing_Xenomai_3_X[Installing Xenomai]
-- link:Building_Applications_For_Xenomai_3_X[Building Applications]
-- link:Running_Applications_For_Xenomai_3_X[Running Applications]
+- link:Installing_Xenomai_3[Installing Xenomai]
+- link:Building_Applications_For_Xenomai_3[Building Applications]
+- link:Running_Applications_With_Xenomai_3[Running Applications]
 - link:Getting_Help[Getting Help]
     
 Workflow

@@ -1,9 +1,10 @@
-Running a Xenomai application as a regular user
-===============================================
 :author:	Jan Kiszka
 :email:	 	jan.kiszka@siemens.com
 :categories:	Application
 :tags:		tips
+
+Running a Xenomai application as a regular user
+===============================================
 
 As of Xenomai release 2.3.2, you can allow non-root users to access
 Xenomai services from user space. You only have to provide the ID of a

@@ -1,9 +1,11 @@
-Xenomai White paper
-===================
 :author:	Philippe Gerum
 :email:	 	rpm@xenomai.org
 :categories:	Core
 :tags		outdated
+:toc:
+
+Xenomai White paper
+===================
 
 [NOTE]
 This paper was written back in 2001 to present the mission statement

@@ -1,3 +1,5 @@
+:toc:
+
 Introducing Xenomai 3
 =====================
 
@@ -110,9 +112,9 @@ For the impatient, here is a list of URLs to the main resources:
 - http://git.xenomai.org/xenomai-3.git/[The Xenomai 3 code repository]
 - link:Installing_Xenomai_3[How to install Xenomai 3]
 - link:Building_Applications_For_Xenomai_3[How to build applications]
-- link:Running_Applications_For_Xenomai_3[How to run applications]
+- link:Running_Applications_With_Xenomai_3[How to run applications]
 - link:Migrating_From_Xenomai_2_To_3[How to migrate from Xenomai 2]
-- link:/documentation/xenomai-3/html/xeno3prm/[Xenomai 3 Programmer's Reference Manual - online version]
+- http://www.xenomai.org/documentation/xenomai-3/html/xeno3prm/index.html[Xenomai 3 Programmer's Reference Manual - online version]
 
 What's new with Xenomai 3
 -------------------------

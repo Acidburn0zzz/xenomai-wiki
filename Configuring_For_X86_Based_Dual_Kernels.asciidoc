@@ -1,8 +1,10 @@
-Configuring for x86-based dual kernels
-======================================
 :author:	Gilles Chanteperdrix
 :categories:	Core
 :tags:		troubleshooting, x86, dual-kernel
+:toc:
+
+Configuring for x86-based dual kernels
+======================================
 
 On a non-x86 embedded platform, configuring the Linux kernel is
 usually easy: there is a default configuration file for the SoC where

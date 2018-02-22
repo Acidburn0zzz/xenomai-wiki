@@ -5,7 +5,7 @@ Running a Xenomai 3 application
 -------------------------------
 
 For _Cobalt_, you will need the real-time core built into the target
-Linux kernel as described in link:Installing_Xenomai_3_X[this
+Linux kernel as described in link:Installing_Xenomai_3[this
 document].
 
 For _Mercury_, you need no Xenomai-specific kernel support so far,
@@ -36,7 +36,7 @@ i.e. +--alchemy-clock-resolution=1+.
 Specifying a resolution greater than 1 nanosecond requires the low
 resolution clock support to be available from the Xenomai libraries
 (see the +--enable-lores-clock+
-link:Installing_Xenomai_3_X#Generic_configuration_options_both_cores[configuration
+link:Installing_Xenomai_3#Generic_configuration_options_both_cores[configuration
 switch]).
 
 Valgrind support

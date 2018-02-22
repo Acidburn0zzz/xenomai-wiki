@@ -1,0 +1,20 @@
+Legacy commands and utilities
+=============================
+
+- Test programs
+* http://www.xenomai.org/documentation/xenomai-2.6/html/clocktest/index.html[clocktest]
+* http://www.xenomai.org/documentation/xenomai-2.6/html/cyclictest/index.html[cyclictest]
+* http://www.xenomai.org/documentation/xenomai-2.6/html/dohell/index.html[dohell]
+* http://www.xenomai.org/documentation/xenomai-2.6/html/irqbench/index.html[irqbench]
+* http://www.xenomai.org/documentation/xenomai-2.6/html/irqloop/index.html[irqloop]
+* http://www.xenomai.org/documentation/xenomai-2.6/html/klatency/index.html[klatency]
+* http://www.xenomai.org/documentation/xenomai-2.6/html/latency/index.html[latency]
+* http://www.xenomai.org/documentation/xenomai-2.6/html/switchbench/index.html[switchbench]
+* http://www.xenomai.org/documentation/xenomai-2.6/html/switchtest/index.html[switchtest]
+* http://www.xenomai.org/documentation/xenomai-2.6/html/xeno-test/index.html[xeno-test]
+- Utilities
+* http://www.xenomai.org/documentation/xenomai-2.6/html/rtcanconfig/index.html[rtcanconfig]
+* http://www.xenomai.org/documentation/xenomai-2.6/html/rtcanrecv/index.html[rtcanrecv]
+* http://www.xenomai.org/documentation/xenomai-2.6/html/rtcansend/index.html[rtcansend]
+* http://www.xenomai.org/documentation/xenomai-2.6/html/xeno/index.html[xeno]
+* http://www.xenomai.org/documentation/xenomai-2.6/html/xeno-config/index.html[xeno-config]

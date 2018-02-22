@@ -1,17 +1,7 @@
-Troubleshooting a dual kernel configuration
-===========================================
+:toc:
 
-This page is a troubleshooting guide enumerating known issues
-with dual kernel Xenomai configurations.
-
-[TIP]
-If running any release from the Xenomai 2 series, or a Xenomai 3
-release using the *Cobalt* real-time core, then you are using a dual
-kernel configuration, and this document was meant for you.  Xenomai 3
-over the *Mercury* core stands for a single kernel configuration
-instead, for which you can find specific
-link:Troubleshooting_A_Single_Kernel_Configuration[troubleshooting
-information here].
+Troubleshooting guide
+=====================
 
 == Kernel-related issues
 
@@ -174,7 +164,7 @@ Turn off this feature for other libc flavours.
 
 As mentioned in the message, the target kernel is lacking Cobalt
 support.  See
-link:Installing_Xenomai_3_X#Installing_the_Cobalt_core[this document]
+link:Installing_Xenomai_3#Installing_the_Cobalt_core[this document]
 for detailed information about installing Cobalt.
 
 === binding failed: Function not implemented
@@ -185,10 +175,18 @@ enabled in the target kernel.
 === binding failed: Operation not permitted
 
 This is the result of an attempt to run a Xenomai application as an
-unprivileged user, which fails because invoking Xenomai services
+unprivileged user, which fails because invoking Cobalt services
 requires +CAP_SYS_NICE+. However, you may allow a specific group of
-users to access Xenomai services, by following the instructions on
-link:Running_A_Xenomai_Application_As_A_Regular_User[this page].
+users to access Cobalt services, by following the instructions on
+link:Running_As_A_Regular_User[this page].
+
+=== WARNING: [main] failed to lock memory
+
+A variant of the previous issue, specific to the _Mercury_ core
+though: your application needs the CAP_SYS_NICE and CAP_IPC_LOCK
+capabilities to be granted access to the system services the Xenomai
+libraries need, such as mlockall(2) (see capabilities(7)). Running the
+application with root privileges is a way to gain those capabilities.
 
 === incompatible ABI revision level
 
@@ -242,8 +240,8 @@ When a Xenomai application starts, the set of core features it
 requires is compared to the feature set the kernel provides. This
 message denotes a mismatch between both sets, which can be solved by
 fixing the kernel and/or user build configuration.  Further details
-are available from link:Installing_Xenomai_3_X[this page] for Xenomai
-3, and link:Installing_Xenomai_2_X[this page] for Xenomai 2.
+are available from link:Installing_Xenomai_3[this page] for Xenomai
+3, and link:Installing_Xenomai_2[this page] for Xenomai 2.
 
 ==== feature mismatch: missing="smp/nosmp"
 

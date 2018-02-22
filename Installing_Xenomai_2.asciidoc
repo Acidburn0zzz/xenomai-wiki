@@ -1,4 +1,6 @@
-Installing Xenomai 2.x
+:toc:
+
+nstalling Xenomai 2.x
 ======================
 
 [CAUTION]
@@ -94,10 +96,9 @@ following its usual configuration procedure. All Xenomai configuration
 options are available from the "Real-time subsystem" toplevel menu.
 
 There are several important kernel configuration options, some are
-documented in the
-link:Troubleshooting_A_Dual_Kernel_Configuration#kconf[TROUBLESHOOTING]
-guide, others in the section illustrating the <<examples,typical
-installation procedures>> for the architecture you are using.
+documented in the link:Troubleshooting[Troubleshooting guide], others
+in the section illustrating the <<examples,typical installation
+procedures>> for the architecture you are using.
 
 Once configured, the kernel should be built as usual.
 
@@ -698,8 +699,10 @@ Xenomai: starting RTDM services.
 ------------------------------------------------------------------------------
 
 Where #<arch># is the architecture you are using. If the kernel fails
-to boot, or the log messages indicates an error status instead, see the
-link:Troubleshooting_A_Dual_Kernel_Configuration#Kernel_log_displays_Xenomai_or_I_Pipe_error_messages[TROUBLESHOOTING] guide.
+to boot, or the log messages indicates an error status instead, see
+the
+link:Troubleshooting#Kernel_log_displays_Xenomai_or_I_Pipe_error_messages[Troubleshooting
+guide].
 
 
 Testing the user-space support
@@ -755,9 +758,9 @@ RTS|      1.538|      1.923|     11.384|       0|     0|    00:00:25/00:00:25
 
 If the latency test displays an
 error message, hangs, or displays unexpected values, see the
-link:Troubleshooting_A_Dual_Kernel_Configuration#the_latency_test_shows_high_latencies[TROUBLESHOOTING] guide.
+link:Troubleshooting#the_latency_test_shows_high_latencies[Troubleshooting guide].
 
 If the latency test succeeds, you should try next to run a latency
 test under load to evaluate the latency test of your system, the
 +xeno-test+ script allows doing that. see
-link:/documentation/xenomai-3/html/xeno_Test/index.html[xeno-test(1)] manual page for more details.
+http://www.xenomai.org/documentation/xenomai-3/html/man1/xeno-test/index.html[xeno-test(1)] manual page for more details.

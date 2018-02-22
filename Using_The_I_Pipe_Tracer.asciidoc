@@ -1,9 +1,11 @@
-Using The I-Pipe Tracer
-=======================
+:toc:
 :author:	Jan Kiszka
 :email:	 	jan.kiszka@siemens.com
 :categories:	Core
 :tags:		debug, i-pipe
+
+Using The I-Pipe Tracer
+=======================
 
 [[features]]
 Features

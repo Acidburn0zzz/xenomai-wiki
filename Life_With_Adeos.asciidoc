@@ -1,3 +1,5 @@
+:toc:
+
 Life with Adeos
 ===============
 :author:	Philippe Gerum

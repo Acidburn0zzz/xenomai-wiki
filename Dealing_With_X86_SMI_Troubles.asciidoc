@@ -1,9 +1,11 @@
-Dealing with x86 SMI troubles
-=============================
 :author:	Philippe Gerum
 :email:	 	rpm@xenomai.org
 :categories:	Core
 :tags:		troubleshooting, x86
+:toc:
+
+Dealing with x86 SMI troubles
+=============================
 
 Why are SMIs a problem?
 -----------------------
