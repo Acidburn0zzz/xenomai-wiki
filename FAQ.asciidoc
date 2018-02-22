@@ -100,8 +100,7 @@ Can I mirror Xenomai git repositories ?
 
 Yes. However, we recommend using
 link://github.com/mricon/grokmirror[grokmirror]. For more details, see
-link:/mirroring-xenomai-git-repositories-with-grokmirror[the
-following page].
+link:Grokmirror[the following page].
 
 I ran into a technical issue which is not covered here
 ------------------------------------------------------
