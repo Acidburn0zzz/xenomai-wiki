@@ -1,5 +1,0 @@
-Document Index
-==============
-
-pass:[[no_toc]]
-pass:[[sitemap_pages separate="false", no_label="true"]]
