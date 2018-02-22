@@ -80,7 +80,7 @@ preemption would bring.
 This new architecture therefore exhibits two real-time cores, selected
 at build time. The dual kernel nicknamed _Cobalt_, is a significant
 rework of the Xenomai 2.x system. _Cobalt_ implements the
-http://www.xenomai.org/documentation/xenomai-3/html/xeno3prm/group__rtdm.html[RTDM
+https://xenomai.org/documentation/xenomai-3/html/xeno3prm/group__rtdm.html[RTDM
 specification] for interfacing with real-time device drivers.
 
 .Dual kernel Cobalt architecture
@@ -91,7 +91,7 @@ experimental
 http://www.osadl.org/Migration-Portability.migration-portability.0.html[Xenomai/SOLO]
 work, is called _Mercury_. In this environment, only a standalone
 implementation of the
-http://www.xenomai.org/documentation/xenomai-3/html/xeno3prm/group__rtdm.html[RTDM
+https://xenomai.org/documentation/xenomai-3/html/xeno3prm/group__rtdm.html[RTDM
 specification] in a kernel module is required, for interfacing the
 RTDM-compliant device drivers with the native kernel.
 
@@ -114,7 +114,7 @@ For the impatient, here is a list of URLs to the main resources:
 - link:Building_Applications_For_Xenomai_3[How to build applications]
 - link:Running_Applications_With_Xenomai_3[How to run applications]
 - link:Migrating_From_Xenomai_2_To_3[How to migrate from Xenomai 2]
-- http://www.xenomai.org/documentation/xenomai-3/html/xeno3prm/index.html[Xenomai 3 Programmer's Reference Manual - online version]
+- https://xenomai.org/documentation/xenomai-3/html/xeno3prm/index.html[Xenomai 3 Programmer's Reference Manual - online version]
 
 What's new with Xenomai 3
 -------------------------

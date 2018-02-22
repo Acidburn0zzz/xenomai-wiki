@@ -14,7 +14,7 @@ Things you will need:
 - Xenomai link:Getting_The_Xenomai_Code[source code]
 - Linux tree patched with the link:Getting_The_I_Pipe_Patch[I-pipe]
 - Autotools
-- Access to the https://www.xenomai.org/mailman/listinfo/xenomai/[Xenomai mailing list]
+- Access to the https://xenomai.org/mailman/listinfo/xenomai/[Xenomai mailing list]
 
 Getting Set up:
 --------------

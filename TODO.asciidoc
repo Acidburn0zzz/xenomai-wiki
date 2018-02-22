@@ -43,7 +43,7 @@ When processes want to share objects, they need --enable-pshared,
 Pending Xenomai issues
 ----------------------
 
-- http://xenomai.org/pipermail/xenomai/2017-July/037494.html[UDD driver issue].
+- https://xenomai.org/pipermail/xenomai/2017-July/037494.html[UDD driver issue].
 
 - Check build of all serial, can, analogy drivers
   (e.g. kernel/drivers/serial/rt_imx_uart.c does not build).

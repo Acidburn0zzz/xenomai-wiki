@@ -27,7 +27,7 @@ compilation and link flags from a call to +xeno-config --cflags+ and
 +xeno-config --ldflags+ respectively, mentioning the list of Xenomai
 APIs your application uses. The complete usage of the +xeno-config+
 script can be found at
-http://www.xenomai.org/documentation/xenomai-3/html/man1/xeno-config/index.html[this
+https://xenomai.org/documentation/xenomai-3/html/man1/xeno-config/index.html[this
 URL].
 
 .Invoking +xeno-config+ from a Makefile
@@ -598,7 +598,7 @@ In automatic bootstrap mode, The +xenomai_main()+ routine interposes
 on the real +main()+ entry point, for passing it the pre-processed
 argument vector, expunged from the Xenomai standard options. This
 trick is based on the linker's symbol wrapping feature
-(--wrap). http://www.xenomai.org/documentation/xenomai-3/html/man1/xeno-config/index.html[
+(--wrap). https://xenomai.org/documentation/xenomai-3/html/man1/xeno-config/index.html[
 xeno-config] issues the right set of linker flags to enable
 such interposition, unless +--no-auto-init+ is given.
 

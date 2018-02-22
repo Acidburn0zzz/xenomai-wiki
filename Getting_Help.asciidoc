@@ -24,7 +24,7 @@ the Xenomai project.
 [TIP]
 Over the years, many issues have been discussed on this list, so you
 may first want to search the
-http://www.xenomai.org/pipermail/xenomai/[list archive] using your
+https://xenomai.org/pipermail/xenomai/[list archive] using your
 favorite search engine for a solution to a similar/same problem.
 
 When sending a request for help to the link:Mailing_Lists[main mailing

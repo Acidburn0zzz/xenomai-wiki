@@ -696,7 +696,7 @@ available to regular calling contexts.
 
 [NOTE]
 See the documentation in the
-http://xenomai.org/documentation/xenomai-3/html/xeno3prm/[Programming
+https://xenomai.org/documentation/xenomai-3/html/xeno3prm/[Programming
 Reference Manual] covering the device registration and operation
 handlers for a complete description.
 

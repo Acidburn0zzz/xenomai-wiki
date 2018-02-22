@@ -94,7 +94,7 @@ link:/downloads/xenomai/testing/xenomai-3.0-rc1.tar.bz2[Download]
 link:/downloads/xenomai/stable/xenomai-2.6.4.tar.bz2[Download]
 
 See
-http://www.xenomai.org/pipermail/xenomai/2014-September/031747.html[announce].
+https://xenomai.org/pipermail/xenomai/2014-September/031747.html[announce].
 
 [[xenomai-2.6.3]]
 *2013-10-05* Xenomai 2.6.3
@@ -103,7 +103,7 @@ http://www.xenomai.org/pipermail/xenomai/2014-September/031747.html[announce].
 link:/downloads/xenomai/stable/xenomai-2.6.3.tar.bz2[Download]
 
 See
-http://www.xenomai.org/pipermail/xenomai/2013-October/029289.html[announce].
+https://xenomai.org/pipermail/xenomai/2013-October/029289.html[announce].
 
 [[xenomai-2.6.2.1]]
 *2013-01-25* Xenomai 2.6.2.1

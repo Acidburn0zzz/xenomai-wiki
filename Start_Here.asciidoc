@@ -310,7 +310,7 @@ Xenomai technology:
 Linux Systems, Second Edition]. This book dedicates a chapter
 explaining the dual kernel architecture of Xenomai 2.
 
-- http://xenomai.org/documentation/slides/Xenomai-OSMB-2007-01.pdf[Xenomai: the
+- https://xenomai.org/documentation/slides/Xenomai-OSMB-2007-01.pdf[Xenomai: the
 RTOS Chameleon for Linux], at Open Source Meets Business, Nürnberg,
 Germany, January 2007.
 

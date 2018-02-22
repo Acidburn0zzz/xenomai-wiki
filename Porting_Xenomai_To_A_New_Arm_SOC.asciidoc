@@ -1541,7 +1541,7 @@ later versions, and compile-tested. You then simply have to test the
 newer version if you are interested in using it.
 
 If you decide to do that, you should send your work to the
-http://www.xenomai.org/mailman/listinfo/xenomai[Xenomai mailing list],
+https://xenomai.org/mailman/listinfo/xenomai[Xenomai mailing list],
 as a patch against the current I-pipe core branch, in-lined in the
 mail body, making sure that your mail user agent does not wrap the
 patch long lines (see Documentation/email-clients.txt for help on how
@@ -1613,7 +1613,7 @@ $ git diff precious
 
 No patch should result in conflicts, and the last command should not
 show any difference. You can now send the `pre.patch` and `post.patch`
-to the http://www.xenomai.org/mailman/listinfo/xenomai[Xenomai mailing list].
+to the https://xenomai.org/mailman/listinfo/xenomai[Xenomai mailing list].
 
 [[changes-history]]
 Changes history

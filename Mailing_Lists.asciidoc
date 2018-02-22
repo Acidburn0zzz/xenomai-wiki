@@ -5,7 +5,7 @@ Mailing Lists
 == Main e-mail discussion list ==
 
 You may subscribe to
-https://www.xenomai.org/mailman/listinfo/xenomai/[this discussion
+https://xenomai.org/mailman/listinfo/xenomai/[this discussion
 list] for getting help, reporting issues, suggesting ideas and sending
 patches.
 
@@ -22,7 +22,7 @@ The proper etiquette for posting to this list is as follows:
   message would suffice.
 
 The archive can be accessed at
-http://www.xenomai.org/pipermail/xenomai/[this URL].
+https://xenomai.org/pipermail/xenomai/[this URL].
 
 [IMPORTANT]
 Please do not send private e-mails to Xenomai maintainers for getting
@@ -32,5 +32,5 @@ help, use the discussion list instead.
 
 Commit e-mail notifications are enabled for the GIT repositories we
 maintain, you may subscribe to
-https://www.xenomai.org/mailman/listinfo/xenomai-git/[this mailing
+https://xenomai.org/mailman/listinfo/xenomai-git/[this mailing
 list] for tracking progress of our development.

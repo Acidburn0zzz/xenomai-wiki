@@ -15,7 +15,7 @@ device driver.
 The interface between RTnet and the RTOS is provided by RTDM
 (Real-Time Driver Model), which Xenomai implements.  This interface is
 fully documented in the
-http://www.xenomai.org/documentation/xenomai-3/html/api/group__rtdm.html[Xenomai
+https://xenomai.org/documentation/xenomai-3/html/api/group__rtdm.html[Xenomai
 documentation].
 
 The RTDM specification is located under the _Modules/Real-Time Driver

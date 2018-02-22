@@ -13,7 +13,7 @@ proper compilation and linker flags related to Xenomai, in order to
 build your application for whichever _Cobalt_ or _Mercury_ core.
 
 The complete usage of the +xeno-config+ script can be found at
-http://www.xenomai.org/documentation/xenomai-3/html/man1/xeno-config/index.html[this
+https://xenomai.org/documentation/xenomai-3/html/man1/xeno-config/index.html[this
 URL].
 
 For the impatient, here is a trivial Makefile fragment retrieving the

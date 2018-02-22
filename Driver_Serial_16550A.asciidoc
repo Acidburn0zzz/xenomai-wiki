@@ -132,11 +132,3 @@ listed above have to be provided as kernel parameter. Just prepend the
 prefix `xeno_16550A.`, e.g. `xeno_16550A.io=0x3f8,0x2f8`. To control the
 standard Linux 8250 serial driver, either disable it at compile time or
 set the number of managed ports via `8250.nr_uarts=N`.
-
-[[usage]]
-Usage
------
-
-The device API is described in the Xenomai API documentation under
-http://www.xenomai.org/documentation/trunk/html/api/group__rtserial.html[Serial
-Device Profile].

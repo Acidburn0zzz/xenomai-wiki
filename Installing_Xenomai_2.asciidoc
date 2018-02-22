@@ -763,4 +763,4 @@ link:Troubleshooting#the_latency_test_shows_high_latencies[Troubleshooting guide
 If the latency test succeeds, you should try next to run a latency
 test under load to evaluate the latency test of your system, the
 +xeno-test+ script allows doing that. see
-http://www.xenomai.org/documentation/xenomai-3/html/man1/xeno-test/index.html[xeno-test(1)] manual page for more details.
+https://xenomai.org/documentation/xenomai-3/html/man1/xeno-test/index.html[xeno-test(1)] manual page for more details.

@@ -146,7 +146,7 @@ is expressed in kilo-bytes. | 256
 |xenomai.state=<state> | Set the initial state of the Cobalt core at
 boot up, which may be _enabled_, _stopped_ or _disabled_. See the
 documentation about the
-http://www.xenomai.org/documentation/xenomai-3/html/man1/corectl/index.html[corectl(1)]
+https://xenomai.org/documentation/xenomai-3/html/man1/corectl/index.html[corectl(1)]
 utility for a description of these states. | enabled
 
 |xenomai.clockfreq=<hz-freq> | Override the real-time clock frequency
@@ -926,7 +926,7 @@ recommended to calibrate the core timer specifically for the target
 system.
 
 See the documentation about the
-http://www.xenomai.org/documentation/xenomai-3/html/man1/autotune/index.html[autotune(1)]
+https://xenomai.org/documentation/xenomai-3/html/man1/autotune/index.html[autotune(1)]
 utility.
 
 Building and running Xenomai 3 applications

@@ -167,4 +167,4 @@ network layer protocols and implemented in the higher standard Linux
 kernel. It is also possible for the limited communications network node
 does not use routing protocol and transport (socket type RAW).
 
-http://citeseerx.ist.psu.edu%2Fviewdoc%2Fdownload%3Fdoi%3D10.1.1.67.9870%26rep%3Drep1%26type%3Dpdf&rct=j&q=rtnet&ei=eSubTOXPNpC44AaSicGJAQ&usg=AFQjCNGbOkKUr6T1seTgZ9ToYkBGyFFLiA&sig2=keCzvUo9LCi28q2hcR7tlg&cad=rja[Rtnet presentation at IEEE conference by Jan Kiska]
+http://www.rtnet.org/download/RTnet-ETFA05.pdf[Rtnet presentation at IEEE conference by Jan Kiska]

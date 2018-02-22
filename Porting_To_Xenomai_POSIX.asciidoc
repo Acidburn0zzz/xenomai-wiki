@@ -444,7 +444,7 @@ Porting a Linux driver to RTDM is usually not as hard as it seems: the
 RTDM services resemble their Linux equivalents, so any people with Linux
 driver knowledge should be able to port drivers to RTDM. For more
 information on the RTDM framework, see:
-http://www.xenomai.org/documentation/branches/v2.3.x/pdf/RTDM-and-Applications.pdf[RTDM and Applications]
+https://xenomai.org/documentation/branches/v2.3.x/pdf/RTDM-and-Applications.pdf[RTDM and Applications]
 
 From an application point of view, using the Xenomai POSIX skin wrapped
 services allows for manipulation of file descriptors provided by the

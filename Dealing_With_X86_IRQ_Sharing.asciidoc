@@ -37,5 +37,5 @@ problem.
 * In case nothing works, and for a given configuration, you may modify
 the non real-time driver which shares an IRQ with a real-time driver
 as indicated in
-http://www.xenomai.org/pipermail/xenomai-core/2008-07/msg00025.html[this
+https://xenomai.org/pipermail/xenomai-core/2008-07/msg00025.html[this
 post].

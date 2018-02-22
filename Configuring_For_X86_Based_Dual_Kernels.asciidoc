@@ -38,7 +38,7 @@ process.
 For this reason, always make sure to take similar advices found on
 third-party web sites with a grain of salt, as the author might have
 mis-interpreted such information the same way.  If in doubt, you
-should ask on the https://www.xenomai.org/mailman/listinfo[Xenomai
+should ask on the https://xenomai.org/mailman/listinfo[Xenomai
 discussion list] for confirmation.
 
 Typical configuration issues
