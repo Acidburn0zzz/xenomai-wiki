@@ -1,0 +1,15 @@
+= Gilles Chanteperdrix (1975-2016)
+
+image:images/Gilles.png[Gilles,float="left"]
+Gilles Chanteperdrix has massively contributed to the Xenomai project from
+the very beginning of this effort, he left us on Sunday 7th August
+2016. He will forever be remembered as a true-hearted man, a brilliant
+mind always scratching beneath the surface, looking for elegance in
+the driest topics, never jaded from such accomplishment.
+
+In addition to his critical contributions which shaped the real-time
+Linux co-kernel technology used in many real-world applications today,
+his willingness to help users has always been a distinctive aspect of
+his personality.
+
+He will be sorely missed.
