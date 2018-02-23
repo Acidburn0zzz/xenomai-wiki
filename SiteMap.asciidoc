@@ -1,0 +1,79 @@
+
+= Site map
+
+* link:Start_Here[Read this first]
+* link:Supported_Hardware[Supported hardware]
+* link:History[A short Xenomai history]
+* Contribute
+** link:How_To_Contribute[How to contribute to Xenomai]
+** link:TODO[TODO list for volunteers]
+* Building Xenomai from sources
+** link:Getting_The_Xenomai_Code[Getting the Xenomai sources]
+** link:Getting_The_I_Pipe_Patch[Getting the I-pipe patch]
+** link:Installing_Xenomai_3[Building and installing Xenomai]
+** link:Grokmirror[Mirroring Xenomai repositories with GrokMirror]
+* Programming and running applications
+** Xenomai Programmer's Reference Manual
+  (https://xenomai.org/documentation/xenomai-3/html/xeno3prm/index.html[HTML],
+   https://xenomai.org/documentation/xenomai-3/pdf/xeno3prm.pdf[PDF])
+** link:Building_Applications_For_Xenomai_3[Compiling Applications]
+** link:Running_Applications_With_Xenomai_3[Running Applications]
+** Real-time I/O support
+*** Real-time networking (RTnet)
+**** link:RTnet[Introduction to RTnet]
+**** link:RTnet_Basics[RTnet basics]
+**** link:RTnet_Conf[RTnet configuration file]
+**** link:RTnet_Setup[Setting up RTnet]
+**** link:RTnet_Programming[Programming with RTnet]
+*** Serial communications
+**** link:Driver_Serial_16550A[16550 UARTs]
+*** Data acquisition (Analogy)
+**** link:Analogy_General_Presentation[Introduction to Analogy]
+**** link:Analogy_Practical_Presentation[Details of Analogy]
+** link:Manpages_3[Commands and utilities]
+** Programming tips
+*** link:App_Setup_And_Init[Initialization steps of an application]
+*** link:Porting_To_Xenomai_POSIX[Porting a regular POSIX application to Xenomai]
+*** link:Resolving_Errno[Resolving cryptic error numbers]
+** Debugging tips
+*** link:Finding_Spurious_Relaxes[Finding spurious relaxes]
+*** link:Using_The_I_Pipe_Tracer[Chasing latency with the I-pipe tracer]
+* Help
+** link:FAQ[FAQ]
+** link:Troubleshooting[Troubleshooting]
+** Troubleshooting x86
+*** link:Dealing_With_X86_SMI_Troubles[Dealing with SMI-induced latency]
+*** link:Dealing_With_X86_IRQ_Sharing[Dealing with IRQ sharing on x86]
+** link:Getting_Help[Getting help]
+** link:Mailing_Lists[Xenomai mailing lists]
+** Tips
+*** link:Porting_Xenomai_To_A_New_Arm_SOC[Porting Xenomai to a new ARM SoC]
+*** link:Configuring_For_X86_Based_Dual_Kernels[x86-specific configuration tips]
+*** link:Running_As_Regular_User[Running applications as a non-privileged user]
+*** link:Running_Xenomai_On_VirtualBox[Running Xenomai on VirtualBox]
+*** link:Benchmarking_With_Xeno_Test[Using xeno-test for benchmarking purpose]
+*** link:Building_Debian_Packages[Building Debian packages]
+* Resources for legacy Xenomai 2.x (EOL)
+** link:Migrating_From_Xenomai_2_To_3[Migrating from Xenomai 2.x to Xenomai 3.x]
+** link:Installing_Xenomai_2[Building Xenomai 2 from sources]
+** Xenomai 2 Programmer's Reference Manuals
+   (https://xenomai.org/documentation/xenomai-2.6/pdf/posix-api.pdf[POSIX],
+    https://xenomai.org/documentation/xenomai-2.6/pdf/rtdm-api.pdf[RTDM],
+    https://xenomai.org/documentation/xenomai-2.6/pdf/native-api.pdf[Native],
+    https://xenomai.org/documentation/xenomai-2.6/pdf/nucleus-api.pdf[Nucleus])
+** link:Manpages_2[Xenomai 2 commands and utilities]
+* Publications
+** link:White_Paper[Original Xenomai whitepaper]
+** link:Life_With_Adeos[Original interrupt pipeline design]
+** http://www.denx.de/en/pub/News/Xum2009AbstractsAndPresentations/Xenomai_and_Realtime_Image_Processing_Control.pdf[Image
+   processing with Xenomai 2 by Xerox UK], presented at the
+   http://www.denx.de/en/News/XenomaiUserMeeting2009[Xenomai User
+   Meeting '09].
+** https://www.amazon.com/Building-Embedded-Linux-Systems-Techniques/dp/0596529686[Building Embedded
+   Linux Systems, Second Edition]. This book dedicates a chapter
+   explaining the dual kernel architecture of Xenomai 2.
+** https://xenomai.org/documentation/slides/Xenomai-OSMB-2007-01.pdf[Xenomai: the
+   RTOS Chameleon for Linux], at Open Source Meets Business, Nürnberg,
+   Germany, January 2007.
+** http://www.isde.uni-hannover.de/images/b/b3/ELROB_TechnicalPaper_RTS_University_of_Hannover.pdf[Semi-autonomous
+   service robots] at the ELROB 2006.
