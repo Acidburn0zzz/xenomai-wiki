@@ -1,3 +1,6 @@
+:author:	Greg Gallagher
+:email:	 	greg@embeddedgreg.com
+
 How To Contribute
 =================
 
@@ -58,6 +61,3 @@ mailing list for review. This can be done using git send-email.  This may be
 slightly tricky to set up. I suggest googling for the best way to set this up in 
 your gitconfig file that best suits your email provider and authentication method. 
 Once it is configured you can submit your patch to the mailing list.
-
-
-
