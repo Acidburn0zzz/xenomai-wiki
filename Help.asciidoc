@@ -1,0 +1,14 @@
+* link:FAQ[FAQ]
+* link:Troubleshooting[Troubleshooting]
+* Troubleshooting x86
+** link:Dealing_With_X86_SMI_Troubles[Dealing with SMI-induced latency]
+** link:Dealing_With_X86_IRQ_Sharing[Dealing with IRQ sharing on x86]
+* link:Getting_Help[Getting help]
+* link:Mailing_Lists[Xenomai mailing lists]
+* Tips
+** link:Porting_Xenomai_To_A_New_Arm_SOC[Porting Xenomai to a new ARM SoC]
+** link:Configuring_For_X86_Based_Dual_Kernels[x86-specific configuration tips]
+** link:Running_As_Regular_User[Running applications as a non-privileged user]
+** link:Running_Xenomai_On_VirtualBox[Running Xenomai on VirtualBox]
+** link:Benchmarking_With_Xeno_Test[Using xeno-test for benchmarking purpose]
+** link:Building_Debian_Packages[Building Debian packages]
