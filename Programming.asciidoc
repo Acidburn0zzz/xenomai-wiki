@@ -1,0 +1,25 @@
+
+* Xenomai Programmer's Reference Manual
+  (https://xenomai.org/documentation/xenomai-3/html/xeno3prm/index.html[HTML],
+   https://xenomai.org/documentation/xenomai-3/pdf/xeno3prm.pdf[PDF])
+* link:Building_Applications_For_Xenomai_3[Compiling Applications]
+* link:Running_Applications_With_Xenomai_3[Running Applications]
+* Real-time I/O support
+** Real-time networking (RTnet)
+*** link:RTnet[Introduction to RTnet]
+*** link:RTnet_Basics[RTnet basics]
+*** link:RTnet_Conf[RTnet configuration file]
+*** link:RTnet_Setup[Setting up RTnet]
+*** link:RTnet_Programming[Programming with RTnet]
+** Serial communications
+*** link:Driver_Serial_16550A[16550 UARTs]
+** Data acquisition (Analogy)
+*** link:Analogy_General_Presentation[Introduction to Analogy]
+*** link:Analogy_Practical_Presentation[Details of Analogy]
+* link:Manpages_3[Commands and utilities]
+* Tips
+** link:App_Setup_And_Init[Initialization steps of an application]
+** link:Porting_To_Xenomai_POSIX[Porting a regular POSIX application to Xenomai]
+** link:Resolving_Errno[Resolving cryptic error numbers]
+** link:Finding_Spurious_Relaxes[Finding spurious relaxes]
+** link:Using_The_I_Pipe_Tracer[Chasing latency with the I-pipe tracer]
