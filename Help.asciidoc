@@ -1,3 +1,11 @@
+[cols="7*a"]
+|===
+| image:images/xenomai-logo.png[Xenomai] |
+  link:Start_Here[*Start Here*] | link:Setting_Up[*Setting Up*] |
+  link:Programming[*Programming*] | link:Help[*Help!*] |
+  link:How_To_Contribute[*Contribute*] | link:SiteMap[*Sitemap*]
+|===
+
 * link:FAQ[FAQ]
 * link:Troubleshooting[Troubleshooting]
 * Troubleshooting x86

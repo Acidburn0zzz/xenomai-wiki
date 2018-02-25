@@ -1,4 +1,11 @@
 
+[cols="7*a"]
+|===
+| image:images/xenomai-logo.png[Xenomai] |
+  link:Start_Here[*Start Here*] | link:Setting_Up[*Setting Up*] |
+  link:Programming[*Programming*] | link:Help[*Help!*] |
+  link:How_To_Contribute[*Contribute*] | link:SiteMap[*Sitemap*]
+|===
 * link:Getting_The_Xenomai_Code[Getting the Xenomai sources]
 * link:Getting_The_I_Pipe_Patch[Getting the I-pipe patch]
 * link:Installing_Xenomai_3[Building and installing Xenomai]
