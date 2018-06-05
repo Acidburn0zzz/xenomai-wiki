@@ -84,3 +84,5 @@
    Germany, January 2007.
 ** http://www.isde.uni-hannover.de/images/b/b3/ELROB_TechnicalPaper_RTS_University_of_Hannover.pdf[Semi-autonomous
    service robots] at the ELROB 2006.
+* Misc
+** link:Dovetail[Introduction to Dovetail]

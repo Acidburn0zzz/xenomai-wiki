@@ -1,0 +1,92 @@
+Introduction to Dovetail
+========================
+
+Rationale for an overhaul
+-------------------------
+
+Dual kernel systems such as Cobalt need Linux to exhibit a high-priority
+execution stage, for running out of band co-kernel activities. This is
+the purpose of the I-pipe layer, patched in the mainline kernel.
+
+In order to keep pace with mainline Linux development, this mechanism
+should be simple, and properly integrated as a plain Linux feature,
+not sideways. In other words, it must be possible to maintain it with
+common kernel development knowledge, at a fraction of the engineering
+and maintenance cost native preemption requires. For several reasons,
+the I-pipe does not qualify.
+
+As a matter of fact, maintaining the I-pipe proved to be difficult
+over the years as changes to the mainline kernel regularly caused
+non-trivial code conflicts, sometimes nasty regressions to us
+downstream. Although the concept of interrupt pipelining proved to be
+correct by delivering short response time with reasonably limited
+changes to the original kernel, the way this mechanism is currently
+integrated into the mainline code shows its age.
+
+Issues to address
+-----------------
+
+The I-pipe is composed of two major parts: the interrupt pipeline
+mechanism and the co-kernel interface for sharing control of Linux
+tasks between the regular kernel and Xenomai.
+
+There are too many sideways introduced by the interrupt pipeline
+machinery into mainline's generic IRQ core and irqchip drivers which -
+in addition to lowering the odds of conflicts with mainline - do not
+follow the original logic, which in turn leads to restrictions and
+fragilities, among which:
+
+  - Several changes introduced in the interrupt flow handlers by the
+    I-pipe do not abide by the original locking scheme protecting the
+    IRQ descriptor logic. A direct consequence of this is that every
+    irqchip driver has to be fixed up / converted for reinstating some
+    serialization (e.g. hard spinlocks or interrupt disabling).
+
+  - In a multi-processor system, the I-pipe bypasses the original
+    serialization logic of device IRQs (i.e. IRQD_IRQ_INPROGRESS),
+    which guarantees that each event cause is handled by a single CPU
+    only. As a result of this shortcoming, those IRQs need to be
+    serialized by Xenomai via custom spinlocks when handling them in
+    real-time mode.
+
+  - The I-pipe cannot share a parent interrupt line between multiple
+    interrupt controllers, which is a problem for some devices we may
+    want to use in real-time mode (e.g. Intel pinctrl/GPIO).
+
+  - The EOI signal is not properly handled for specific interrupt
+    controllers (i.e. the IRQCHIP_EOI_IF_HANDLED flag is not honored).
+
+  - Lockdep is not available to most I-pipe ports, because interrupt
+    pipelining breaks the lock validator.
+
+  - Keeping mainline's IRQs off (f)tracing support requires invasive
+    changes in the assembly code, which is prone to merge conflicts
+    and regressions.
+
+  - The I-pipe provides its own function tracer based on the Ftrace
+    engine, but still duplicating some of its features while
+    restricting others.
+
+  - Context tracking is incompatible with the I-pipe
+    (CONFIG_CONTEXT_TRACKING) which forces it off.
+
+Generally speaking, the interrupt pipeline logic needs a complete
+overhaul for a better integration into the generic IRQ core, so that
+the former becomes a regular feature of the latter, instead of
+bypassing it in ugly ways in several occasions.
+
+The co-kernel interface can be improved too in several aspects, such
+as:
+
+   - providing a simpler way to hand over the timer hardware to the
+     co-kernel. The current ipipe_timer abstraction mostly works
+     sideways to mainline's clock chip one, which leads to code
+     duplication.
+
+   - exposing helpers accessing the standard kernel clock sources
+     directly to user-space via the vDSO mapping, instead of providing
+     mostly redundant shadow clock counters (aka ipipe_tsc). Exposing
+     nanoseconds to clock source users via clock_gettime() helpers in
+     the vDSO, instead of timer-specific clock ticks as read from
+     hardware registers/TSC, would pave the way for supporting varying
+     CPU frequencies in the co-kernel at some point (i.e. CPU_FREQ).
