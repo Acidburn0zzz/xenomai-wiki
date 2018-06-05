@@ -94,13 +94,6 @@ autoreconf: /usr/bin/autoconf failed with exit status: 1
 On Debian-based systems like Ubuntu, you need to install the
 libltdl-dev package for building Xenomai from sources.
 
-Can I mirror Xenomai git repositories ?
----------------------------------------
-
-Yes. However, we recommend using
-link://github.com/mricon/grokmirror[grokmirror]. For more details, see
-link:Grokmirror[the following page].
-
 I ran into a technical issue which is not covered here
 ------------------------------------------------------
 
