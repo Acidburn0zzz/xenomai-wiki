@@ -253,8 +253,8 @@ Discontinued CPU architecture support
 Nios II (up to kernel 2.6.35, Xenomai 2.6.x series)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Supported Boards
-^^^^^^^^^^^^^^^^
+Discontinued Nios II board support
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * *Altera*
 ** DE2
@@ -267,14 +267,17 @@ Supported Boards
 SH-4 (up to kernel 2.6.35, Xenomai 2.6.x series)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Discontinued SH-4 board support
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 * ST-Microelectronics
 ** STMicro MB442
 
 Blackfin (up to kernel 4.14, Xenomai 3.0.x series)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Supported Processors
-^^^^^^^^^^^^^^^^^^^^
+Discontinued Blackfin processors support
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * *Analog Devices*
 ** BF526
@@ -285,8 +288,8 @@ Supported Processors
 ** BF561
 ** BF609
 
-Supported Evaluation Boards
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Discontinued Blackfin board support
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * *Analog Devices*
 ** BF526 EZ-KIT
@@ -301,14 +304,14 @@ Supported Evaluation Boards
 PowerPC/64 (up to kernel 4.14, Xenomai 3.0.x series)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Supported Architectures
-^^^^^^^^^^^^^^^^^^^^^^^
+Discontinued ppc64 architecture support
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Xenomai was reported to work on platforms based on the following
-embedded PowerPC64 architectures: 86xx, pa6t.
+* 86xx
+* pa6t
 
-Supported Evaluation Boards
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Discontinued ppc64 board support
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * *Emerson*
 ** MPC8641D: MVME7100
