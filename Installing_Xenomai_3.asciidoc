@@ -310,6 +310,21 @@ $ make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- O=$build_root/linux \
 ------------------------------------------------------------------------------
 ...manually install the kernel image, system map and modules to the proper location
 
+[[cobalt-core-arm64]]
+Building  _Cobalt/arm64_ kernel
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Using Linaro toolchain with the prefix aarch64-linux-gnu- and compiling for the raspberry pi 3 board (cortex-a53), cross compiling is as follows:
+------------------------------------------------------------------------------
+$ cd $linux_tree
+$ $xenomai_root/scripts/prepare-kernel.sh --arch=arm64 \
+   --ipipe=ipipe-core-X.Y.Z-arm64-NN.patch
+$ mkdir -p $build_root/linux
+$ make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- O=$build_root/linux \
+  defconfig
+$ make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- O=$build_root/linux \
+  Image dtbs modules
+------------------------------------------------------------------------------
+For arm64 there is one general defconfig in mainline, you'll need to do any customize the defconfig as needed.  Once the build is finished manually install the kernel image, devicetree and modules to the proper location.
 
 [[mercury-core-install]]
 Installing the _Mercury_ core
@@ -869,6 +884,20 @@ of v7, or v4 instead of v5), if your toolchain does not support the
 target architecture, the only restriction being that if SMP is
 enabled, the architecture should not be less than v6.
 
+Building the ARM64 libraries
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ARM64 is only supported from the git repos on the next branch. 
+
+Using the Linaro toolchain with the prefix aarch64-linux-gnu- for the Raspberry Pi 3 board (cortex-a53), cross compililation from a x86_64 host would be as follows:
+
+------------------------------------------------------------------------------
+mkdir $build_root/xenomai && cd $build_root/xenomai
+../xenomai/configure CFLAGS="-mtune=cortex-a53" LDFLAGS="-mtune=cortex-a53" \
+--build=i686-pc-linux-gnu --host=aarch64-linux-gnu --with-core=cobalt \
+--enable-smp CC=aarch64-linux-gnu-gcc LD=aarch64-linux-gnu-ld
+$ make DESTDIR=$staging_dir install
+------------------------------------------------------------------------------
+Passing a value for the -mcpu flag will help generate optimized code for a pecific cpu type but it's not necessary. 
 
 Testing the installation
 ------------------------
