@@ -71,7 +71,7 @@ and hopefully a meaningful call stack:
 #include <unistd.h>
 #include <execinfo.h>
 
-static const char *sigdebug_reasons[] = {
+static const char *sigdebug_msg[] = {
 	[SIGDEBUG_UNDEFINED] = "latency: received SIGXCPU for unknown reason",
 	[SIGDEBUG_MIGRATE_SIGNAL] = "received signal",
 	[SIGDEBUG_MIGRATE_SYSCALL] = "invoked syscall",
@@ -86,27 +86,27 @@ static const char *sigdebug_reasons[] = {
 void sigdebug_handler(int sig, siginfo_t *si, void *context)
 {
 	const char fmt[] = "Mode switch (reason: %s), aborting. Backtrace:\n";
-	unsigned int reason = sigdebug_reason(si);
+	unsigned int cause = sigdebug_reason(si);
 	static char buffer[256];
 	static void *bt[200];
 	unsigned int n;
 
-	if (reason > SIGDEBUG_WATCHDOG)
-		reason = SIGDEBUG_UNDEFINED;
+	if (cause > SIGDEBUG_WATCHDOG)
+		cause = SIGDEBUG_UNDEFINED;
 
-	switch(reason) {
+	switch(cause) {
 	case SIGDEBUG_UNDEFINED:
 	case SIGDEBUG_NOMLOCK:
 	case SIGDEBUG_WATCHDOG:
 		/* These errors are lethal, something went really wrong. */
 		n = snprintf(buffer, sizeof(buffer),
-			     "%s\n", sigdebug_reasons[reason]);
+			     "%s\n", sigdebug_msg[cause]);
 		write(STDERR_FILENO, buffer, n);
 		exit(EXIT_FAILURE);
 	}
 
 	/* Retrieve the current backtrace, and decode it to stdout. */
-	n = snprintf(buffer, sizeof(buffer), fmt, sigdebug_reason[reason]);
+	n = snprintf(buffer, sizeof(buffer), fmt, sigdebug_msg[cause]);
 	n = write(STDERR_FILENO, buffer, n);
 	n = backtrace(bt, sizeof(bt)/sizeof(bt[0]));
 	backtrace_symbols_fd(bt, n, STDERR_FILENO);
@@ -122,7 +122,7 @@ this code from the thread to monitor for spurious relaxes:
 
 -------------------------------------------------------------------------------
     /* Ask Xenomai to warn us upon switches to secondary mode. */
-    pthread_set_mode_np(0, PTHREAD_WARNSW);
+    pthread_setmode_np(0, PTHREAD_WARNSW, NULL);
 -------------------------------------------------------------------------------
 
 Alternatively, an application based on the _native_ API would run this
