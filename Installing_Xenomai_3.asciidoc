@@ -897,7 +897,7 @@ mkdir $build_root/xenomai && cd $build_root/xenomai
 --enable-smp CC=aarch64-linux-gnu-gcc LD=aarch64-linux-gnu-ld
 $ make DESTDIR=$staging_dir install
 ------------------------------------------------------------------------------
-Passing a value for the -mcpu flag will help generate optimized code for a pecific cpu type but it's not necessary. 
+Passing a value for the -mcpu flag will help generate optimized code for a specific cpu type but it's not necessary. 
 
 Testing the installation
 ------------------------
