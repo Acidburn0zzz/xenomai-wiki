@@ -14,9 +14,10 @@ beginner into RTnet with Xenomai.  The following links gives more
 information regarding various aspects of the installation and
 programming of RTnet in the Xenomai environment.
 
-* link:Rtnet_Howto[Howto]
-* link:Rtnet_Installation[Installation instructions]
-* link:Rtnet_Programming[Programming]
+* link:RTnet_Basics[RTnet basics]
+* link:RTnet_Setup[RTnet installation]
+* link:RTnet_Conf[RTnet configuration file]
+* link:RTnet_Programming[RTnet programming]
 
 The code of the RTnet project is organized in a modular way. The usual
 big picture is a TDMA realtime fieldbus, but you can also use RTnet
@@ -62,7 +63,7 @@ needed to run RTnet. The sub folders in ** are discussed next.
 
 . etc: The two setup configuration files for RTnet are located in this
 folder.  +rtnet.conf+ and +tdma.conf+ settings are both discussed in
-this link:Rtnet_Configuration_File[document].
+this link:RTnet_Conf[document].
 
 . examples: The compiled RTnet examples are placed here.
 
