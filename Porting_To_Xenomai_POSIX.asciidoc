@@ -13,7 +13,7 @@ meet deadlines using Xenomai dual kernel POSIX interface.
 If you have questions, suggestions or other comments about this document,
 please send them to the mailto:xenomai@xenomai.org[xenomai mailing
 list]. It is a subscriber-only mailing list, so please subscribe
-link:/mailman/listinfo/xenomai/[here] before posting.
+https://xenomai.org/mailman/listinfo/xenomai/[here] before posting.
 
 [[overview]]
 Overview

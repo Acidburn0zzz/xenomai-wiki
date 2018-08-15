@@ -30,6 +30,6 @@ link:Getting_The_I_Pipe_Patch[I-pipe development trees].
 == Download areas
 
 We issue self-contained source code distributions of the Xenomai code
-base, both for the link:/downloads/xenomai/stable/latest/[latest
+base, both for the https://xenomai.org/downloads/xenomai/stable/latest/[latest
 stable release], and the
-link:/downloads/xenomai/testing/latest/[current testing release].
+https://xenomai.org/downloads/xenomai/testing/latest/[current testing release].

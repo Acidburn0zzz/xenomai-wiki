@@ -114,7 +114,7 @@ single kernel configuration.
        _Interrupt pipeline_ (aka _I-Pipe_) is described in details by
        this (outdated) link:Life_With_Adeos[document].  All I-pipe
        patches available for various kernel releases can be fetched
-       link:/downloads/ipipe/[at this site].
+       https://xenomai.org/downloads/ipipe/[at this site].
 
     ** For a single kernel configuration, the list of target
        architectures supporting the full preemption features (aka
@@ -214,7 +214,7 @@ dual kernel (I-pipe) configurations are commonly based over mainline
 kernels.
 
 - for a dual kernel configuration, an
-link:/downloads/ipipe/[_I-pipe_ patch] fitting your
+https://xenomai.org/downloads/ipipe/[_I-pipe_ patch] fitting your
 target kernel. If you don't find any patch that matches exactly but
 feel lucky, you may try applying a patch issued against a kernel only
 differing by its sublevel release number, e.g. from 3.10.22 to
@@ -241,8 +241,8 @@ http://git.xenomai.org/xenomai-3.git
 
 [NOTE]
 The Xenomai project issues a tarball for each official
-link:/downloads/xenomai/stable/[stable] or
-link:/downloads/xenomai/testing/[candidate] release.  However,
+https://xenomai.org/downloads/xenomai/stable/[stable] or
+https://xenomai.org/downloads/xenomai/testing/[candidate] release.  However,
 we recommend tracking our development and/or maintenance GIT trees, for
 getting the latest fixes.
 

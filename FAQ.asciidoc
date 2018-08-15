@@ -40,8 +40,8 @@ configuration, i.e. over the Cobalt core.
 Which I-pipe patch should I use with Xenomai version X on platform Y?
 ---------------------------------------------------------------------
 
-Check link:/downloads/ipipe/[there] for an I-pipe patch which best
-fits your kernel.
+Check https://xenomai.org/downloads/ipipe/[there] for an I-pipe patch
+which best fits your kernel.
 
 What is a Xenomai _skin_?
 -------------------------
@@ -97,5 +97,5 @@ libltdl-dev package for building Xenomai from sources.
 I ran into a technical issue which is not covered here
 ------------------------------------------------------
 
-Please have a look at the
-link:Knowledge_Base_Index[knowledge base].
+Please check this https://xenomai.org/pipermail/xenomai/[mailing list
+archive] for a similar issue.

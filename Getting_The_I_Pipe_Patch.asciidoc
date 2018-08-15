@@ -51,4 +51,5 @@ The I-pipe tree contains the following branches:
 We issue self-contained patches adding the pipeline support to a given
 mainline kernel version for a particular CPU architecture.
 
-You can fetch them from this link:/downloads/ipipe/[download area].
+You can fetch them from this
+https://xenomai.org/downloads/ipipe/[download area].

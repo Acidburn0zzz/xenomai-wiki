@@ -105,7 +105,7 @@ from a tar.bz2 archive
 Download and extract a Xenomai tar.bz2 release archive:
 
 -------------------------------------------------------------------------------
-$ wget -O - http://xenomai.org/downloads/xenomai/stable/xenomai-2.6.3.tar.bz2 | tar -jxf -
+$ wget -O - https://xenomai.org/downloads/xenomai/stable/xenomai-2.6.3.tar.bz2 | tar -jxf -
 -------------------------------------------------------------------------------
 
 Change to the extracted Xenomai tree:
@@ -196,20 +196,11 @@ Install the following packages:
 # apt-get install kernel-package libncurses-dev fakeroot zlib1g-dev
 -------------------------------------------------------------------------------
 
-The I-pipe patches contained in Xenomai sources can be found in the
-_/usr/src/xenomai-kernel-source/ksrc/arch/<your architecture>/patches_
-directory. Note that if you do not find a suitable patch, you may look
-for patches in the link:/downloads/ipipe/[I-pipe repository]. As a
-rule of thumb, the latest patches delivered with a version of Xenomai
-sources corresponds to the latest version of Linux supported by this
-version of Xenomai, but sometimes a more recent patch will work (as is
-the case for the I-pipe patch for Linux 3.10.32 with Xenomai 2.6.3).
-
-Look for an I-pipe patch that suits you, then download if from the
-Adeos download area, for example:
+You should look for patches in
+https://xenomai.org/downloads/ipipe/[this download area].
 
 -------------------------------------------------------------------------------
-$ wget http://xenomai.org/downloads/ipipe/v3.x/x86/older/ipipe-core-3.10.32-x86-2.patch
+$ wget https://xenomai.org/downloads/ipipe/v3.x/x86/older/ipipe-core-3.10.32-x86-2.patch
 -------------------------------------------------------------------------------
 
 Download the corresponding kernel source archive, extract it and

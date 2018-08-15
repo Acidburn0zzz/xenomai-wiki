@@ -72,7 +72,7 @@ $ scripts/prepare-kernel.sh [--linux=<linux-srctree>]
 
 `--ipipe`:: specifies the path of the interrupt pipeline (aka I-pipe)
     patch to apply against the kernel tree. Suitable patches are
-    available from the project's link:/downloads/ipipe/[download
+    available from the project's https://xenomai.org/downloads/ipipe/[download
     area].  This parameter can be omitted if the I-pipe has already
     been patched in, or the script shall suggest an appropriate
     one. The script will detect whether the interrupt pipeline code is
@@ -368,7 +368,7 @@ although this is not mandatory if building with `--disable-tls`.
   tree (git.xenomai.org), the autoconf (>= 2.62), automake and libtool
   packages must be available on your build system. This is not
   required when building from a source tree extracted from a
-  link:/downloads/xenomai/[release tarball].
+  https://xenomai.org/downloads/xenomai/[release tarball].
 
 _Cobalt_-specific requirements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -377,7 +377,7 @@ _Cobalt_-specific requirements
 
 - An interrupt pipeline (I-pipe) patch must be available for your
   target kernel. You can find the official patches issued by the
-  Xenomai project link:/downloads/ipipe/[there].
+  Xenomai project https://xenomai.org/downloads/ipipe/[there].
   Only patches from the *ipipe-core* series are appropriate, legacy
   patches from the *adeos-ipipe* series are not.
 
@@ -404,9 +404,10 @@ source tree:
 $ ./scripts/bootstrap
 ---------------------
 
-If building from a link:/downloads/xenomai/[release tarball], a set of
-autoconf-generated file will be readily available from the extracted
-source tree, and therefore reconfiguring will not be required.
+If building from a https://xenomai.org/downloads/xenomai/[release
+tarball], a set of autoconf-generated file will be readily available
+from the extracted source tree, and therefore reconfiguring will not
+be required.
 
 When run, the generated `configure` script prepares for building the
 libraries and programs, for both the _Cobalt_ and _Mercury_ cores. The

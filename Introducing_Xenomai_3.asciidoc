@@ -108,7 +108,7 @@ Main pointers
 
 For the impatient, here is a list of URLs to the main resources:
 
-- link:/downloads/xenomai/stable/latest[The latest Xenomai 3 release]
+- https://xenomai.org/downloads/xenomai/stable/latest[The latest Xenomai 3 release]
 - http://git.xenomai.org/xenomai-3.git/[The Xenomai 3 code repository]
 - link:Installing_Xenomai_3[How to install Xenomai 3]
 - link:Building_Applications_For_Xenomai_3[How to build applications]

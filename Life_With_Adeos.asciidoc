@@ -505,4 +505,4 @@ http://www.opersys.com/ftp/pub/Adeos/adeos.pdf[http://www.opersys.com/ftp/pub/Ad
 * Optimistic Interrupt Protection:
 http://citeseer.nj.nec.com/stodolsky93fast.html[http://citeseer.nj.nec.com/stodolsky93fast.html]
 * Where to download the latest Adeos/I-pipe patches:
-link:/downloads/ipipe/[link:/downloads/ipipe/]
+https://xenomai.org/downloads/ipipe/[https://xenomai.org/downloads/ipipe/]

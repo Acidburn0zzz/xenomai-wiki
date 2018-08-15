@@ -13,7 +13,7 @@ Xenomai dual kernel to run on this SoC.
 If you have questions, suggestions or other comments, please use the
 mailto:xenomai@xenomai.org[xenomai mailing list]. It is a
 subscriber-only mailing list, so please subscribe
-link:/mailman/listinfo/xenomai/[here] before posting.
+https://xenomai.org/mailman/listinfo/xenomai/[here] before posting.
 
 [[terminology]]
 Terminology

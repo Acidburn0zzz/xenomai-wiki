@@ -45,8 +45,9 @@ your choice.
 
 .Download I-PIPE
 
-Check the list of available link:/downloads/ipipe/[I-PIPE patches] for
-your kernel release.
+Check the list of available
+https://xenomai.org/downloads/ipipe/[I-PIPE patches] for your kernel
+release.
 
 Alternatively clone the ipipe tree and checkout the branch that you need.
 

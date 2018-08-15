@@ -30,9 +30,10 @@ Installation
 ------------
 
 The tracer is a built-in feature of the
-link:/downloads/ipipe/[I-pipe].  To enable tracing support, go the the
-"Kernel hacking" section of the kernel configuration and switch on
-"I-pipe debugging" and then "Latency tracing".
+https://xenomai.org/downloads/ipipe/[I-pipe].  To enable tracing
+support, go the the "Kernel hacking" section of the kernel
+configuration and switch on "I-pipe debugging" and then "Latency
+tracing".
 
 [[configuration]]
 Configuration
