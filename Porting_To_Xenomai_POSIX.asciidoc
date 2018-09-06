@@ -37,7 +37,7 @@ service or any Linux service (including exceptions such as page faults)
 while running in primary mode, it switches to secondary mode.
 
 This description of Xenomai is a bit sketchy, for more information, you
-should have a look at the [Life with Adeos](Life_With_Adeos) article.
+should have a look at the link:Life_With_Adeos[Life with Adeos] article.
 
 Your aim, when getting an application to meet its deadlines using
 Xenomai dual kernel, is to identify the "performance constrained" loop
@@ -386,7 +386,7 @@ you may want to surround it with a `#ifdef __XENO__`.
 
 This will detect run-time errors and cause a SIGXCPU signal to be sent
 to the thread, you will find more details on this method in
-the link:/finding-spurious-relaxes[Finding spurious relaxes] document.
+the link:finding-spurious-relaxes[Finding spurious relaxes] document.
 
 [[using---wrap]]
 Using --wrap
