@@ -386,7 +386,7 @@ you may want to surround it with a `#ifdef __XENO__`.
 
 This will detect run-time errors and cause a SIGXCPU signal to be sent
 to the thread, you will find more details on this method in
-the link:finding-spurious-relaxes[Finding spurious relaxes] document.
+the link:Finding_Spurious_Relaxes[Finding spurious relaxes] document.
 
 [[using---wrap]]
 Using --wrap
