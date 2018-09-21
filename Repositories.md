@@ -1,16 +1,3 @@
-:toc:
-:toc-placement!:
-
-[cols="7*a"]
-|===
-| image:images/xenomai-logo.png[Xenomai] |
-  link:Start_Here[*Start Here*] | link:Setting_Up[*Setting Up*] |
-  link:Programming[*Programming*] | link:Help[*Help!*] |
-  link:How_To_Contribute[*Contribute*] | link:SiteMap[*Sitemap*]
-|===
-
-toc::[]
-
 I-pipe repositories
 ===================
 
@@ -62,6 +49,8 @@ and the development resumes from this point.
 
 e.g.
 
+....................................................................
+
   linux-stable.git                             linux-stable.git
 +------------------+                         +------------------+
 |     v4.14.58     | ....................... |     v4.14.62     |
@@ -83,6 +72,7 @@ e.g.
                 |                  |
                 +------------------+
 
+....................................................................
 
 [NOTE]
 Since the NOARCH tree is missing the arch-specific I-pipe code, it is
@@ -117,6 +107,8 @@ the development resumes from this point.
 
 e.g.
 
+....................................................................
+
     ipipe-noarch.git                                  ipipe-noarch.git
 +-----------------------+                         +-----------------------+
 | stable/4.14.58-noarch | ....................... | stable/4.14.62-noarch |
@@ -137,6 +129,8 @@ e.g.
                |  ipipe-arm-4.14.58 | <--+
                |                    |
                +--------------------+
+
+....................................................................
 
 [NOTE]
 Stable branches from ipipe-arm might be updated with bug fixes on
