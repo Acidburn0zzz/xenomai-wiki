@@ -14,6 +14,7 @@
 * link:History[A short Xenomai history]
 * Contribute
 ** link:How_To_Contribute[How to contribute to Xenomai]
+** link:Repositories[Repositories and workflows]
 ** link:TODO[TODO list for volunteers]
 * Building Xenomai from sources
 ** link:Getting_The_Xenomai_Code[Getting the Xenomai sources]
