@@ -15,12 +15,12 @@ followed by their respective maintainer.
 NOARCH tree
 ------------
 
-Tree: https://gitlab.denx.de/Xenomai/ipipe-noarch[https://gitlab.denx.de/Xenomai/ipipe-noarch]
+Tree: https://gitlab.denx.de/Xenomai/ipipe-noarch[git://git.xenomai.org/ipipe-noarch]
 Maintainer: Philippe Gerum  <rpm@xenomai.org>
 
 Changes to the mainline kernel which may be common to several or all
 architectures for implementing the interrupt pipeline are maintained
-in this tree. This provides a common base which may be shared by all
+in this tree. This provides a common base which may be shared by allg
 I-pipe architecture ports.
 
 The NOARCH tree is based on stable releases from the mainline kernel
@@ -49,7 +49,8 @@ and the development resumes from this point.
 
 e.g.
 
-....................................................................
+----------------------------------------------------------------------
+
 
   linux-stable.git                             linux-stable.git
 +------------------+                         +------------------+
@@ -72,7 +73,8 @@ e.g.
                 |                  |
                 +------------------+
 
-....................................................................
+----------------------------------------------------------------------
+
 
 [NOTE]
 Since the NOARCH tree is missing the arch-specific I-pipe code, it is
@@ -82,7 +84,7 @@ although this tree should still compile cleanly as a regular kernel.
 ARM
 ---
 
-Tree: https://gitlab.denx.de/Xenomai/ipipe-arm[https://gitlab.denx.de/Xenomai/ipipe-arm]
+Tree: https://gitlab.denx.de/Xenomai/ipipe-arm[git://git.xenomai.org/ipipe-arm]
 Maintainer: Philippe Gerum  <rpm@xenomai.org>
 
 The I-pipe/ARM port is based on stable branches from the NOARCH tree.
@@ -107,7 +109,8 @@ the development resumes from this point.
 
 e.g.
 
-....................................................................
+----------------------------------------------------------------------
+
 
     ipipe-noarch.git                                  ipipe-noarch.git
 +-----------------------+                         +-----------------------+
@@ -130,7 +133,9 @@ e.g.
                |                    |
                +--------------------+
 
-....................................................................
+
+----------------------------------------------------------------------
+
 
 [NOTE]
 Stable branches from ipipe-arm might be updated with bug fixes on
