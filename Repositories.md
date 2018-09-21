@@ -15,7 +15,7 @@ followed by their respective maintainer.
 NOARCH tree
 ------------
 
-Tree: https://gitlab.denx.de/Xenomai/ipipe-noarch[git://git.xenomai.org/ipipe-noarch]
+Tree: https://gitlab.denx.de/Xenomai/ipipe-noarch/  
 Maintainer: Philippe Gerum  <rpm@xenomai.org>
 
 Changes to the mainline kernel which may be common to several or all
@@ -49,8 +49,7 @@ and the development resumes from this point.
 
 e.g.
 
-----------------------------------------------------------------------
-
+```
 
   linux-stable.git                             linux-stable.git
 +------------------+                         +------------------+
@@ -73,8 +72,7 @@ e.g.
                 |                  |
                 +------------------+
 
-----------------------------------------------------------------------
-
+```
 
 [NOTE]
 Since the NOARCH tree is missing the arch-specific I-pipe code, it is
@@ -84,7 +82,7 @@ although this tree should still compile cleanly as a regular kernel.
 ARM
 ---
 
-Tree: https://gitlab.denx.de/Xenomai/ipipe-arm[git://git.xenomai.org/ipipe-arm]
+Tree: https://gitlab.denx.de/Xenomai/ipipe-arm/  
 Maintainer: Philippe Gerum  <rpm@xenomai.org>
 
 The I-pipe/ARM port is based on stable branches from the NOARCH tree.
@@ -109,8 +107,7 @@ the development resumes from this point.
 
 e.g.
 
-----------------------------------------------------------------------
-
+```
 
     ipipe-noarch.git                                  ipipe-noarch.git
 +-----------------------+                         +-----------------------+
@@ -133,9 +130,7 @@ e.g.
                |                    |
                +--------------------+
 
-
-----------------------------------------------------------------------
-
+```
 
 [NOTE]
 Stable branches from ipipe-arm might be updated with bug fixes on
