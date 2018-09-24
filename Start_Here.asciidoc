@@ -269,6 +269,13 @@ Building Xenomai from sources
 - link:Installing_Xenomai_3[This document]
   contains instructions for building and installing Xenomai 3.x.
 
+Xenomai code repositories
+-------------------------
+
+- link:Repositories[This document] describes the Xenomai source code
+  repositories we maintain with GIT. This is where the interrupt
+  pipeline and the Cobalt co-kernel development takes place.
+
 If something goes wrong
 -----------------------
 
