@@ -9,13 +9,13 @@ each supported architecture in separate kernel trees.
 
 Each I-pipe port consists of a set of patches applied to a reference
 kernel. The following sections describe the purpose of the various
-https://gitlab.denx.de/Xenomai/[I-pipe GIT trees] and the workflow
-followed by their respective maintainer.
+https://git.xenomai.org/[I-pipe GIT trees] and the workflow followed
+by their respective maintainer.
 
 NOARCH tree
 ------------
 
-Tree: https://gitlab.denx.de/Xenomai/ipipe-noarch/ +
+Tree: https://git.xenomai.org/ipipe-noarch.git +
 Maintainer: Philippe Gerum  <rpm@xenomai.org>
 
 Changes to the mainline kernel which may be common to several or all
@@ -82,7 +82,7 @@ although this tree should still compile cleanly as a regular kernel.
 ARM
 ---
 
-Tree: https://gitlab.denx.de/Xenomai/ipipe-arm/ +
+Tree: https://git.xenomai.org/ipipe-arm.git +
 Maintainer: Philippe Gerum  <rpm@xenomai.org>
 
 The I-pipe/ARM port is based on stable branches from the NOARCH tree.
@@ -136,3 +136,42 @@ e.g.
 Stable branches from ipipe-arm might be updated with bug fixes on
 occasion for some kernel releases, but you should not assume this
 happens routinely for any release.
+
+Private trees
+-------------
+
+The following GIT trees are maintained by Xenomai contributors, mainly
+as staging trees for changes they have been working on. At some point,
+those changes are likely to be submitted upstream for integration into
+the I-pipe / Xenomai tree(s) proper.
+
+For this reason, those trees may contain bleeding edge material.
+
+ipipe-rpm
+~~~~~~~~~
+
+Tree: https://lab.xenomai.org/ipipe-rpm.git +
+Maintainer: Philippe Gerum  <rpm@xenomai.org>
+
+A tree hosting I-pipe ports to random kernel releases the maintainer
+may have been working on. This tree is commonly used as a staging tree
+for changes to be submitted upstream.
+
+[NOTE]
+This tree may contain ports to various CPU architectures but ARM. If
+you are looking for ARM ports specifically, you may want to check the
+https://git.xenomai.org/ipipe-arm.git[ipipe-arm] tree instead.
+
+xenomai-rpm
+~~~~~~~~~~~
+
+Tree: https://lab.xenomai.org/xenomai-rpm.git +
+Maintainer: Philippe Gerum  <rpm@xenomai.org>
+
+This tree is mainly used as a staging tree for changes to be submitted
+for integration into the https://git.xenomai.org/xenomai.git[upstream
+Xenomai repository] which it tracks, specifically from the
+_for-upstream/stable_ and _for-upstream/next_ branches.
+
+It may also contain bleeding edge or POC material in dedicated
+_wip/*_ branches.
