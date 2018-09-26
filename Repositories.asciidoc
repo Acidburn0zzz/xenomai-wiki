@@ -85,6 +85,8 @@ ARM
 Tree: https://git.xenomai.org/ipipe-arm.git +
 Maintainer: Philippe Gerum  <rpm@xenomai.org>
 
+This is the official I-pipe tree for the ARM architecture.
+
 The I-pipe/ARM port is based on stable branches from the NOARCH tree.
 It complements this code with the ARM-specific bits implementing the
 interrupt pipeline.  The development takes place in the _master_
@@ -136,6 +138,40 @@ e.g.
 Stable branches from ipipe-arm might be updated with bug fixes on
 occasion for some kernel releases, but you should not assume this
 happens routinely for any release.
+
+ARM64
+-----
+
+Tree: https://git.xenomai.org/ipipe-arm64.git +
+Maintainer: Dmitriy Cherkasov <dmitriy@oss-tech.org>
+
+This is the official I-pipe tree for the ARM64 architecture.
+
+x86
+---
+
+Tree: https://git.xenomai.org/ipipe-x86.git +
+Maintainers: Jan Kiszka <jan.kiszka@siemens.com> +
+             Henning Schild <henning.schild@siemens.com>
+
+This is the official I-pipe tree for the x86 architecture.
+
+PPC32
+-----
+
+Tree: https://git.xenomai.org/ipipe-ppc32.git +
+Maintainer: Steven Seeger <steven.seeger@nasa.gov>
+
+This is the official I-pipe tree for the ppc32 architecture.
+
+Legacy I-pipe tree
+------------------
+
+Tree: https://git.xenomai.org/ipipe.git
+
+This tree hosts the I-pipe support targeting multiple architectures
+for legacy kernel releases, up to v4.9 (included). This used to be the
+former development tree for the I-pipe.
 
 Private trees
 -------------
