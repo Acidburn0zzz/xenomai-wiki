@@ -45,7 +45,7 @@ getting the development environment set up, and building Xenomai.  If you are
 having issues getting your development environment setup or built, please review 
 the documents or consult the Xenomai mailing list.
 
-Next, check the current [contribution guide](https://gitlab.denx.de/Xenomai/xenomai/blob/master/CONTRIBUTING.md) in the code repository. It comes with the checklist and also explains what happens with a contribution after it was submitted to the list.
+Next, check the current https://gitlab.denx.de/Xenomai/xenomai/blob/master/CONTRIBUTING.md[contribution guide] in the code repository. It comes with the checklist and also explains what happens with a contribution after it was submitted to the list.
 
 As a guideline for what branch to work on, the master branch is for new
 core features, new CPU architecture ports or large scale changes. Only
