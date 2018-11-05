@@ -45,12 +45,14 @@ getting the development environment set up, and building Xenomai.  If you are
 having issues getting your development environment setup or built, please review 
 the documents or consult the Xenomai mailing list.
 
-As a guideline for what branch to work on, the next branch is for new
+Next, check the current [contribution guide](https://gitlab.denx.de/Xenomai/xenomai/blob/master/CONTRIBUTING.md) in the code repository. It comes with the checklist and also explains what happens with a contribution after it was submitted to the list.
+
+As a guideline for what branch to work on, the master branch is for new
 core features, new CPU architecture ports or large scale changes. Only
-bug fixes and possibly new drivers should be pushed to stable-*
+bug fixes and possibly new drivers should be pushed to stable/*
 branches. Any change that would prevent applications based on earlier
 releases from the same branch from running on later ones should not go
-into stable-* branches.  For example, an application built for the
+into stable/* branches.  For example, an application built for the
 3.0.2 release must build with no modifications on 3.0.6.
 
 Generally speaking, the kernel part of Xenomai (aka Cobalt core) aims
