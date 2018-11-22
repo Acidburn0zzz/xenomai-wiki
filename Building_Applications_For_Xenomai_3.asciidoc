@@ -4,7 +4,7 @@ Building applications for Xenomai 3.x
 Compiling a Xenomai 3 application
 ---------------------------------
 
-Please refer to link:Application_Setup_And_Init[this document] for
+Please refer to link:App_Setup_And_Init[this document] for
 detailed explanations on the build and setup processes of a Xenomai
 application.
 
