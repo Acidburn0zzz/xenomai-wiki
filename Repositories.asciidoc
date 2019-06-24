@@ -36,14 +36,12 @@ If you plan to contribute patches, please (re)base them on the tip of
 the _master_ branch before sending them to the
 mailto:xenomai@xenomai.org[Xenomai mailing list].
 
-When the _master_ branch is deemed stable, a new branch is created
-which branches off of the tip of _master_. Stable branches are named
-`stable/<upstream-release>-noarch` in the ipipe-noarch tree, named
-after the upstream stable release they are based on. Unlike the
-_master_ branch, a stable branch is never rebased.  The most recent
-stable branch(es) may be updated over time with bug fixes.
+When the _master_ branch is deemed stable, a new tag is created which
+branches off of the tip of _master_. Stable tags are named
+`stable/<upstream-release>-noarch` in the ipipe-noarch tree after the
+upstream stable release they are based on.
 
-Right after a stable branch is created in ipipe-noarch, the _master_
+Right after a stable tag is created in ipipe-noarch, the _master_
 branch is rebased on the next upstream release we are interested in,
 and the development resumes from this point.
 
@@ -64,7 +62,7 @@ e.g.
                 |    I-pipe bits   |    |
                 +------------------+    |
                                         |
-                  ipipe-noarch.git      | branch off
+                  ipipe-noarch.git      | tag
                (stable/4.14.58-noarch)  |
                 +------------------+    |
                 |                  |    |
@@ -87,25 +85,24 @@ Maintainer: Philippe Gerum  <rpm@xenomai.org>
 
 This is the official I-pipe tree for the ARM architecture.
 
-The I-pipe/ARM port is based on stable branches from the NOARCH tree.
-It complements this code with the ARM-specific bits implementing the
-interrupt pipeline.  The development takes place in the _master_
-branch of the ipipe-arm tree.
+The I-pipe/ARM port is based on the NOARCH tree.  It complements this
+code with the ARM-specific bits implementing the interrupt pipeline.
+The development takes place in the _master_ branch of the ipipe-arm
+tree.
 
 [CAUTION]
 If you plan to contribute patches, please (re)base them on the tip of
 the _master_ branch before sending them to the
 mailto:xenomai@xenomai.org[Xenomai mailing list].
 
-When the _master_ branch is deemed stable, a new branch is created
-which branches off of the tip of _master_. Stable branches are named
-`stable/<upstream-release>-arm` in the ipipe-arm tree, named after the
-upstream stable release they are based on. Unlike the _master_ branch,
-a stable branch is never rebased.
+When the _master_ branch is deemed stable, a new tag is created which
+branches off of the tip of _master_. Stable tags are named
+`stable/<upstream-release>-arm` in the ipipe-arm tree after the
+upstream stable release they are based on.
 
-Right after a stable branch is created in ipipe-arm, the _master_
-branch is rebased on the next NOARCH release we are interested in, and
-the development resumes from this point.
+Right after a stable tag is created in ipipe-arm, the _master_ branch
+is rebased on the next NOARCH release we are interested in, and the
+development resumes from this point.
 
 e.g.
 
@@ -124,7 +121,7 @@ e.g.
                 |  I-pipe/ARM bits |     |
                 +------------------+     |
                                          |
-                   ipipe-arm.git         | branch off
+                   ipipe-arm.git         | tag
                (stable/4.14.58-arm)      |
                +--------------------+    |
                |                    |    |
@@ -133,11 +130,6 @@ e.g.
                +--------------------+
 
 ----------------------------------------------------------------------
-
-[NOTE]
-Stable branches from ipipe-arm might be updated with bug fixes on
-occasion for some kernel releases, but you should not assume this
-happens routinely for any release.
 
 ARM64
 -----
