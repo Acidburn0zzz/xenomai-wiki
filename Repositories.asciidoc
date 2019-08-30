@@ -175,21 +175,6 @@ the I-pipe / Xenomai tree(s) proper.
 
 For this reason, those trees may contain bleeding edge material.
 
-ipipe-rpm
-~~~~~~~~~
-
-Tree: https://lab.xenomai.org/ipipe-rpm.git +
-Maintainer: Philippe Gerum  <rpm@xenomai.org>
-
-A tree hosting I-pipe ports to random kernel releases the maintainer
-may have been working on. This tree is commonly used as a staging tree
-for changes to be submitted upstream.
-
-[NOTE]
-This tree may contain ports to various CPU architectures but ARM. If
-you are looking for ARM ports specifically, you may want to check the
-https://git.xenomai.org/ipipe-arm.git[ipipe-arm] tree instead.
-
 xenomai-rpm
 ~~~~~~~~~~~
 
