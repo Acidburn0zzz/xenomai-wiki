@@ -18,10 +18,9 @@ There are several reasons for an application to be moved out of
 real-time mode automatically by the Xenomai co-kernel. This happens
 when the application is:
 
-- invoking a regular Linux syscall triggering a processor fault
-- receiving a Linux-originated signal (i.e. *not* a Xenomai-originated
-- one), possibly sent by the Xenomai kernel upon detecting a
-- consistency issue with the application
+- invoking a regular Linux syscall
+- triggering a processor fault
+- receiving a Linux-originated signal (i.e. *not* a Xenomai-originated one), possibly sent by the Xenomai kernel upon detecting a consistency issue with the application
 
 At any rate, we want to know *where* in the application code the
 signal was received, which will be a strong hint to find out *why* we
