@@ -50,18 +50,3 @@ I-pipe are available from:
 
 The legacy development tree (up to kernel 4.9) can be reached at
 https://xenomai.org/gitlab/ipipe[this URL].
-
-# EOL Xenomai releases
-
-These trees were hosting the development of legacy Xenomai
-releases. Their contents have been merged into the [current
-development tree](https://xenomai.org/gitlab/xenomai/) for version 3.x
-as _eol/v2.x.y_ branches, along with the legacy release tags.
-
-* **Xenomai 2.6**:  git://archive.xenomai.org/xenomai-2.6.git
-* **Xenomai 2.5**:  git://archive.xenomai.org/xenomai-2.5.git
-* **Xenomai 2.4**:  git://archive.xenomai.org/xenomai-2.4.git
-* **Xenomai 2.3**:  git://archive.xenomai.org/xenomai-2.3.git
-* **Xenomai 2.2**:  git://archive.xenomai.org/xenomai-2.2.git
-* **Xenomai 2.1**:  git://archive.xenomai.org/xenomai-2.1.git
-* **Xenomai 2.0**:  git://archive.xenomai.org/xenomai-2.0.git
