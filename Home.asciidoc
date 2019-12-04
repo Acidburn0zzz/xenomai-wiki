@@ -14,21 +14,21 @@ Xenomai is about making various real-time operating system APIs
 available to Linux-based platforms. When the target Linux kernel
 cannot meet the requirements with respect to response time
 constraints, Xenomai can also supplement it for delivering stringent
-real-time guarantees based on an original co-kernel technology.
+real-time guarantees based on an original dual kernel approach.
 
 ## Real-time system
 
-* **Git hosting**: [https://xenomai.org/gitlab/xenomai](https://xenomai.org/gitlab/xenomai)
-* **Clone**: [git://git.xenomai.org/xenomai.git](git://git.xenomai.org/xenomai.git)
+* **Git hosting**: https://xenomai.org/gitlab/xenomai[https://xenomai.org/gitlab/xenomai]
+* **Clone**: git://git.xenomai.org/xenomai.git[git://git.xenomai.org/xenomai.git]
 * **Maintenance branch**: stable/v3.0.x
 * **Development branch**: master
 * **Stable release**: v3.0.9
-[\[tarball\]](https://xenomai.org/downloads/xenomai/stable/xenomai-3.0.9.tar.bz2)
-[\[sig\]](https://xenomai.org/downloads/xenomai/stable/xenomai-3.0.9.tar.bz2.sig)
-[\[tag\]](https://xenomai.org/gitlab/xenomai/commit/120b1102)
+https://xenomai.org/downloads/xenomai/stable/xenomai-3.0.9.tar.bz2[\[tarball\]]
+https://xenomai.org/downloads/xenomai/stable/xenomai-3.0.9.tar.bz2.sig[\[sig\]]
+https://xenomai.org/gitlab/xenomai/commit/120b1102[\[tag\]]
 * **Documentation**: 
-[\[HTML\]](https://xenomai.org/documentation/xenomai-3/html/xeno3prm/)
-[\[PDF\]](https://xenomai.org/documentation/xenomai-3/pdf/)
+https://xenomai.org/documentation/xenomai-3/html/xeno3prm/[\[HTML\]]
+https://xenomai.org/documentation/xenomai-3/pdf/[\[PDF\]]
 
 ## Interrupt pipeline (I-pipe)
 
@@ -40,15 +40,15 @@ which cannot be delayed by the regular kernel work.
 </div>
 
 Released patches can be downloaded from:
-[https://xenomai.org/downloads/ipipe](https://xenomai.org/downloads/ipipe/).
+https://xenomai.org/downloads/ipipe[https://xenomai.org/downloads/ipipe].
 
 The current development trees (starting from kernel 4.14) for the
 I-pipe are available from:
 
-* **ARM**:  [https://xenomai.org/gitlab/ipipe-arm](https://xenomai.org/gitlab/ipipe-arm)
-* **ARM64**: [https://xenomai.org/gitlab/ipipe-arm64](https://xenomai.org/gitlab/ipipe-arm64)
-* **PPC32**: [https://xenomai.org/gitlab/ipipe-ppc32](https://xenomai.org/gitlab/ipipe-ppc32)
-* **x86**: [https://xenomai.org/gitlab/ipipe-x86](https://xenomai.org/gitlab/ipipe-x86)
+* **ARM**:  https://xenomai.org/gitlab/ipipe-arm[https://xenomai.org/gitlab/ipipe-arm]
+* **ARM64**: https://xenomai.org/gitlab/ipipe-arm64[https://xenomai.org/gitlab/ipipe-arm64]
+* **PPC32**: https://xenomai.org/gitlab/ipipe-ppc32[https://xenomai.org/gitlab/ipipe-ppc32]
+* **x86**: https://xenomai.org/gitlab/ipipe-x86[https://xenomai.org/gitlab/ipipe-x86]
 
-The legacy development tree (up to kernel 4.9) can be reached at [this
-URL.](https://xenomai.org/gitlab/ipipe)
+The legacy development tree (up to kernel 4.9) can be reached at
+https://xenomai.org/gitlab/ipipe[this URL].
