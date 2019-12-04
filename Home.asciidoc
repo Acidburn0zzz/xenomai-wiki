@@ -36,7 +36,6 @@ The Cobalt real-time core depends on a patch to the mainline Linux
 kernel, which introduces a separate, high-priority execution stage for
 running out-of-band interrupt handlers immediately upon IRQ receipt,
 which cannot be delayed by the regular kernel work.
-</div>
 
 Released patches can be downloaded from:
 https://xenomai.org/downloads/ipipe[https://xenomai.org/downloads/ipipe].
