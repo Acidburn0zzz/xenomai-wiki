@@ -36,7 +36,7 @@ If you plan to contribute patches, please (re)base them on the tip of
 the _ipipe/master_ branch before sending them to the
 mailto:xenomai@xenomai.org[Xenomai mailing list].
 
-When the _ipipe/master_ branch is deemed stable, a new tag is created which
+When the _ipipe/master_ branch is deemed stable, 
 branches off of the tip of _ipipe/master_. Stable tags are named
 `stable/<upstream-release>-noarch` in the ipipe-noarch tree after the
 upstream stable release they are based on.
