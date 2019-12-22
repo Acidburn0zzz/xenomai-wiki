@@ -33,3 +33,5 @@ in October 2005.
 Since then, Xenomai has been actively maintained and ported to various
 CPU architectures, for a user base mainly involved in the industrial
 automation industry.
+
+Xenomai is currently maintained by Jan Kiszka <jan.kiszka@siemens.com>.
