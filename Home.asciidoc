@@ -22,14 +22,10 @@ real-time guarantees based on an original dual kernel approach.
 * **Clone**: git://git.xenomai.org/xenomai.git
 * **Maintenance branch**: stable/v3.0.x
 * **Development branch**: master
-* **Stable release**: v3.0.10
-https://xenomai.org/downloads/xenomai/stable/xenomai-3.0.10.tar.bz2[[tarball]]
-https://xenomai.org/downloads/xenomai/stable/xenomai-3.0.10.tar.bz2.sig[[sig]]
-https://xenomai.org/gitlab/xenomai/commit/120b1102[[tag]]
-* **Release candidate**: v3.1-rc4
-https://xenomai.org/downloads/xenomai/testing/xenomai-3.1-rc4.tar.bz2[[tarball]]
-https://xenomai.org/downloads/xenomai/testing/xenomai-3.1-rc4.tar.bz2.sig[[sig]]
-https://xenomai.org/gitlab/xenomai/commit/0cc363fc[[tag]]
+* **Stable release**: v3.1
+https://xenomai.org/downloads/xenomai/stable/xenomai-3.1.tar.bz2[[tarball]]
+https://xenomai.org/downloads/xenomai/stable/xenomai-3.1.tar.bz2.sig[[sig]]
+https://xenomai.org/gitlab/xenomai/commit/5714ceede70c[[tag]]
 * **Documentation**: 
 https://xenomai.org/documentation/xenomai-3/html/xeno3prm/index.html[[HTML]]
 https://xenomai.org/documentation/xenomai-3/pdf/[[PDF]]
