@@ -3,15 +3,30 @@
 |===
 | image:images/xenomai-logo.png[Xenomai] | link:Start_Here[*Start Here*] | link:Setting_Up[*Setting Up*] | link:Programming[*Programming*] | link:Help[*Help!*] | link:How_To_Contribute[*Contribute*] | link:SiteMap[*Sitemap*] | link:Archive[*Archive*] |
 |===
-Xenomai is a Free Software project in which engineers from a wide
-background collaborate to build a versatile real-time framework for
-the Linux(C) platform.
 
-We are heading to the next generation Xenomai 4, while preserving the
+Xenomai is a Free Software project in which engineers from a wide
+background collaborate to build a robust and resource-efficient
+real-time core for Linux(C) following the dual kernel approach, for
+applications with stringent latency requirements.
+
+* The current stable release is Xenomai **3.1**.
+
+* Work is ongoing towards release **3.2**, including Y2038 readiness
+  and a transition to a modern interrupt pipeline implementation
+  called https://evlproject.org/dovetail/[Dovetail] which substitutes
+  for the I-pipe, in order to support kernel 5.10 and beyond.
+
+---
+We are also paving the way to Xenomai 4, which is going to be based on
+the next generation real-time core developed by the
+https://evlproject.org/[EVL project], with the intent to preserve the
 user investment in Xenomai 3.x. To this end, the specification process
 of a link:Common_Xenomai_Platform[Common Xenomai Platform] has
-started, which shall define a set of common features and interfaces
-all Xenomai releases starting from 3.3 would share.
+started. By this process, we define a set of common features and
+interfaces future Xenomai releases will share, starting from
+Xenomai **3.3**.
+
+---
 
 ## Real-time core
 
