@@ -7,14 +7,11 @@ Xenomai is a Free Software project in which engineers from a wide
 background collaborate to build a versatile real-time framework for
 the Linux(C) platform.
 
-The main project goal is to help migrating industrial applications
-from proprietary real-time systems to Linux.
-
-Xenomai is about making various real-time operating system APIs
-available to Linux-based platforms. When the target Linux kernel
-cannot meet the requirements with respect to response time
-constraints, Xenomai can also supplement it for delivering stringent
-real-time guarantees based on an original dual kernel approach.
+We are heading to the next generation Xenomai 4, while preserving the
+user investment in Xenomai 3.x. To this end, the specification process
+of a link:Common_Xenomai_Platform[Common Xenomai Platform] has
+started, which shall define a set of common features and interfaces
+all Xenomai releases starting from 3.3 would share.
 
 ## Real-time core
 
