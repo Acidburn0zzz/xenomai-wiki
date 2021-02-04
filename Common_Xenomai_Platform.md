@@ -110,3 +110,41 @@ providing additional programming interfaces as they see fit.
 
 Working on the CXP starts on December 1, 2021. March 31, 2021 is our
 deadline for completing the specification process.
+
+# CXP Specifications
+
+## Common user API
+
+A common API available to applications is required for issuing
+requests to the real-time core. Specifying such interface does not
+preclude other APIs from co-existing in particular releases. However,
+use of this common API only guarantees portability across Xenomai
+releases starting from 3.3.
+
+The POSIX services available from _libcobalt_ in Xenomai 3.1 form the
+common API defined by the CXP. As a consequence, Xenomai 4 will
+provide two direct interfaces to the underlying EVL core: via the
+libevl API [1] which is readily available, and its own implementation
+of _libcobalt_ as part of a CXP compliance.
+
+```
+                  Applications
+      ......................................
+      libalchemy            libevl libcobalt
+           |                  |      |
+           |                  |      |
+      libcopperplate          |      |
+           |                  |      |
+           |                  |      |
+       libcobalt              |      |
+           |                  |      |
+           v                  v      v
+     (Cobalt core)           (EVL core)
+      -----------            ---------
+      Xenomai 3.x            Xenomai 4
+```
+
+
+[1] https://evlproject.org/core/user-api/
+
+
