@@ -74,6 +74,7 @@
 |     Timer management      | Present in CXP | EVL transposition   |
 | :-- |  :-- |:-- |
 | rtdm_timer_init() | Yes | evl_init_timer() |
+| rtdm_timer_init_on_cpu() | Yes | evl_init_timer_on_cpu() |
 | rtdm_timer_destroy() | Yes | evl_destroy_timer() |
 | rtdm_timer_start() | Yes | evl_start_timer() |
 | rtdm_timer_stop() | Yes | evl_stop_timer() |
@@ -83,6 +84,7 @@
 |     Task management      | Present in CXP | EVL transposition   |
 | :-- |  :-- |:-- |
 | rtdm_task_init() | Yes | evl_run_kthread() |
+| rtdm_task_init_on_cpu() | Yes | evl_run_kthread_on_cpu() |
 | rtdm_task_destroy() | Yes | evl_stop_kthread() |
 | rtdm_task_join() | Yes | evl_join_kthread() |
 | rtdm_task_busy_sleep() | Yes | evl_run_kthread() |
